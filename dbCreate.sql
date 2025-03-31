@@ -54,12 +54,20 @@ CREATE TABLE IF NOT EXISTS Profesor (
     FOREIGN KEY (rut_empleado) REFERENCES Empleado(rut_empleado)
 );
 
+-- GRADO
+CREATE TABLE IF NOT EXISTS Grado (
+    id_grado SERIAL PRIMARY KEY,
+    nombre_grado VARCHAR(50) NOT NULL UNIQUE
+);
+
 -- CURSO
 CREATE TABLE IF NOT EXISTS Curso (
     id_curso SERIAL PRIMARY KEY,
     anio INT NOT NULL CHECK (anio > 1900 AND anio < 2100),
+    id_grado INT NOT NULL,
     id_profesor_jefe INT,
     id_colegio INT NOT NULL,
+    FOREIGN KEY (id_grado) REFERENCES Grado(id_grado),
     FOREIGN KEY (id_profesor_jefe) REFERENCES Profesor(id_profesor),
     FOREIGN KEY (id_colegio) REFERENCES Colegio(id_colegio)
 );
@@ -90,6 +98,7 @@ CREATE TABLE IF NOT EXISTS Alumno (
     rut_alumno VARCHAR(15) PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     dir_casa VARCHAR(100),
+    rut_apoderado VARCHAR(15) NOT NULL,
     id_comuna INT NOT NULL,
     id_colegio INT NOT NULL,
     FOREIGN KEY (id_comuna) REFERENCES Comuna(id_comuna),
