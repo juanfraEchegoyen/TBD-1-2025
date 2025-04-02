@@ -1,5 +1,38 @@
 -- 1. Lista de profesores con su sueldo, indicando si son o no profesores jefe y los alumnos de su jefatura, si corresponde. 
+SELECT 
+    e.nombre AS nombre_empleado,
+    e.rut_empleado,
+    e.sueldo,
+    pc.flg_profesor_jefe,
+    a.nombre AS nombre_alumno,
+    a.rut_alumno
+FROM Empleado e
+JOIN Profesor p ON e.rut_empleado = p.rut_empleado
+JOIN ProfCurso pc ON p.id_profesor = pc.id_profesor
+JOIN Curso c ON pc.id_curso = c.id_curso
+JOIN AluCurso ac ON c.id_curso = ac.id_curso
+JOIN Alumno a ON ac.rut_alumno = a.rut_alumno
+WHERE LOWER(e.rol) LIKE '%prof%'
+ORDER BY 
+    pc.flg_profesor_jefe DESC,
+    e.nombre;
+
 -- 2. Lista de alumnos por curso con más inasistencias por mes en el año 2019. 
+SELECT
+    c.id_curso,
+    TO_CHAR(a.fecha, 'Month') AS mes_nombre,
+    EXTRACT(MONTH FROM a.fecha) AS mes,
+    al.rut_alumno,
+    al.nombre AS nombre_alumno,
+    COUNT(*) AS total_inasistencias
+FROM Asistencia a
+JOIN AluCurso ac ON a.id_alumnoCurso = ac.id_alumnoCurso
+JOIN Alumno al ON ac.rut_alumno = al.rut_alumno
+JOIN Curso c ON ac.id_curso = c.id_curso
+WHERE a.flg_presente = FALSE
+  AND EXTRACT(YEAR FROM a.fecha) = 2019
+GROUP BY c.id_curso, mes, mes_nombre, al.rut_alumno, al.nombre
+ORDER BY total_inasistencias DESC;
 
 -- 3. Lista de empleados identificando su rol, sueldo y comuna de residencia. Debe estar ordenada por comuna y sueldo. 
 SELECT 
