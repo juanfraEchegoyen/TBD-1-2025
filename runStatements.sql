@@ -90,9 +90,26 @@ WHERE
 ORDER BY 
     rank.anio;
 
--- 5. Identificar por curso a los alumnos que no han faltado nunca. 
+-- 5. Identificar por curso a los alumnos que no han faltado nunca.
+
+SELECT EXTRACT(YEAR FROM a.fecha) AS "Año", g.nombre_grado AS "Grado", al.nombre AS "Estudiante"
+FROM Asistencia a
+JOIN AluCurso ac ON a.id_alumnoCurso = ac.id_alumnoCurso
+JOIN Alumno al ON ac.rut_alumno = al.rut_alumno
+JOIN Curso c ON ac.id_curso = c.id_curso
+JOIN Grado g ON c.id_grado = g.id_grado
+GROUP BY "Año", g.nombre_grado, al.nombre, al.rut_alumno
+HAVING SUM(CASE WHEN a.flg_presente = FALSE THEN 1 ELSE 0 END) = 0
+ORDER BY "Año", "Grado", "Estudiante";
 -- 6. Profesor con más horas de clases y mostrar su sueldo. 
 
+SELECT e.nombre AS "Profesor", 
+       p.horas_clase AS "Horas de Clase", 
+       e.sueldo AS "Sueldo"
+FROM Profesor p
+JOIN Empleado e ON p.rut_empleado = e.rut_empleado
+ORDER BY p.horas_clase DESC
+LIMIT 1;
 -- 7. Profesor con menos horas de clases y mostrar su sueldo. 
 SELECT nombre, sueldo
 FROM Empleado
