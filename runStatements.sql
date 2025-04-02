@@ -1,7 +1,62 @@
 -- 1. Lista de profesores con su sueldo, indicando si son o no profesores jefe y los alumnos de su jefatura, si corresponde. 
 -- 2. Lista de alumnos por curso con más inasistencias por mes en el año 2019. 
+
 -- 3. Lista de empleados identificando su rol, sueldo y comuna de residencia. Debe estar ordenada por comuna y sueldo. 
+SELECT 
+    e.nombre AS nombre_empleado,
+    e.rol, e.sueldo, co.nombre AS nombre_comuna
+FROM Empleado e
+JOIN Comuna co ON e.id_comuna = co.id_comuna
+ORDER BY
+    co.nombre ASC,
+    e.sueldo ASC;
+
 -- 4. Curso con menos alumnos por año. 
+
+-- alumnos por curso: id_curso/anio/numero_alumnos
+WITH ConteoAlumnosPorCurso AS (
+    SELECT 
+        c.id_curso,
+        c.anio,
+        COUNT(ac.rut_alumno) AS numero_alumnos
+    FROM 
+        Curso c
+    LEFT JOIN -- por si hay un curso sin alumnos se cuenta como 0
+        AluCurso ac ON c.id_curso = ac.id_curso
+    GROUP BY 
+        c.id_curso, c.anio 
+),
+-- ranking por año: toma id_curso/anio/numero_alumno y crea un ranking con 1 como el "mejor" del ranking
+RankingCursosPorAño AS (
+    SELECT
+        id_curso,
+        anio,
+        numero_alumnos,
+        RANK() OVER (PARTITION BY anio ORDER BY numero_alumnos ASC) as ranking_num_alumnos
+    FROM
+        ConteoAlumnosPorCurso
+)
+
+-- del ranking por curso se une la tabla grado la tabla curso y colegio 
+SELECT 
+    rank.anio,
+    rank.id_curso,
+    g.nombre_grado,
+    col.nombre AS nombre_colegio,
+    rank.numero_alumnos
+FROM 
+    RankingCursosPorAño rank
+JOIN 
+    Curso c ON rank.id_curso = c.id_curso
+JOIN 
+    Grado g ON c.id_grado = g.id_grado
+JOIN
+    Colegio col ON c.id_colegio = col.id_colegio
+WHERE
+    rank.ranking_num_alumnos = 1
+ORDER BY 
+    rank.anio;
+
 -- 5. Identificar por curso a los alumnos que no han faltado nunca. 
 -- 6. Profesor con más horas de clases y mostrar su sueldo. 
 
