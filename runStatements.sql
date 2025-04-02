@@ -84,5 +84,23 @@ JOIN Alumno AS al ON ac.rut_alumno = al.rut_alumno
 JOIN Apoderado AS ap ON al.rut_apoderado = ap.rut_apoderado
 WHERE ap.es_padre = TRUE;
 
--- 9. Colegio con mayor promedio de asistencia el año 2019, identificando la comuna.
+--9. Colegio con mayor promedio de asistencia el año 2019, identificando la comuna. 
+
+select  col.nombre as Colegio, com.nombre as Comuna, AVG(CASE WHEN a.flg_presente THEN 1 ELSE -1 END) AS Promedio_Asistencia
+from asistencia AS a Join alucurso as ac on a.id_alumnocurso = ac.id_alumnocurso
+join alumno as al on ac.rut_alumno = al.rut_alumno
+join colegio as col on al.id_colegio = col.id_colegio
+join comuna as com on col.id_comuna = com.id_comuna
+Where EXTRACT (YEAR FROM fecha) = 2019 
+group by colegio,Comuna
+order by Promedio_Asistencia DESC
+LIMIT 1;
+
 -- 10. Lista de colegios con mayor número de alumnos por año.
+
+SELECT col.nombre as Colegio, count(*) as Alumnos, c.anio as año
+FROM CURSO as C join alucurso as ac on ac.id_curso = c.id_curso
+join alumno as al on ac.rut_alumno = al.rut_alumno
+join colegio as col on al.id_colegio = col.id_colegio
+group by año,colegio
+ORDER BY Alumnos DESC;
