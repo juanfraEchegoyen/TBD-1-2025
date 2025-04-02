@@ -4,7 +4,12 @@ INSERT INTO Comuna (nombre) VALUES
 ('Neo-Tokyo'),
 ('Konoha'),
 ('Ciudad Mob'),
-('Shohoku');
+('Shohoku'),
+('Ciudad Z'),
+('Nerima'),
+('Shinjuku'),
+('Akihabara'),
+('Saitama');
 
 -- Poblar Colegio
 INSERT INTO Colegio (nombre, direccion, id_comuna) VALUES
@@ -30,7 +35,14 @@ INSERT INTO Empleado (rut_empleado, nombre, rol, sueldo, dir_casa, id_comuna, id
 ('22334455-6', 'Tengen Uzui', 'Profesor', 890000, 'Tokyo Metropolitano', 2, 2),
 ('33445566-7', 'Silvers Rayleigh', 'Profesor', 930000, 'Barrio Secreto', 3, 3),
 ('44556677-8', 'Isaac Netero', 'Profesor', 910000, 'Centro Urbano', 4, 4),
-('55667788-9', 'Rimuru Tempest', 'Profesor', 880000, 'Shohoku', 5, 5);
+('55667788-9', 'Rimuru Tempest', 'Profesor', 880000, 'Shohoku', 5, 5),
+('67890123-0', 'Kento Nanami', 'Inspector', 700000, 'Tokyo 800', 9, 2),
+('78901234-0', 'Yakuza Tatsu', 'Inspector', 750000, 'Tokyo 900', 6, 2),
+('89012345-0', 'Shinji Ikari', 'Asistente', 600000, 'Neo-Tokyo 101', 10, 2),
+('90123456-0', 'Levi Ackerman', 'Inspector', 800000, 'Distrito Shiganshina', 7, 1),
+('11223344-0', 'Hange Zoe', 'Auxiliar Médico', 650000, 'Saitama', 10, 5),
+('22334455-0', 'Roronoa Zoro', 'Portero', 500000, 'Nerima', 7, 3),
+('33445566-0', 'Trafalgar Law', 'Médico', 950000, 'Shinjuku', 8, 2);
 
 -- Poblar Profesor
 INSERT INTO Profesor (horas_clase, rut_empleado) VALUES
@@ -54,7 +66,16 @@ INSERT INTO Profesor (horas_clase, rut_empleado) VALUES
 INSERT INTO Grado (nombre_grado) VALUES 
 ('Primer Año'),
 ('Segundo Año'),
-('Tercer Año');
+('Tercer Año'),
+('Cuarto Básico'),
+('Quinto Básico'),
+('Sexto Básico'),
+('Séptimo Básico'),
+('Octavo Básico')
+('Primero Medio'),
+('Segundo Medio'),
+('Tercero Medio'),
+('Cuarto Medio');
 
 -- Poblar Curso
 INSERT INTO Curso (anio, id_grado, id_profesor_jefe, id_colegio) VALUES
@@ -111,7 +132,7 @@ INSERT INTO Apoderado (rut_apoderado, nombre, dir_casa, telefono, es_padre, id_c
 ('34567890-3', 'Fujimoto', 'Barrio Secreto', '555-3333', FALSE, 3),
 ('45678901-4', 'Kyojuro Rengoku', 'Tokyo Metropolitano', '555-4444', FALSE, 2),
 ('56789012-5', 'Soun Tendo', 'Shohoku', '555-5555', TRUE, 5),
-('67890123-6', 'Bisco Hatori', 'Neo-Tokyo', '555-6666', FALSE,2);
+('67890123-0', 'Bisco Hatori', 'Neo-Tokyo', '555-6666', FALSE,2);
 
 -- Poblar Alumno
 INSERT INTO Alumno (rut_alumno, nombre, dir_casa, rut_apoderado, id_comuna, id_colegio) VALUES
@@ -126,7 +147,11 @@ INSERT INTO Alumno (rut_alumno, nombre, dir_casa, rut_apoderado, id_comuna, id_c
 ('99999999-9', 'Denji', 'Barrio Secreto', '34567890-3', 3, 3),
 ('10101010-1', 'Tanjiro Kamado', 'Tokyo Metropolitano', '45678901-4', 2, 2),
 ('12121212-2', 'Ranma Saotome', 'Shohoku', '56789012-5', 5, 5),
-('13131313-3', 'Tengen Toppa', 'Neo-Tokyo', '67890123-6', 2, 2);
+('13131313-3', 'Tengen Toppa', 'Neo-Tokyo', '67890123-6', 2, 2),
+('14141414-4', 'Usumaki Himawari', 'Konoha', '89012345-6', 3, 3),
+('15151515-5', 'Akira Sendoh', 'Shohoo', '41234567-8', 5, 1),
+('16161616-6', 'Hanamichi Sakuragi', 'Shohoo', '41234567-8', 5, 1),
+('17171717-7', 'Usumaki Boruto', 'Konoha', '89012345-6', 3, 3);
 
 -- Poblar AluCurso (1 alumno por curso, total de 18 cursos)
 INSERT INTO AluCurso (id_curso, rut_alumno) VALUES
@@ -147,7 +172,11 @@ INSERT INTO AluCurso (id_curso, rut_alumno) VALUES
 (15, '33333333-3'),
 (16, '44444444-4'),
 (17, '55555555-5'),
-(18, '13131313-3');
+(18, '13131313-3'),
+(19, '14141414-4'),
+(20, '15151515-5'),
+(21, '16161616-6'),
+(22, '17171717-7');
 
 
 -- Poblar Asistencia
@@ -165,6 +194,9 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2019-01-15', TRUE, 13), ('2019-01-15', FALSE, 14), ('2019-01-15', TRUE, 15), ('2019-01-15', TRUE, 16), ('2019-01-15', FALSE, 17), ('2019-01-15', TRUE, 18),
 ('2019-02-10', TRUE, 13), ('2019-02-10', FALSE, 14), ('2019-02-10', TRUE, 15), ('2019-02-10', TRUE, 16), ('2019-02-10', FALSE, 17), ('2019-02-10', TRUE, 18),
 ('2019-03-05', TRUE, 13), ('2019-03-05', FALSE, 14), ('2019-03-05', TRUE, 15), ('2019-03-05', TRUE, 16), ('2019-03-05', FALSE, 17), ('2019-03-05', TRUE, 18),
+('2019-01-15', FALSE, 19), ('2019-01-15', FALSE, 20), ('2019-01-15', FALSE, 21), ('2019-01-15', TRUE, 22),
+('2019-02-10', TRUE, 19), ('2019-02-10', FALSE, 20), ('2019-02-10', TRUE, 21), ('2019-02-10', TRUE, 22),
+('2019-03-05', FALSE, 19), ('2019-03-05', FALSE, 20), ('2019-03-05', FALSE, 21), ('2019-03-05', FALSE, 22),
 
 -- Año 2020
 ('2020-01-10', TRUE, 1), ('2020-01-10', TRUE, 2), ('2020-01-10', FALSE, 3), ('2020-01-10', TRUE, 4), ('2020-01-10', FALSE, 5), ('2020-01-10', TRUE, 6),
@@ -175,6 +207,9 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2020-06-20', TRUE, 7), ('2020-06-20', TRUE, 8), ('2020-06-20', FALSE, 9), ('2020-06-20', TRUE, 10), ('2020-06-20', FALSE, 11), ('2020-06-20', TRUE, 12),
 ('2020-04-10', TRUE, 13), ('2020-04-10', TRUE, 14), ('2020-04-10', FALSE, 15), ('2020-04-10', TRUE, 16), ('2020-04-10', FALSE, 17), ('2020-04-10', TRUE, 18),
 ('2020-06-20', TRUE, 13), ('2020-06-20', TRUE, 14), ('2020-06-20', FALSE, 15), ('2020-06-20', TRUE, 16), ('2020-06-20', FALSE, 17), ('2020-06-20', TRUE, 18),
+('2020-04-10', FALSE, 19), ('2020-04-10', FALSE, 20), ('2020-04-10', FALSE, 21), ('2020-04-10', FALSE, 22),
+('2020-06-20', TRUE, 19), ('2020-06-20', TRUE, 20), ('2020-06-20', FALSE, 21), ('2020-06-20', TRUE, 22),
+
 
 -- Año 2021
 ('2021-01-05', FALSE, 1), ('2021-01-05', TRUE, 2), ('2021-01-05', TRUE, 3), ('2021-01-05', FALSE, 4), ('2021-01-05', TRUE, 5), ('2021-01-05', TRUE, 6),
@@ -186,6 +221,8 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2021-07-14', TRUE, 7), ('2021-07-14', TRUE, 8), ('2021-07-14', FALSE, 9), ('2021-07-14', TRUE, 10), ('2021-07-14', FALSE, 11), ('2021-07-14', TRUE, 12),
 ('2021-01-05', FALSE, 13), ('2021-01-05', TRUE, 14), ('2021-01-05', TRUE, 15), ('2021-01-05', FALSE, 16), ('2021-01-05', TRUE, 17), ('2021-01-05', TRUE, 18),
 ('2021-07-14', TRUE, 13), ('2021-07-14', TRUE, 14), ('2021-07-14', FALSE, 15), ('2021-07-14', TRUE, 16), ('2021-07-14', FALSE, 17), ('2021-07-14', TRUE, 18),
+('2021-01-05', FALSE, 19), ('2021-01-05', TRUE, 20), ('2021-01-05', TRUE, 21), ('2021-01-05', FALSE, 22),
+('2021-07-14', TRUE, 19), ('2021-07-14', TRUE, 20), ('2021-07-14', FALSE, 21), ('2021-07-14', TRUE, 22),
 
 -- Año 2022
 ('2022-01-07', TRUE, 1), ('2022-01-07', TRUE, 2), ('2022-01-07', FALSE, 3), ('2022-01-07', TRUE, 4), ('2022-01-07', FALSE, 5), ('2022-01-07', TRUE, 6),
@@ -197,6 +234,8 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2022-08-22', TRUE, 7), ('2022-08-22', TRUE, 8), ('2022-08-22', FALSE, 9), ('2022-08-22', TRUE, 10), ('2022-08-22', FALSE, 11), ('2022-08-22', TRUE, 12),
 ('2022-03-17', TRUE, 13), ('2022-03-17', TRUE, 14), ('2022-03-17', FALSE, 15), ('2022-03-17', TRUE, 16), ('2022-03-17', FALSE, 17), ('2022-03-17', TRUE, 18),
 ('2022-08-22', TRUE, 13), ('2022-08-22', TRUE, 14), ('2022-08-22', FALSE, 15), ('2022-08-22', TRUE, 16), ('2022-08-22', FALSE, 17), ('2022-08-22', TRUE, 18),
+('2022-03-17', TRUE, 19), ('2022-03-17', FALSE, 20), ('2022-03-17', FALSE, 21), ('2022-03-17', TRUE, 22), 
+('2022-08-22', FALSE, 19), ('2022-08-22', TRUE, 20), ('2022-08-22', FALSE, 21), ('2022-08-22', FALSE, 22),
 
 -- Año 2023
 ('2023-01-12', FALSE, 1), ('2023-01-12', TRUE, 2), ('2023-01-12', TRUE, 3), ('2023-01-12', FALSE, 4), ('2023-01-12', TRUE, 5), ('2023-01-12', TRUE, 6),
@@ -207,7 +246,10 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2023-05-09', TRUE, 7), ('2023-05-09', FALSE, 8), ('2023-05-09', TRUE, 9), ('2023-05-09', TRUE, 10), ('2023-05-09', FALSE, 11), ('2023-05-09', TRUE, 12),
 ('2023-09-15', TRUE, 7), ('2023-09-15', TRUE, 8), ('2023-09-15', FALSE, 9), ('2023-09-15', TRUE, 10), ('2023-09-15', FALSE, 11), ('2023-09-15', TRUE, 12),
 ('2023-05-09', TRUE, 13), ('2023-05-09', FALSE, 14), ('2023-05-09', TRUE, 15), ('2023-05-09', TRUE, 16), ('2023-05-09', FALSE, 17), ('2023-05-09', TRUE, 18),
-('2023-09-15', TRUE, 13), ('2023-09-15', TRUE, 14), ('2023-09-15', FALSE, 15), ('2023-09-15', TRUE, 16), ('2023-09-15', FALSE, 17), ('2023-09-15', TRUE, 18),
+('2023-09-15', FALSE, 13), ('2023-09-15', TRUE, 14), ('2023-09-15', FALSE, 15), ('2023-09-15', TRUE, 16), ('2023-09-15', FALSE, 17), ('2023-09-15', TRUE, 18),
+('2023-05-09', FALSE, 19), ('2023-05-09', FALSE, 20), ('2023-05-09', TRUE, 21), ('2023-05-09', TRUE, 22),
+('2023-09-15', TRUE, 19), ('2023-09-15', TRUE, 20), ('2023-09-15', FALSE, 21), ('2023-09-15', TRUE, 22),
+
 
 -- Año 2024
 ('2024-01-03', TRUE, 1), ('2024-01-03', TRUE, 2), ('2024-01-03', FALSE, 3), ('2024-01-03', TRUE, 4), ('2024-01-03', TRUE, 5), ('2024-01-03', FALSE, 6),
@@ -219,6 +261,8 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2024-07-14', TRUE, 7), ('2024-07-14', TRUE, 8), ('2024-07-14', FALSE, 9), ('2024-07-14', TRUE, 10), ('2024-07-14', TRUE, 11), ('2024-07-14', FALSE, 12),
 ('2024-04-01', TRUE, 13), ('2024-04-01', TRUE, 14), ('2024-04-01', FALSE, 15), ('2024-04-01', TRUE, 16), ('2024-04-01', TRUE, 17), ('2024-04-01', FALSE, 18),
 ('2024-07-14', TRUE, 13), ('2024-07-14', TRUE, 14), ('2024-07-14', FALSE, 15), ('2024-07-14', TRUE, 16), ('2024-07-14', TRUE, 17), ('2024-07-14', FALSE, 18),
+('2024-04-01', TRUE, 19), ('2024-04-01', TRUE, 20), ('2024-04-01', FALSE, 21), ('2024-04-01', TRUE, 22),
+('2024-07-14', FALSE, 19), ('2024-07-14', FALSE, 20), ('2024-07-14', FALSE, 21), ('2024-07-14', TRUE, 22),
 
 -- Año 2025
 ('2025-01-19', TRUE, 1), ('2025-01-19', TRUE, 2), ('2025-01-19', FALSE, 3), ('2025-01-19', TRUE, 4), ('2025-01-19', FALSE, 5), ('2025-01-19', TRUE, 6),
@@ -232,4 +276,6 @@ INSERT INTO Asistencia (fecha, flg_presente, id_alumnoCurso) VALUES
 ('2025-11-15', FALSE, 7), ('2025-11-15', TRUE, 8), ('2025-11-15', TRUE, 9), ('2025-11-15', FALSE, 10), ('2025-11-15', TRUE, 11), ('2025-11-15', TRUE, 12),
 ('2025-02-20', TRUE, 13), ('2025-02-20', TRUE, 14), ('2025-02-20', FALSE, 15), ('2025-02-20', TRUE, 16), ('2025-02-20', FALSE, 17), ('2025-02-20', TRUE, 18),
 ('2025-06-10', TRUE, 13), ('2025-06-10', TRUE, 14), ('2025-06-10', FALSE, 15), ('2025-06-10', TRUE, 16), ('2025-06-10', FALSE, 17), ('2025-06-10', TRUE, 18),
-('2025-11-15', FALSE, 13), ('2025-11-15', TRUE, 14), ('2025-11-15', TRUE, 15), ('2025-11-15', FALSE, 16), ('2025-11-15', TRUE, 17), ('2025-11-15', TRUE, 18);
+('2025-11-15', FALSE, 13), ('2025-11-15', TRUE, 14), ('2025-11-15', TRUE, 15), ('2025-11-15', FALSE, 16), ('2025-11-15', TRUE, 17), ('2025-11-15', TRUE, 18),
+('2025-06-10', TRUE, 19), ('2025-06-10', TRUE, 20), ('2025-06-10', FALSE, 21), ('2025-06-10', FALSE, 22),
+('2025-11-15', FALSE, 19), ('2025-11-15', TRUE, 20), ('2025-11-15', TRUE, 21), ('2025-11-15', FALSE, 22);
