@@ -134,7 +134,7 @@ JOIN Curso AS c ON ac.id_curso = c.id_curso
 JOIN Grado AS g ON c.id_grado = g.id_grado
 JOIN Alumno AS al ON ac.rut_alumno = al.rut_alumno
 JOIN Apoderado AS ap ON al.rut_apoderado = ap.rut_apoderado
-WHERE ap.es_padre = TRUE;
+WHERE ap.es_padre = FALSE;
 
 --9. Colegio con mayor promedio de asistencia el año 2019, identificando la comuna. 
 
