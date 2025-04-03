@@ -9,13 +9,15 @@ SELECT
 FROM Empleado e
 JOIN Profesor p ON e.rut_empleado = p.rut_empleado
 JOIN ProfCurso pc ON p.id_profesor = pc.id_profesor
-JOIN Curso c ON pc.id_curso = c.id_curso
-JOIN AluCurso ac ON c.id_curso = ac.id_curso
-JOIN Alumno a ON ac.rut_alumno = a.rut_alumno
+LEFT JOIN Curso c ON pc.id_curso = c.id_curso AND pc.flg_profesor_jefe = true
+LEFT JOIN AluCurso ac ON c.id_curso = ac.id_curso
+LEFT JOIN Alumno a ON ac.rut_alumno = a.rut_alumno
 WHERE LOWER(e.rol) LIKE '%prof%'
 ORDER BY 
     pc.flg_profesor_jefe DESC,
     e.nombre;
+
+
 
 -- 2. Lista de alumnos por curso con más inasistencias por mes en el año 2019. 
 SELECT
