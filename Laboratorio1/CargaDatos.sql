@@ -1,5 +1,5 @@
 -- Clientes
-INSERT INTO Cliente VALUES 
+INSERT INTO Cliente (rut_cliente, nombre, direccion, comuna, telefono) VALUES 
 ('11111111-1', 'Ana López', '912345678', 'Calle 1', 'Santiago'),
 ('22222222-2', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia'),
 ('33333333-3', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú'),
@@ -12,7 +12,7 @@ INSERT INTO Cliente VALUES
 ('10101010-0', 'Karen Herrera', '912345687', 'Calle 10', 'Puente Alto');
 
 -- Empresas asociadas
-INSERT INTO EmpresaAsociada VALUES 
+INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES 
 ('80000000-1', 'Comidas Express'),
 ('80000000-2', 'Farmacia Popular'),
 ('80000000-3', 'Librería Central'),
@@ -43,7 +43,7 @@ INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock) 
 ('Café molido', 4500, 'Bebida', 'Bebestible', 30);
 
 -- Repartidores
-INSERT INTO Repartidor VALUES 
+INSERT INTO Repartidor (rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES 
 ('12121212-1', 'Luis Soto', '913000001', 4, 50),
 ('13131313-2', 'María Díaz', '913000002', 5, 60),
 ('14141414-3', 'Pedro Ramírez', '913000003', 3, 45),
