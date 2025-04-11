@@ -1,5 +1,5 @@
 -- Clientes
-INSERT INTO Cliente (rut_cliente, nombre, direccion, comuna, telefono) VALUES 
+INSERT INTO Cliente (rut_cliente, nombre_cliente, telefono, direccion, comuna) VALUES 
 ('11111111-1', 'Ana López', '912345678', 'Calle 1', 'Santiago'),
 ('22222222-2', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia'),
 ('33333333-3', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú'),
