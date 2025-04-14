@@ -13,6 +13,7 @@ import java.util.Date;
 public class DetallePedido {
     private Long idDetalle;
     private Double precioTotal;
+    private Integer tiempoEntrega;
     private Date fechaEntrega;
     private int cantidad;
 

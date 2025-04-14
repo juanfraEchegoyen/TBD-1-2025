@@ -11,6 +11,7 @@ public class Pedido {
     private Long idPedido;
     private String estadoEntrega;
     private String prioridadPedido;
+    private boolean problemaCritico;
 
     // FK
     private String rutCliente;

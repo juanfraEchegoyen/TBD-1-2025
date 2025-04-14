@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Puntuacion {
     private Long idPuntuacion;
-    private int puntaje;
+    private Double puntaje;
     private String comentario;
 
     // FK
