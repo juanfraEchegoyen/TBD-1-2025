@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DetallePedidoRepository {
-    DetallePedido save(DetallePedido detallePedido); // Devuelve con ID
-    Optional<DetallePedido> findById(Long id); // PK es ID (Long)
+    DetallePedido save(DetallePedido detallePedido);
+    Optional<DetallePedido> findById(Long id);
     List<DetallePedido> findAll();
     int update(DetallePedido detallePedido);
-    int deleteById(Long id); // PK es ID (Long)
-
-    // Muy útil: buscar detalles por ID de pedido
+    int deleteById(Long id);
     List<DetallePedido> findByPedidoId(Long idPedido);
+    int deleteByPedidoId(Long pedidoId);
+
 }

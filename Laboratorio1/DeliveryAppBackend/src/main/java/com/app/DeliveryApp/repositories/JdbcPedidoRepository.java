@@ -1,16 +1,18 @@
 package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.Pedido; // Asegúrate que el import sea correcto
+import com.app.DeliveryApp.models.Pedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+// Quitar importaciones de KeyHolder si ya no se usan en otros métodos
+// import org.springframework.jdbc.support.GeneratedKeyHolder;
+// import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+// Quitar importaciones innecesarias
+// import java.sql.PreparedStatement;
+// import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +21,8 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private static final String INSERT_PEDIDO_SQL =
-            "INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_PEDIDO_SQL_RETURNING_ID =
+            "INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES (?, ?, ?, ?, ?, ?) RETURNING id_pedido";
     private static final String SELECT_PEDIDO_BY_ID_SQL =
             "SELECT id_pedido, estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor FROM Pedido WHERE id_pedido = ?";
     private static final String SELECT_ALL_PEDIDOS_SQL =
@@ -45,34 +46,37 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
     @Override
     public Pedido save(Pedido pedido) {
-        if (pedido == null || pedido.getRutRepartidor() == null) {
-            throw new IllegalArgumentException("El RUT del repartidor es obligatorio para crear un pedido.");
+        try {
+            Long generatedId = jdbcTemplate.queryForObject(
+                    INSERT_PEDIDO_SQL_RETURNING_ID,
+                    new Object[]{
+                            pedido.getEstadoEntrega(),
+                            pedido.getPrioridadPedido(),
+                            pedido.isProblemaCritico(),
+                            pedido.getRutCliente(),
+                            pedido.getRutEmpresa(),
+                            pedido.getRutRepartidor()
+                    },
+                    Long.class
+            );
+
+            if (generatedId != null) {
+                pedido.setIdPedido(generatedId);
+            } else {
+                System.err.println("error queryForObject con returning devolvio null");
+                throw new RuntimeException("No se pudo obtener el id generado para pedido");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al guardar pedido y obtener el id con returning: " + e.getMessage());
+            throw new RuntimeException("Error en la BD al guardar el pedido", e);
         }
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(INSERT_PEDIDO_SQL, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, pedido.getEstadoEntrega());
-            ps.setString(2, pedido.getPrioridadPedido());
-
-            ps.setBoolean(3, pedido.isProblemaCritico());
-
-            ps.setString(4, pedido.getRutCliente());
-            ps.setString(5, pedido.getRutEmpresa());
-            ps.setString(6, pedido.getRutRepartidor());
-            return ps;
-        }, keyHolder);
-
-        if (keyHolder.getKey() != null) {
-            pedido.setIdPedido(keyHolder.getKey().longValue());
-        } else {
-            System.err.println("Advertencia: No se pudo obtener el ID generado para el pedido.");
-        }
         return pedido;
     }
 
     @Override
     public Optional<Pedido> findById(Long id) {
+        if (id == null) return Optional.empty();
         try {
             Pedido pedido = jdbcTemplate.queryForObject(SELECT_PEDIDO_BY_ID_SQL, new Object[]{id}, pedidoRowMapper);
             return Optional.of(pedido);
@@ -88,20 +92,13 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
     @Override
     public int update(Pedido pedido) {
-        // Validaciones
         if (pedido == null || pedido.getIdPedido() == null) {
             throw new IllegalArgumentException("Pedido o Id pedido no pueden ser nulos para el update");
         }
-        if (pedido.getRutRepartidor() == null) { // Según DDL
-            throw new IllegalArgumentException("RUT repartidor obligatorio para actualizar un pedido");
-        }
-
         return jdbcTemplate.update(UPDATE_PEDIDO_SQL,
                 pedido.getEstadoEntrega(),
                 pedido.getPrioridadPedido(),
-
                 pedido.isProblemaCritico(),
-
                 pedido.getRutCliente(),
                 pedido.getRutEmpresa(),
                 pedido.getRutRepartidor(),
@@ -113,8 +110,6 @@ public class JdbcPedidoRepository implements PedidoRepository {
         if (id == null) {
             throw new IllegalArgumentException("ID pedido no puede ser nulo para eliminar");
         }
-
-        // TO DO: estrategia ON DELETE CASCADE en BD para borrar detalles desde servicio
         return jdbcTemplate.update(DELETE_PEDIDO_BY_ID_SQL, id);
     }
 }
