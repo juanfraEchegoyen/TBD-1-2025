@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/repartidores")
+@CrossOrigin(origins="http://localhost:3000")
 public class RepartidorController {
 
     private final RepartidorService repartidorService;

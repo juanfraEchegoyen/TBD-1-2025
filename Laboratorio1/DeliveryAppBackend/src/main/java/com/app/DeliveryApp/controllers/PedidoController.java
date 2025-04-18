@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
+@CrossOrigin(origins="http://localhost:3000")
 public class PedidoController {
 
     private final PedidoService pedidoService;
