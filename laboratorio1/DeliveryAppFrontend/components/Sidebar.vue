@@ -2,6 +2,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useRoute } from 'vue-router'
+import { menuOptions } from '@/utils/const'
 
 const route = useRoute()
 const options = ref(menuOptions)
@@ -25,7 +26,6 @@ const handleMouseEnter = async (index, event) => {
     const viewportHeight = window.innerHeight
     const spaceBelow = viewportHeight - rect.bottom
     const spaceAbove = rect.top
-    const spaceRight = window.innerWidth - rect.right
 
     let top, bottom, left, maxHeight
 
@@ -68,7 +68,6 @@ const toggleExpanded = () => {
 
 onMounted(() => {
   document.title = 'Altiro Delivery'
-
   const expanded = localStorage.getItem('expanded')
   isExpanded.value = expanded === 'true'
 })
@@ -79,7 +78,6 @@ onMounted(() => {
     class="relative top-0 left-0 h-screen max-h-screen shadow-lg transition-all duration-300 overflow-y-auto bg-primary"
     :class="isExpanded ? 'w-64' : 'w-20'">
 
-    
     <nuxt-link to="/" class="px-1 py-3 block">
       <img :src="'/assets/imgs/altiro-logo.png'"
         alt="Logo"
@@ -93,8 +91,8 @@ onMounted(() => {
 
     <hr class="border-t border-white/30 my-2 mx-4" />
 
-    <!-- Opciones del menú -->
-    <div class="flex flex-col space-y-1 px-2 mb-2">
+    <!-- Opciones del menú principal -->
+   <div class="flex flex-col space-y-1 px-2 mb-2">
       <div v-for="(option, index) in options" :key="option.title" class="relative"
         @mouseenter="(event) => handleMouseEnter(index, event)" @mouseleave="handleMouseLeave">
 
@@ -112,7 +110,6 @@ onMounted(() => {
           </span>
         </nuxt-link>
 
-        <!-- Submenú (ahora con posición FIXED) -->
         <div v-if="option.submenu && option.submenu.length" v-show="hoveredOption === index" ref="submenuRef"
           class="fixed bg-white text-black rounded-lg shadow-lg transition-opacity duration-200 z-50 overflow-y-auto"
           :style="{
@@ -139,14 +136,23 @@ onMounted(() => {
 
     <hr class="border-t border-white/30 my-2 mx-4 mt-auto" />
 
-    <!-- Cerrar sesión -->
+    <nuxt-link to="/login"
+      class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-2 hover:bg-white"
+      :class="isExpanded ? 'justify-start' : 'justify-center'">
+      <Icon icon="bx:bxs-user" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
+      <span v-if="isExpanded"
+        class="ml-3 text-white group-hover:text-primary font-medium text-xl transition-colors duration-200">
+        Login
+      </span>
+    </nuxt-link>
+
     <nuxt-link to="/logout"
       class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-4 hover:bg-white"
       :class="isExpanded ? 'justify-start' : 'justify-center'">
       <Icon icon="bx:bx-log-out" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
       <span v-if="isExpanded"
         class="ml-3 text-white group-hover:text-primary font-medium text-xl transition-colors duration-200">
-        Cerrar sesión
+        Logout
       </span>
     </nuxt-link>
   </nav>
