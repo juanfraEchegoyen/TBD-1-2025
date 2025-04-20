@@ -2,39 +2,31 @@ export const menuOptions = [
   {
     title: 'Inicio',
     icon: 'bx:bxs-home',
-    link: '/home',
+    link: '/',
     active: false,
     isDoble: false,
     submenu: []
   },
   {
-    title: 'Clientes',
-    icon: 'bx:bxs-user-account',
-    link: '/clientes',
+    title: 'Resumen por Cliente',
+    icon: 'bx:bxs-user-detail',
+    link: '/resumen-clientes',
     active: false,
     isDoble: false,
     submenu: []
   },
   {
-    title: 'Pedidos',
-    icon: 'bx:bxs-cart',
-    link: '/pedidos',
-    active: false,
-    isDoble: false,
-    submenu: []
-  },
-  {
-    title: 'Repartidores',
+    title: 'Desempeño Repartidor',
     icon: 'bx:bxs-truck',
-    link: '/repartidores',
+    link: '/desempeno-repartidor',
     active: false,
     isDoble: false,
     submenu: []
   },
   {
-    title: 'Configuración',
-    icon: 'bx:bxs-cog',
-    link: '/configuracion',
+    title: 'Empresas con Mayor Volumen',
+    icon: 'bx:bxs-building-house',
+    link: '/empresas-volumen',
     active: false,
     isDoble: false,
     submenu: []
