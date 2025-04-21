@@ -6,10 +6,10 @@ import java.util.Optional;
 
 public interface MedioPagoRepository {
     MedioPago save(MedioPago medioPago);
-    Optional<MedioPago> findById(Long id); // PK es ID (Long)
+    Optional<MedioPago> findById(Long id); 
     List<MedioPago> findAll();
     int update(MedioPago medioPago);
-    int deleteById(Long id); // PK es ID (Long)
+    int deleteById(Long id); 
 
     List<MedioPago> findByRutCliente(String rutCliente);
 }

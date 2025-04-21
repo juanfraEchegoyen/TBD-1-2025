@@ -2,7 +2,7 @@ package com.app.DeliveryApp.services;
 
 import com.app.DeliveryApp.models.MedioPago;
 import com.app.DeliveryApp.repositories.MedioPagoRepository;
-import com.app.DeliveryApp.repositories.ClienteRepository; // Para validar cliente
+import com.app.DeliveryApp.repositories.ClienteRepository; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
 public class MedioPagoServiceImpl implements MedioPagoService {
 
     private final MedioPagoRepository medioPagoRepository;
-    private final ClienteRepository clienteRepository; // Inyectar para validación
+    private final ClienteRepository clienteRepository; 
 
     @Autowired
     public MedioPagoServiceImpl(MedioPagoRepository medioPagoRepository, ClienteRepository clienteRepository) {
@@ -42,8 +42,6 @@ public class MedioPagoServiceImpl implements MedioPagoService {
 
     @Override
     public List<MedioPago> obtenerMediosPagoPorCliente(String rutCliente) {
-        // Opcional: Validar que el cliente exista primero
-        // if(clienteRepository.findByRut(rutCliente).isEmpty()){ ... }
         return medioPagoRepository.findByRutCliente(rutCliente);
     }
 
@@ -52,7 +50,6 @@ public class MedioPagoServiceImpl implements MedioPagoService {
         Optional<MedioPago> medioPagoExistenteOpt = medioPagoRepository.findById(id);
 
         if (medioPagoExistenteOpt.isPresent()) {
-            // Validar que el nuevo cliente exista si se cambia
             if (!medioPagoExistenteOpt.get().getRutCliente().equals(medioPagoActualizado.getRutCliente()) &&
                     clienteRepository.findByRut(medioPagoActualizado.getRutCliente()).isEmpty()) {
                 throw new IllegalArgumentException("Nuevo Cliente con RUT " + medioPagoActualizado.getRutCliente() + " no existe.");

@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-// Quitar KeyHolder si ya no se usa
-// import org.springframework.jdbc.support.GeneratedKeyHolder;
-// import org.springframework.jdbc.support.KeyHolder;
+
 import org.springframework.stereotype.Repository;
 
-import java.sql.*; // Mantenido por Types.* aunque no se use en save ahora
+import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 

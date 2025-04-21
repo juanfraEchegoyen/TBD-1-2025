@@ -5,14 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-// Quitar importaciones de KeyHolder si ya no se usan en otros métodos
-// import org.springframework.jdbc.support.GeneratedKeyHolder;
-// import org.springframework.jdbc.support.KeyHolder;
+
 import org.springframework.stereotype.Repository;
 
-// Quitar importaciones innecesarias
-// import java.sql.PreparedStatement;
-// import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 

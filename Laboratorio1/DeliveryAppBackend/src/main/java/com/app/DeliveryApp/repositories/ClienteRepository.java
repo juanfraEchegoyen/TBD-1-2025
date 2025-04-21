@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface ClienteRepository {
     Cliente save(Cliente cliente);
-    Optional<Cliente> findByRut(String rut); // Buscar por RUT (PK)
+    Optional<Cliente> findByRut(String rut); 
     List<Cliente> findAll();
     int update(Cliente cliente);
-    int deleteByRut(String rut); // Eliminar por RUT (PK)
+    int deleteByRut(String rut);
 }

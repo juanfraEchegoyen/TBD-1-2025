@@ -1,6 +1,6 @@
 package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.Producto; // Importa tu modelo Producto
+import com.app.DeliveryApp.models.Producto; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

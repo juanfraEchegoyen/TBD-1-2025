@@ -1,6 +1,6 @@
-package com.app.DeliveryApp.repositories; // Asegúrate que este sea tu paquete correcto
+package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.Producto; // Asegúrate que la ruta a tu modelo Producto sea correcta
+import com.app.DeliveryApp.models.Producto;
 import java.util.List;
 import java.util.Optional;
 

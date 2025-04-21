@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface RepartidorRepository {
     Repartidor save(Repartidor repartidor);
-    Optional<Repartidor> findByRut(String rut); // PK es RUT
+    Optional<Repartidor> findByRut(String rut); 
     List<Repartidor> findAll();
     int update(Repartidor repartidor);
-    int deleteByRut(String rut); // PK es RUT
+    int deleteByRut(String rut);
 }
