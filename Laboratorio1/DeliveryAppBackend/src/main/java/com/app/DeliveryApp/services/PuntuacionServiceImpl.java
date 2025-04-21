@@ -2,8 +2,7 @@ package com.app.DeliveryApp.services;
 
 import com.app.DeliveryApp.models.Puntuacion;
 import com.app.DeliveryApp.repositories.PuntuacionRepository;
-import com.app.DeliveryApp.repositories.RepartidorRepository; // Para validar repartidor
-// Podría necesitar RepartidorService si la lógica de actualizar promedio es compleja
+import com.app.DeliveryApp.repositories.RepartidorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,7 @@ import java.util.Optional;
 public class PuntuacionServiceImpl implements PuntuacionService {
 
     private final PuntuacionRepository puntuacionRepository;
-    private final RepartidorRepository repartidorRepository; // Para validar
+    private final RepartidorRepository repartidorRepository;
 
     @Autowired
     public PuntuacionServiceImpl(PuntuacionRepository puntuacionRepository, RepartidorRepository repartidorRepository) {
@@ -24,9 +23,8 @@ public class PuntuacionServiceImpl implements PuntuacionService {
     }
 
     @Override
-    @Transactional // Si se actualiza el promedio del repartidor
+    @Transactional
     public Puntuacion crearPuntuacion(Puntuacion puntuacion) {
-        // Validar que el repartidor exista
         if(repartidorRepository.findByRut(puntuacion.getRutRepartidor()).isEmpty()){
             throw new IllegalArgumentException("El repartidor con RUT " + puntuacion.getRutRepartidor() + " no existe");
         }

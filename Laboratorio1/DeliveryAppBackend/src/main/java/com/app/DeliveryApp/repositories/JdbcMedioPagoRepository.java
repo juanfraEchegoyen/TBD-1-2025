@@ -19,8 +19,6 @@ public class JdbcMedioPagoRepository implements MedioPagoRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    // SQL usando nombres exactos de tabla/columna del DDL
     private static final String INSERT_MEDIOPAGO_SQL =
             "INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente) VALUES (?, ?)";
     private static final String SELECT_MEDIOPAGO_BY_ID_SQL =
@@ -30,7 +28,7 @@ public class JdbcMedioPagoRepository implements MedioPagoRepository {
     private static final String UPDATE_MEDIOPAGO_SQL =
             "UPDATE MedioDePago SET nombre_mediodepago = ?, rut_cliente = ? WHERE id_mediodepago = ?";
     private static final String DELETE_MEDIOPAGO_BY_ID_SQL =
-            "DELETE FROM MedioDePago WHERE id_mediodepago = ?"; // Tabla: MedioDePago
+            "DELETE FROM MedioDePago WHERE id_mediodepago = ?";
     private static final String SELECT_MEDIOSPAGO_BY_CLIENTE_RUT_SQL =
             "SELECT id_mediodepago, nombre_mediodepago, rut_cliente FROM MedioDePago WHERE rut_cliente = ?";
 

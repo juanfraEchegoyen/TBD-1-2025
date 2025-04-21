@@ -13,4 +13,5 @@ public class MedioPago {
 
     // FK
     private String rutCliente;
+    private Long idPedido; // FK agregada
 }

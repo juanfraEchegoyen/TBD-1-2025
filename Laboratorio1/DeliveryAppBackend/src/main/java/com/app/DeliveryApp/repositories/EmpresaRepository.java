@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public interface EmpresaRepository {
     Empresa save(Empresa empresa);
-    Optional<Empresa> findByRut(String rut); // PK es RUT
+    Optional<Empresa> findByRut(String rut); 
     List<Empresa> findAll();
     int update(Empresa empresa);
-    int deleteByRut(String rut); // PK es RUT
+    int deleteByRut(String rut);
 
 }

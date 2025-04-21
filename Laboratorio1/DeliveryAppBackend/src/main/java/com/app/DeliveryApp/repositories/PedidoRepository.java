@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PedidoRepository {
-    Pedido save(Pedido pedido); // Debería devolver el pedido con el ID asignado
-    Optional<Pedido> findById(Long id); // PK es ID (Long)
+    Pedido save(Pedido pedido); 
+    Optional<Pedido> findById(Long id);
     List<Pedido> findAll();
     int update(Pedido pedido);
-    int deleteById(Long id); // PK es ID (Long)
+    int deleteById(Long id);
 }

@@ -1,6 +1,6 @@
 package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.Empresa; // Importa tu modelo Empresa
+import com.app.DeliveryApp.models.Empresa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -59,7 +59,7 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
 
     @Override
     public int update(Empresa empresa) {
-        if (empresa == null || empresa.getRut() == null) { // Usa getRut
+        if (empresa == null || empresa.getRut() == null) { 
             throw new IllegalArgumentException("Empresa o RUT empresa no pueden ser nulos para el update");
         }
         return jdbcTemplate.update(UPDATE_EMPRESA_SQL,
