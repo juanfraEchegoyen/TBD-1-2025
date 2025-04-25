@@ -5,6 +5,10 @@ import com.app.DeliveryApp.models.Usuario;
 import java.util.Optional;
 
 public interface UsuarioRepository {
+
+    Optional<Usuario> findByNombre(String nombre);
     Usuario save(Usuario usuario);
-    Optional<Usuario> findByEmail(String email); // Buscar por email
+    Optional<Usuario> findById(Integer id);
+    int update(Usuario usuario);
+    int deleteById(Integer id);
 }
