@@ -18,24 +18,28 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     private JdbcTemplate jdbcTemplate;
 
     private static final String INSERT_USUARIO_SQL =
-            "INSERT INTO Usuario (id_usuario, nombre, email, password) VALUES (?, ?, ?, ?)";
+            "INSERT INTO usuario (nombre, email, password) VALUES (?, ?, ?) RETURNING id_usuario";
     private static final String SELECT_USUARIO_BY_ID_SQL =
-            "SELECT id_usuario, nombre, email, password FROM Usuario WHERE id_usuario = ?";
+            "SELECT id_usuario, nombre, email, password FROM usuario WHERE id_usuario = ?";
     private static final String SELECT_ALL_USUARIOS_SQL =
-            "SELECT id_usuario, nombre, email, password FROM Usuario";
+            "SELECT id_usuario, nombre, email, password FROM usuario";
     private static final String UPDATE_USUARIO_SQL =
-            "UPDATE Usuario SET nombre = ?, email = ?, password = ? WHERE id_usuario = ?";
+            "UPDATE usuario SET nombre = ?, email = ?, password = ? WHERE id_usuario = ?";
     private static final String DELETE_USUARIO_BY_ID_SQL =
-            "DELETE FROM Usuario WHERE id_usuario = ?";
+            "DELETE FROM usuario WHERE id_usuario = ?";
 
 
     @Override
     public Usuario save(Usuario usuario) {
-        jdbcTemplate.update(INSERT_USUARIO_SQL,
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getEmail(),
-                usuario.getPassword());
+        Integer id = jdbcTemplate.queryForObject(INSERT_USUARIO_SQL,
+                new Object[]{
+                        usuario.getNombre(),
+                        usuario.getEmail(),
+                        usuario.getPassword()
+                },
+                Integer.class);
+
+        usuario.setIdUsuario(id);
         return usuario;
     }
 
@@ -85,7 +89,7 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     @Override
     public Optional<Usuario> findByNombre(String nombre){
         try {
-            Usuario usuario = jdbcTemplate.queryForObject("SELECT * FROM Usuario WHERE nombre = ?", new Object[]{nombre}, usuarioRowMapper);
+            Usuario usuario = jdbcTemplate.queryForObject("SELECT * FROM usuario WHERE nombre = ?", new Object[]{nombre}, usuarioRowMapper);
             return Optional.of(usuario);
         } catch (Exception e) {
             return Optional.empty();

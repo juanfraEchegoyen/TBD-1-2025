@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -30,5 +31,31 @@ public class Token {
                 .setExpiration(new Date(new Date().getTime() + expiration * 1000L))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails){
+        final String userName = extractUserName(token);
+        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public Boolean isTokenExpired(String token){
+        return extractExpiration(token).before(new Date());
+    }
+
+    public Date extractExpiration(String token){
+        return extractAllClaims(token).getExpiration();
+    }
+
+    public Claims extractAllClaims(String token){
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String extractUserName(String token){
+        return extractAllClaims(token).getSubject();
     }
 }
