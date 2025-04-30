@@ -13,7 +13,6 @@
     "@faker-js/faker": "^9.4.0",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@pinia/nuxt": "^0.9.0",
-    "axios": "^1.9.0",
     "date-fns": "^4.1.0",
     "nuxt": "^3.16.2",
     "pinia": "^2.3.1",
