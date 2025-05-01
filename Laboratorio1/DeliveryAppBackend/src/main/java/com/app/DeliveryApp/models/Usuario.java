@@ -1,16 +1,11 @@
 package com.app.DeliveryApp.models;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
-
-@AllArgsConstructor
-@NoArgsConstructor
 public class Usuario {
     private Integer idUsuario;
     private String nombre;
     private String email;
     private String password;
-
-
 }

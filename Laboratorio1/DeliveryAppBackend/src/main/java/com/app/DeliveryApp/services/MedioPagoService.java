@@ -11,4 +11,5 @@ public interface MedioPagoService {
     List<MedioPago> obtenerMediosPagoPorCliente(String rutCliente);
     Optional<MedioPago> actualizarMedioPago(Long id, MedioPago medioPagoActualizado);
     boolean eliminarMedioPago(Long id);
+    List<MedioPago> obtenerMediosPagoPorPedido(Long idPedido);
 }
