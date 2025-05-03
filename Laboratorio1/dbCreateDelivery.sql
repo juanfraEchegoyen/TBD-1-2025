@@ -79,3 +79,11 @@ CREATE TABLE IF NOT EXISTS MedioDePago (
 	FOREIGN KEY (rut_cliente) REFERENCES Cliente(rut_cliente),
 	FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
 );
+
+-- Usuario
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
