@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClienteGasto {
-    private String nombreCliente;
-    private Integer dineroGastado;
+public class MetodoPagoFrecuente {
+    private String nombreMediodepago;
+    private int cantidadUsos;
 }

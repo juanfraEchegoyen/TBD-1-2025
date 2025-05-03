@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClienteGasto {
-    private String nombreCliente;
-    private Integer dineroGastado;
+public class RepartidorMejorRendimiento {
+    private String nombreRepartidor;
+    private Double puntacion;
+    private Integer entregas;
 }
