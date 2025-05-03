@@ -8,4 +8,7 @@ public interface SentenciasSQLRepository {
     ClienteGasto getClienteConMayorGastos();
     List<ProductoMasVendido> getProductosMasVendidosUltimoMes();
     List<EmpresaEntregasFallidas> getEmpresasEntregasFallidas();
+    List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor();
+    List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento();
+    String getMetodoPagoFrecuente();
 }

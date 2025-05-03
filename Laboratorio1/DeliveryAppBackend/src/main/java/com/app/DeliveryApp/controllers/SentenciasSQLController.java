@@ -55,4 +55,41 @@ public class SentenciasSQLController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/tiempoPromedioRepartidor")
+    public ResponseEntity<List<RepartidorTiempoPromedio>> getTiempoPromedioRepartidor() {
+        System.out.println("Entrando a la consulta de tiempo promedio C");
+        try {
+            List<RepartidorTiempoPromedio> tiempoPromedio = sentenciasSQLService.getTiempoPromedioRepartidor();
+            return ResponseEntity.ok(tiempoPromedio);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/repartidoresMejorRendimiento")
+    public ResponseEntity<List<RepartidorMejorRendimiento>> getRepartidoresMejorRendimiento() {
+        try {
+            List<RepartidorMejorRendimiento> repartidores = sentenciasSQLService.getRepartidoresMejorRendimiento();
+            return ResponseEntity.ok(repartidores);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/metodoPagoFrecuente")
+    public ResponseEntity<String> getMetodoPagoFrecuente() {
+        try {
+            String metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
+            return ResponseEntity.ok(metodoPago);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

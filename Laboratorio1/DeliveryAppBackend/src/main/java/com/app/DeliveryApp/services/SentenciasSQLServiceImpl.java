@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
 
     @Override
     public ClienteGasto getClienteConMayorGastos() {
-        if (sentenciasSQLRepository.getClienteConMayorGastos().getNombre_cliente().isEmpty()){
+        if (sentenciasSQLRepository.getClienteConMayorGastos().getNombreCliente().isEmpty()){
             throw new IllegalArgumentException("No hay clientes registrados");
         }
         return sentenciasSQLRepository.getClienteConMayorGastos();
@@ -39,5 +40,30 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
             throw new IllegalArgumentException("No hay entregas fallidas registradas");
         }
         return sentenciasSQLRepository.getEmpresasEntregasFallidas();
+    }
+
+    @Override
+    public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
+        System.out.println("Entrando a la consulta de tiempo promedio S");
+        if (sentenciasSQLRepository.getTiempoPromedioRepartidor() == null){
+            throw new IllegalArgumentException("No hay repartidores registrados");
+        }
+        return sentenciasSQLRepository.getTiempoPromedioRepartidor();
+    }
+
+    @Override
+    public List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento() {
+        if (sentenciasSQLRepository.getRepartidoresMejorRendimiento().isEmpty()){
+            throw new IllegalArgumentException("No hay repartidores registrados");
+        }
+        return sentenciasSQLRepository.getRepartidoresMejorRendimiento();
+    }
+
+    @Override
+    public String getMetodoPagoFrecuente() {
+        if (sentenciasSQLRepository.getMetodoPagoFrecuente().isEmpty()){
+            throw new IllegalArgumentException("No hay métodos de pago registrados");
+        }
+        return sentenciasSQLRepository.getMetodoPagoFrecuente();
     }
 }

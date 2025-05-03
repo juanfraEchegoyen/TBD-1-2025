@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
@@ -46,8 +47,8 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             ORDER BY total_entregas_fallidas DESC
             """;
 
-    public static final String CALCULAR_TIEMPO_PROMEDIO_REPARTIDOR_SQL = """
-            SELECT r.rut_repartidor, AVG(dp.tiempo_entrega) AS tiempo_promedio
+    public static final String SELECT_TIEMPO_PROMEDIO_REPARTIDOR_SQL = """
+            SELECT r.rut_repartidor, r.nombre_repartidor, AVG(dp.tiempo_entrega) AS tiempo_promedio
             FROM DetallePedido AS dp
             JOIN Pedido AS p ON p.id_pedido = dp.id_pedido
             JOIN Repartidor AS r ON r.rut_repartidor = p.rut_repartidor
@@ -118,5 +119,49 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
         }
     }
 
+    @Override
+    public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
+        System.out.println("Entrando a la consulta de tiempo promedio R");
+        try {
+            return jdbcTemplate.query(SELECT_TIEMPO_PROMEDIO_REPARTIDOR_SQL,
+                    (rs, rowNum) -> new RepartidorTiempoPromedio(
+                            rs.getString("rut_repartidor"),
+                            rs.getString("nombre_repartidor"),
+                            rs.getDouble("tiempo_promedio")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener el tiempo promedio de los repartidores", ex);
+        }
+    }
+
+    @Override
+    public List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento() {
+        try {
+            return jdbcTemplate.query(SELECT_REPARTIDORES_MEJOR_RENDIMIENTO_SQL,
+                    (rs, rowNum) -> new RepartidorMejorRendimiento(
+                            rs.getString("nombre_repartidor"),
+                            rs.getDouble("puntuacion"),
+                            rs.getInt("entregas")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener los repartidores con mejor rendimiento", ex);
+        }
+    }
+
+    @Override
+    public String getMetodoPagoFrecuente(){
+        try {
+            return Objects.requireNonNull(jdbcTemplate.queryForObject(SELECT_METODO_PAGO_FRECUENTE_SQL,
+                    (rs, rowNum) -> new MetodoPagoFrecuente(
+                            rs.getString("nombre_mediodepago"),
+                            rs.getInt("cantidad_usos")
+                    )
+            )).getNombreMediodepago();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener el método de pago más frecuente", ex);
+        }
+    }
 
 }
