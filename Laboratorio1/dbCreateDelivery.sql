@@ -75,5 +75,7 @@ CREATE TABLE IF NOT EXISTS MedioDePago (
 	id_mediodepago SERIAL PRIMARY KEY,
 	nombre_mediodepago VARCHAR(100) NOT NULL,
 	rut_cliente VARCHAR(15) NOT NULL,
-	FOREIGN KEY (rut_cliente) REFERENCES Cliente(rut_cliente)
+	id_pedido INT,
+	FOREIGN KEY (rut_cliente) REFERENCES Cliente(rut_cliente),
+	FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
 );
