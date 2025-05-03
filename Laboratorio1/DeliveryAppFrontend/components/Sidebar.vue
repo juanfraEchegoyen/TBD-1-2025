@@ -3,9 +3,11 @@ import { ref, onMounted, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useRoute } from 'vue-router'
 import { menuOptions } from '@/utils/const'
+import authService from '@/service/authService'
 
 const route = useRoute()
 const options = ref(menuOptions)
+const isAuthenticated = authService.isAuthenticated
 
 const isExpanded = ref(true)
 const hoveredOption = ref(null)
@@ -70,6 +72,9 @@ onMounted(() => {
   document.title = 'Altiro Delivery'
   const expanded = localStorage.getItem('expanded')
   isExpanded.value = expanded === 'true'
+  
+  // Verificar autenticación al montar componente
+  authService.checkAuth()
 })
 </script>
 
@@ -136,17 +141,31 @@ onMounted(() => {
 
     <hr class="border-t border-white/30 my-2 mx-4 mt-auto" />
 
-    <nuxt-link to="/login"
-      class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-2 hover:bg-white"
-      :class="isExpanded ? 'justify-start' : 'justify-center'">
-      <Icon icon="bx:bxs-user" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
-      <span v-if="isExpanded"
-        class="ml-3 text-white group-hover:text-primary font-medium text-xl transition-colors duration-200">
-        Login
-      </span>
-    </nuxt-link>
+    <!-- Mostrar login y registro solo cuando no está autenticado -->
+    <template v-if="!isAuthenticated">
+      <nuxt-link to="/login"
+        class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-2 hover:bg-white"
+        :class="isExpanded ? 'justify-start' : 'justify-center'">
+        <Icon icon="bx:bxs-user" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
+        <span v-if="isExpanded"
+          class="ml-3 text-white group-hover:text-primary font-medium text-xl transition-colors duration-200">
+          Login
+        </span>
+      </nuxt-link>
 
-    <nuxt-link to="/logout"
+      <nuxt-link to="/registro"
+        class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-2 hover:bg-white"
+        :class="isExpanded ? 'justify-start' : 'justify-center'">
+        <Icon icon="bx:bx-user-plus" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
+        <span v-if="isExpanded"
+          class="ml-3 text-white group-hover:text-primary font-medium text-xl transition-colors duration-200">
+          Registro
+        </span>
+      </nuxt-link>
+    </template>
+
+    <!-- Mostrar logout solo cuando está autenticado -->
+    <nuxt-link v-if="isAuthenticated" to="/logout"
       class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-4 hover:bg-white"
       :class="isExpanded ? 'justify-start' : 'justify-center'">
       <Icon icon="bx:bx-log-out" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />

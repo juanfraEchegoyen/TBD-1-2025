@@ -7,25 +7,25 @@
       {{ errorMessage }}
     </div>
     
-    <div>Email</div>
-    <input 
-      v-model="formData.nombre" 
-      type="text" 
-      placeholder="Email" 
-      class="mb-3 px-4 py-2 border rounded-lg w-80" 
+    <div>Nombre de usuario</div>
+    <input
+      v-model="formData.nombre"
+      type="text"
+      placeholder="Nombre de usuario"
+      class="mb-3 px-4 py-2 border rounded-lg w-80"
     />
     
     <div>Contraseña</div>
-    <input 
-      v-model="formData.password" 
-      type="password" 
-      placeholder="Contraseña" 
-      class="mb-6 px-4 py-2 border rounded-lg w-80" 
+    <input
+      v-model="formData.password"
+      type="password"
+      placeholder="Contraseña"
+      class="mb-6 px-4 py-2 border rounded-lg w-80"
       @keyup.enter="login"
     />
     
-    <BaseButtonGreen 
-      @click="login" 
+    <BaseButtonGreen
+      @click="login"
       :disabled="isLoading"
       class="w-80"
     >
@@ -38,7 +38,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButtonGreen from '@/components/BaseButtonGreen.vue'
-import apiClient from '@/service/http-common'  // Updated import path using the alias
+import apiClient from '@/service/http-common'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -69,9 +69,10 @@ const login = async () => {
     })
     
     // Handle successful login
-    if (response.data && response.data.token) {
-      // Store token in local storage
-      localStorage.setItem('token', response.data.token)
+    if (response.data && response.data.accessToken) {
+      // Store tokens in local storage
+      localStorage.setItem('accessToken', response.data.accessToken)
+      localStorage.setItem('refreshToken', response.data.refreshToken)
       
       // Redirect to home or dashboard
       router.push('/')
