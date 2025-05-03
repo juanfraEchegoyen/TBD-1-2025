@@ -87,3 +87,12 @@ CREATE TABLE usuario (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL
 );
+
+---- Notificacion
+CREATE TABLE IF NOT EXISTS Notificacion (
+    id_notificacion SERIAL PRIMARY KEY,
+    mensaje TEXT,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pedido INT,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+);
