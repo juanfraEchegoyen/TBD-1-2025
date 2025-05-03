@@ -20,45 +20,73 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private Token jwtUtil;
+    private Token token;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserDetailsService servicioDatosUsuario;
 
+    /**
+     * Este método es como un "inspector de seguridad" que revisa cada petición que llega al servidor.
+     * Se ejecuta una sola vez por cada petición HTTP y funciona así:
+     *
+     * 1. Extrae el token JWT del encabezado "Authorization"
+     * 2. Verifica si el token existe y es válido
+     * 3. Si es válido, busca al usuario en la base de datos
+     * 4. Establece al usuario como "autenticado" para que pueda acceder a los recursos
+     */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest peticion, HttpServletResponse respuesta, FilterChain cadenaFiltros)
             throws ServletException, IOException {
         try {
-            String jwt = parseJwt(request);
+            // Paso 1: Extraer el token del encabezado
+            String jwt = extraerTokenJwt(peticion);
+
             if (jwt != null) {
-                String userName = jwtUtil.extractUserName(jwt);
+                // Paso 2: Obtener el nombre de usuario del token
+                String nombreUsuario = token.extraerNombreDeUsuario(jwt);
 
-                if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+                // Paso 3: Verificar si hay un usuario y no está ya autenticado
+                if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Paso 4: Cargar los datos del usuario desde la base de datos
+                    UserDetails datosUsuario = servicioDatosUsuario.loadUserByUsername(nombreUsuario);
 
-                    if (jwtUtil.validateToken(jwt, userDetails)) {
-                        UsernamePasswordAuthenticationToken authentication =
+                    // Paso 5: Validar el token con los datos del usuario
+                    if (token.validarToken(jwt, datosUsuario)) {
+                        // Paso 6: Crear el objeto de autenticación para el usuario
+                        UsernamePasswordAuthenticationToken autenticacion =
                                 new UsernamePasswordAuthenticationToken(
-                                        userDetails,
+                                        datosUsuario,
                                         null,
-                                        userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                                        datosUsuario.getAuthorities());
+
+                        // Añadir detalles de la petición a la autenticación
+                        autenticacion.setDetails(new WebAuthenticationDetailsSource().buildDetails(peticion));
+
+                        // Paso 7: Establecer la autenticación en el contexto de seguridad
+                        SecurityContextHolder.getContext().setAuthentication(autenticacion);
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("No se puede establecer la autenticación del usuario", e);
+            logger.error("No se pudo establecer la autenticación del usuario", e);
         }
 
-        filterChain.doFilter(request, response);
+        // Continuar con la cadena de filtros
+        cadenaFiltros.doFilter(peticion, respuesta);
     }
 
-    private String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
+    /**
+     * Este método extrae el token JWT del encabezado "Authorization"
+     *
+     * El formato esperado es: "Bearer eyJhbGciOiJIUzI1NiIsInR5..."
+     * Donde después de "Bearer " viene el token real
+     */
+    private String extraerTokenJwt(HttpServletRequest peticion) {
+        String encabezadoAuth = peticion.getHeader("Authorization");
 
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+        if (StringUtils.hasText(encabezadoAuth) && encabezadoAuth.startsWith("Bearer ")) {
+            // Quitar la parte "Bearer " y quedarse solo con el token
+            return encabezadoAuth.substring(7);
         }
 
         return null;
