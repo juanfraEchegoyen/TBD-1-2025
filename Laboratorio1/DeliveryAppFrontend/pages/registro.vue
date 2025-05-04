@@ -22,7 +22,7 @@
     
     <div>Correo electrónico</div>
     <input
-      v-model="formData.correo"
+      v-model="formData.email"
       type="email"
       placeholder="ejemplo@correo.com"
       class="mb-3 px-4 py-2 border rounded-lg w-80"
@@ -64,7 +64,7 @@ const successMessage = ref('')
 
 const formData = reactive({
   nombre: '',
-  correo: '',
+  email: '',
   password: ''
 })
 
@@ -75,10 +75,10 @@ const validarFormulario = () => {
   if (!formData.nombre) {
     errorMessage.value = 'El nombre de usuario es obligatorio'
     return false
-  } else if (!formData.correo) {
+  } else if (!formData.email) {
     errorMessage.value = 'El correo electrónico es obligatorio'
     return false
-  } else if (!emailRegex.test(formData.correo)) {
+  } else if (!emailRegex.test(formData.email)) {
     errorMessage.value = 'El formato del correo electrónico no es válido'
     return false
   } else if (!formData.password) {
@@ -108,7 +108,7 @@ const registrar = async () => {
     // Send registration request to backend
     const response = await apiClient.post('/auth/registro', {
       nombre: formData.nombre,
-      correo: formData.correo,
+      email: formData.email,
       password: formData.password
     })
     
@@ -117,7 +117,7 @@ const registrar = async () => {
     
     // Reset form
     formData.nombre = ''
-    formData.correo = ''
+    formData.email = ''
     formData.password = ''
     
     // Redirect to login after a short delay
