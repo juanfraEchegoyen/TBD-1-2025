@@ -13,106 +13,128 @@ INSERT INTO Cliente (rut_cliente, nombre_cliente, telefono, direccion, comuna) V
 
 -- Empresas asociadas
 INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES 
-('80000000-1', 'Comidas Express'),
-('80000000-2', 'Farmacia Popular'),
-('80000000-3', 'Librería Central'),
-('80000000-4', 'ElectroWorld'),
-('80000000-5', 'Panadería San Juan');
+('80000000-1', 'Rápido y Sabroso'),
+('80000000-2', 'Sabor Urbano'),
+('80000000-3', 'Pan al Paso'),
+('80000000-4', 'Tech & Snacks'),
+('80000000-5', 'Delibox Express');
 
--- Productos (20)
+-- Productos
 INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock) VALUES 
-('Hamburguesa', 5000, 'Comida', 'Alimento', 100),
-('Pizza', 8000, 'Comida', 'Alimento', 50),
-('Sándwich', 4000, 'Comida', 'Alimento', 60),
-('Antigripal', 3000, 'Medicamento', 'Farmacia', 200),
-('Paracetamol', 1000, 'Medicamento', 'Farmacia', 300),
-('Ibuprofeno', 1500, 'Medicamento', 'Farmacia', 250),
-('Libro A', 7000, 'Educación', 'Libro', 30),
-('Libro B', 7500, 'Educación', 'Libro', 20),
-('Cuaderno', 2000, 'Papelería', 'Útil escolar', 80),
-('Lápiz', 500, 'Papelería', 'Útil escolar', 100),
-('Audífonos', 12000, 'Tecnología', 'Accesorio', 25),
-('Mouse', 8000, 'Tecnología', 'Accesorio', 30),
-('Teclado', 10000, 'Tecnología', 'Accesorio', 20),
-('Pan de molde', 1500, 'Comida', 'Panadería', 90),
-('Marraqueta', 1000, 'Comida', 'Panadería', 100),
-('Croissant', 2000, 'Comida', 'Panadería', 80),
-('Bebida 1.5L', 1800, 'Bebida', 'Bebestible', 60),
-('Jugo natural', 2500, 'Bebida', 'Bebestible', 40),
-('Agua mineral', 1000, 'Bebida', 'Bebestible', 70),
-('Café molido', 4500, 'Bebida', 'Bebestible', 30);
+('Burger Clásica', 5000, 'Comida Rápida', 'Hamburguesa', 100),
+('Pizza Napolitana', 8000, 'Comida Rápida', 'Pizza', 50),
+('Sándwich Veggie', 4000, 'Comida Rápida', 'Sándwich', 60),
+('Wrap de Pollo', 7500, 'Comida Rápida', 'Wrap', 65),
+('Empanada de Pino', 3000, 'Comida Rápida', 'Empanada', 80),
+('Pan Italiano', 1000, 'Panadería', 'Pan', 90),
+('Marraqueta Doble', 750, 'Panadería', 'Pan', 100),
+('Pan amasado', 500, 'Panadería', 'Pan', 55),
+('Croissant de Mantequilla', 800, 'Panadería', 'Pan Dulce', 80),
+('Taco Mexicano', 1500, 'Internacional', 'Taco', 70),
+('Sushi Roll', 7000, 'Internacional', 'Sushi', 50),
+('Galletas Artesanales', 2000, 'Dulces', 'Postre', 75),
+('Torta de Chocolate', 6000, 'Dulces', 'Pastel', 30),
+('Helado de Vainilla', 1100, 'Dulces', 'Postre', 40),
+('Bebida Cola 1.5L', 3000, 'Bebidas', 'Gaseosa', 60),
+('Jugo Natural de Naranja 1.5L', 2500, 'Bebidas', 'Jugo', 40),
+('Agua Mineral con Gas', 1200, 'Bebidas', 'Agua', 70),
+('Café Molido Premium', 4500, 'Bebidas', 'Café', 30),
+('Té Verde Importado', 3500, 'Bebidas', 'Té', 50),
+('Batido Proteico', 4000, 'Bebidas', 'Batido', 25);
+
 
 -- Repartidores
 INSERT INTO Repartidor (rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES 
-('12121212-1', 'Luis Soto', '913000001', 4, 50),
-('13131313-2', 'María Díaz', '913000002', 5, 60),
-('14141414-3', 'Pedro Ramírez', '913000003', 3, 45),
-('15151515-4', 'Claudia Fuentes', '913000004', 5, 70),
-('16161616-5', 'José Navarro', '913000005', 4, 55);
+('12121212-1', 'Luis Soto', '913000001', 4, 4),
+('13131313-2', 'María Díaz', '913000002', 3, 3),
+('14141414-3', 'Pedro Ramírez', '913000003', 3, 4),
+('15151515-4', 'Claudia Fuentes', '913000004', 5, 3),
+('16161616-5', 'José Navarro', '913000005', 3, 6);
 
 -- Puntuaciones
 INSERT INTO Puntuacion (puntaje, comentario, rut_repartidor) VALUES 
 (4, 'Muy puntual', '12121212-1'),
+(3, 'Amable y rápido', '14141414-3'),
+(1, 'Llegó tarde', '16161616-5'),
+(4, 'Buen servicio', '16161616-5'),
 (5, 'Excelente atención', '13131313-2'),
-(3, 'Llegó tarde', '14141414-3'),
-(5, 'Amable y rápido', '15151515-4'),
+(3, 'Amable y rápido', '14141414-3'),
+(1, 'Llegó tarde', '15151515-4'),
+(4, 'Buen servicio', '16161616-5'),
+(4, 'Muy puntual', '12121212-1'),
+(1, 'No llega', '13131313-2'),
+(5, 'Llegó tarde', '15151515-4'),
+(4, 'Muy puntual', '12121212-1'),
+(5, 'Excelente atención', '16161616-5'),
+(3, 'Amable y rápido', '14141414-3'),
 (4, 'Buen servicio', '16161616-5');
 
--- Medios de pago
-INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente) VALUES 
-('Tarjeta de crédito', '11111111-1'),
-('Débito', '22222222-2'),
-('Transferencia', '33333333-3'),
-('Efectivo', '44444444-4'),
-('Tarjeta de débito', '55555555-5'),
-('Paypal', '66666666-6'),
-('Webpay', '77777777-7'),
-('Crédito', '88888888-8'),
-('Débito', '99999999-9'),
-('Transferencia', '10101010-0');
-
--- Pedidos (20, enlazados a clientes, empresas y repartidores)
+-- Pedidos
 INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES 
-('Entregado', 'Alta', false, '11111111-1', '80000000-1', '12121212-1'),
-('En camino', 'Media', false, '22222222-2', '80000000-2', '13131313-2'),
-('Entregado', 'Baja', false, '33333333-3', '80000000-3', '14141414-3'),
-('Pendiente', 'Alta', true, '44444444-4', '80000000-4', '15151515-4'),
-('Entregado', 'Media', false, '55555555-5', '80000000-5', '16161616-5'),
-('En camino', 'Alta', false, '66666666-6', '80000000-1', '12121212-1'),
-('Entregado', 'Baja', false, '77777777-7', '80000000-2', '13131313-2'),
-('Entregado', 'Media', false, '88888888-8', '80000000-3', '14141414-3'),
-('Pendiente', 'Alta', true, '99999999-9', '80000000-4', '15151515-4'),
-('Entregado', 'Baja', false, '10101010-0', '80000000-5', '16161616-5'),
-('Entregado', 'Media', false, '11111111-1', '80000000-1', '12121212-1'),
-('Pendiente', 'Alta', true, '22222222-2', '80000000-2', '13131313-2'),
-('En camino', 'Media', false, '33333333-3', '80000000-3', '14141414-3'),
-('Entregado', 'Baja', false, '44444444-4', '80000000-4', '15151515-4'),
-('En camino', 'Alta', false, '55555555-5', '80000000-5', '16161616-5'),
-('Entregado', 'Media', false, '66666666-6', '80000000-1', '12121212-1'),
-('Pendiente', 'Baja', true, '77777777-7', '80000000-2', '13131313-2'),
-('Entregado', 'Alta', false, '88888888-8', '80000000-3', '14141414-3'),
-('En camino', 'Baja', false, '99999999-9', '80000000-4', '15151515-4'),
-('Entregado', 'Media', false, '10101010-0', '80000000-5', '16161616-5');
+('Entregado', 'Alta', false, '11111111-1', '80000000-1', '12121212-1'),   -- Producto 1: comida rápida
+('Pendiente', 'Media', false, '22222222-2', '80000000-1', '13131313-2'), -- Producto 1
+('Entregado', 'Baja', false, '33333333-3', '80000000-1', '14141414-3'),  -- Producto 1
+('Entrega fallida', 'Alta', true, '44444444-4', '80000000-1', '16161616-5'), -- Producto 2
+('Entregado', 'Media', false, '55555555-5', '80000000-1', '16161616-5'), -- Producto 2
+('Pendiente', 'Alta', false, '66666666-6', '80000000-1', '12121212-1'),  -- Producto 2
+('Entregado', 'Baja', false, '77777777-7', '80000000-1', '13131313-2'),  -- Producto 3
+('Entregado', 'Media', false, '88888888-8', '80000000-1', '14141414-3'), -- Producto 4
+('Entrega fallida', 'Alta', true, '99999999-9', '80000000-2', '15151515-4'), -- Producto 5
+('Entregado', 'Baja', false, '10101010-0', '80000000-2', '16161616-5'),  -- Producto 6
+('Entregado', 'Media', false, '11111111-1', '80000000-2', '12121212-1'), -- Producto 7
+('Entrega fallida', 'Alta', true, '22222222-2', '80000000-2', '13131313-2'), -- Producto 7
+('Pendiente', 'Media', false, '33333333-3', '80000000-2', '14141414-3'), -- Producto 7
+('Entregado', 'Baja', false, '44444444-4', '80000000-3', '15151515-4'),  -- Producto 8
+('Pendiente', 'Alta', false, '55555555-5', '80000000-3', '16161616-5'),  -- Producto 9
+('Entregado', 'Media', false, '66666666-6', '80000000-3', '12121212-1'), -- Producto 10
+('Entrega fallida', 'Baja', true, '77777777-7', '80000000-3', '16161616-5'), -- Producto 11
+('Entregado', 'Alta', false, '88888888-8', '80000000-4', '14141414-3'),  -- Producto 12
+('Pendiente', 'Baja', false, '99999999-9', '80000000-4', '15151515-4'),  -- Producto 13
+('Entregado', 'Media', false, '10101010-0', '80000000-4', '16161616-5'); -- Producto 14
 
--- DetallePedido (20 detalles con producto y pedido)
+
+-- DetallePedido (modificado para reflejar popularidad de productos)
 INSERT INTO DetallePedido (precio_total, tiempo_entrega, fecha_entrega, cantidad, id_pedido, id_producto) VALUES
-(10000, 30, '2024-04-01', 2, 1, 1),
-(8000, 45, '2024-04-02', 1, 2, 2),
-(4000, 20, '2024-04-03', 1, 3, 3),
-(3000, 25, '2024-04-04', 1, 4, 4),
-(1000, 15, '2024-04-05', 1, 5, 5),
-(1500, 20, '2024-04-06', 1, 6, 6),
-(7000, 50, '2024-04-07', 1, 7, 7),
-(7500, 55, '2024-04-08', 1, 8, 8),
-(2000, 10, '2024-04-09', 1, 9, 9),
-(500, 5, '2024-04-10', 2, 10, 10),
-(12000, 60, '2024-04-11', 1, 11, 11),
-(8000, 40, '2024-04-12', 1, 12, 12),
-(10000, 50, '2024-04-13', 1, 13, 13),
-(1500, 15, '2024-04-14', 3, 14, 14),
-(1000, 12, '2024-04-15', 5, 15, 15),
-(2000, 20, '2024-04-16', 1, 16, 16),
-(1800, 30, '2024-04-17', 2, 17, 17),
-(2500, 25, '2024-04-18', 1, 18, 18),
-(1000, 10, '2024-04-19', 1, 19, 19),
-(4500, 35, '2024-04-20', 1, 20, 20);
+(10000, 30, '2025-04-01', 2, 1, 1),   -- Burger Clásica
+(5000, 25, '2025-04-02', 1, 2, 1),    -- Burger Clásica
+(15000, 45, '2025-04-03', 3, 3, 1),   -- Burger Clásica
+(8000, 40, '2025-04-04', 1, 4, 2),    -- Pizza Napolitana
+(16000, 50, '2025-04-05', 2, 5, 2),   -- Pizza Napolitana
+(24000, 60, '2025-04-06', 3, 6, 2),   -- Pizza Napolitana
+(4000, 20, '2025-04-07', 1, 7, 3),    -- Sándwich Veggie
+(3000, 25, '2025-04-08', 1, 8, 4),    -- Wrap de Pollo
+(1000, 15, '2025-05-01', 1, 9, 5),    -- Empanada de Pino
+(2000, 20, '2025-05-02', 2, 10, 6),   -- Pan Italiano
+(750, 10, '2025-05-03', 1, 11, 7),    -- Marraqueta Doble
+(1000, 12, '2025-05-04', 2, 12, 7),   -- Marraqueta Doble
+(1500, 15, '2025-05-05', 3, 13, 7),   -- Marraqueta Doble
+(800, 15, '2025-05-06', 1, 14, 8),    -- Pan amasado
+(800, 10, '2025-05-07', 1, 15, 9),    -- Croissant
+(14000, 55, '2025-05-08', 2, 16, 10), -- Taco Mexicano
+(7000, 50, '2025-05-09', 1, 17, 11),  -- Sushi Roll
+(4000, 10, '2025-05-10', 2, 18, 12),  -- Galletas
+(6000, 20, '2025-05-11', 1, 19, 13),  -- Torta de Chocolate
+(1100, 20, '2025-05-12', 1, 20, 14);  -- Helado de Vainilla
+
+-- Medios de pago
+INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido) VALUES 
+('Crédito', '11111111-1', 1),
+('Débito', '22222222-2', 2),
+('Transferencia', '33333333-3', 3),
+('Débito', '44444444-4', 4),
+('Débito', '55555555-5', 5),
+('Efectivo', '66666666-6', 6),
+('Efectivo', '77777777-7', 7),
+('Crédito', '88888888-8',8 ),
+('Débito', '99999999-9', 9),
+('Transferencia', '10101010-0', 10),
+('Crédito', '11111111-1', 1),
+('Débito', '22222222-2', 2),
+('Transferencia', '33333333-3', 3),
+('Efectivo', '44444444-4', 4),
+('Débito', '55555555-5', 5),
+('Efectivo', '66666666-6', 6),
+('Efectivo', '77777777-7', 7),
+('Crédito', '88888888-8',8 ),
+('Débito', '99999999-9', 9),
+('Transferencia', '10101010-0', 10);
