@@ -39,6 +39,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButtonGreen from '@/components/BaseButtonGreen.vue'
 import apiClient from '@/service/http-common'
+import authService from '@/service/authService'  
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -70,9 +71,8 @@ const login = async () => {
     
     // Handle successful login
     if (response.data && response.data.accessToken) {
-      // Store tokens in local storage
-      localStorage.setItem('accessToken', response.data.accessToken)
-      localStorage.setItem('refreshToken', response.data.refreshToken)
+      // Usamos authService en lugar de manipular localStorage directamente
+      authService.login(response.data.accessToken, response.data.refreshToken)
       
       // Redirect to home or dashboard
       router.push('/')
