@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useRoute } from 'vue-router'
 import { menuOptions } from '@/utils/const'
@@ -7,7 +7,8 @@ import authService from '@/service/authService'
 
 const route = useRoute()
 const options = ref(menuOptions)
-const isAuthenticated = authService.isAuthenticated
+// Acceder al valor del ref para que sea reactivo
+const isAuth = computed(() => authService.isAuthenticated.value)
 
 const isExpanded = ref(true)
 const hoveredOption = ref(null)
@@ -142,7 +143,7 @@ onMounted(() => {
     <hr class="border-t border-white/30 my-2 mx-4 mt-auto" />
 
     <!-- Mostrar login y registro solo cuando no está autenticado -->
-    <template v-if="!isAuthenticated">
+    <template v-if="!isAuth">
       <nuxt-link to="/login"
         class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-2 hover:bg-white"
         :class="isExpanded ? 'justify-start' : 'justify-center'">
@@ -165,7 +166,7 @@ onMounted(() => {
     </template>
 
     <!-- Mostrar logout solo cuando está autenticado -->
-    <nuxt-link v-if="isAuthenticated" to="/logout"
+    <nuxt-link v-if="isAuth" to="/logout"
       class="group flex items-center p-3 mx-2 rounded-lg transition-colors duration-200 mb-4 hover:bg-white"
       :class="isExpanded ? 'justify-start' : 'justify-center'">
       <Icon icon="bx:bx-log-out" class="h-6 w-6 text-white transition-colors duration-200 group-hover:text-primary" />
