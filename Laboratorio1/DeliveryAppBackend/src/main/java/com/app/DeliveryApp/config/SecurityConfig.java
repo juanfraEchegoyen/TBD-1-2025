@@ -54,7 +54,12 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint)) // Configura el punto de entrada de excepciones
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configura la gestión de sesiones para que sea sin estado
                 .authorizeHttpRequests(auth -> auth // Configura las solicitudes HTTP autorizadas
-                        .requestMatchers("/auth/registro", "/auth/login/**", "/auth/refresh").permitAll() // Permite el acceso a las rutas de registro y login
+                        .requestMatchers(
+                            "/auth/registro",
+                            "/auth/login/**",
+                            "/auth/refresh",
+                            "/api/v1/vistas/resumen-clientes"
+                        ).permitAll()
                         .anyRequest().authenticated() // Requiere autenticación para cualquier otra solicitud
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
