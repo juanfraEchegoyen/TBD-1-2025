@@ -1,31 +1,66 @@
-# Comandos psql para Cargar Base de Datos DeliveryApp
+# DeliveryApp - Procedimiento de Inicialización de Base de Datos
 
-Esta guía muestra los comandos `psql` para ejecutar los scripts SQL y configurar la base de datos. Se asume que te encuentras en la línea de comandos **dentro del directorio que contiene los archivos `.sql`**.
+Este documento describe el procedimiento para crear e inicializar la base de datos `deliveryapp` usando los scripts SQL provistos en este repositorio.
 
 ## Prerrequisitos
 
-* Tener `psql` accesible desde la línea de comandos.
-* La base de datos `deliveryapp` debe existir previamente en el servidor PostgreSQL.
-* Conocer los detalles de conexión (host, puerto, usuario, contraseña) a tu servidor PostgreSQL.
+- Tener instalado PostgreSQL y el comando `psql` disponible en la terminal.
+- Conocer el usuario y contraseña de acceso a PostgreSQL (por defecto: usuario `postgres`).
+- Estar ubicado en el directorio donde se encuentran los archivos `.sql`.
 
-## Ejecución de Scripts
+## Pasos para la Inicialización
 
-1.  **Crear Estructura (Tablas):**
-    Ejecuta el script `dbCreateDelivery.sql` para crear todas las tablas. Estando en el directorio del script, el comando es:
-    ```bash
-    psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbCreateDelivery.sql
-    ```
-    * Introduce la contraseña del usuario `postgres` cuando se solicite.
-    * Verifica que la salida muestre mensajes `CREATE TABLE` y no errores.
+### 1. Crear la base de datos
 
-2.  **Cargar Datos Iniciales:**
-    **Solo si el paso anterior fue exitoso**, ejecuta el script `CargaDatos.sql` para insertar los datos de ejemplo:
-    ```bash
-    psql -h localhost -p 5432 -U postgres -d deliveryapp -f CargaDatos.sql
-    ```
-    * Introduce la contraseña de `postgres` cuando se solicite.
-    * Verifica que la salida muestre mensajes `INSERT 0 X` y no errores.
+Abre una terminal y ejecuta:
+
+```bash
+psql -h localhost -p 5432 -U postgres
+```
+
+Dentro de la consola de `psql`, crea la base de datos:
+
+```sql
+CREATE DATABASE deliveryapp;
+\q
+```
+
+### 2. Crear las tablas y estructuras
+
+Ejecuta el script para crear todas las tablas y relaciones:
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbCreateDelivery.sql
+```
+
+### 3. Crear las vistas
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbVistas.sql
+```
+
+### 4. Crear los procedimientos almacenados
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbProcedimientos.sql
+```
+
+### 5. Crear los triggers
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbTriggers.sql
+```
+
+### 6. Cargar los datos de ejemplo
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f CargaDatos.sql
+```
+
+### 7. Consultas de prueba
+
+```bash
+psql -h localhost -p 5432 -U postgres -d deliveryapp -f runStatementsDelivery.sql
+```
 
 ---
-
-Si ejecutas los comandos `psql` desde un directorio diferente, deberás reemplazar `dbCreateDelivery.sql` y `CargaDatos.sql` con las **rutas completas** a esos archivos.
