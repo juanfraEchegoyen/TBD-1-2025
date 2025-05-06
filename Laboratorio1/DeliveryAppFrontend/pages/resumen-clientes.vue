@@ -28,13 +28,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { tokenAutorizacion } from '~/service/http-common'
+
 
 const resumen = ref<any[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:8080/api/v1/vistas/resumen-clientes')
+    const res = await tokenAutorizacion('http://localhost:8080/api/v1/vistas/resumen-clientes')
     if (!res.ok) throw new Error('Error al obtener resumen')
     resumen.value = await res.json()
   } catch (e) {
