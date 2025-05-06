@@ -5,7 +5,7 @@
             <button @click="fetchClienteMayorGasto" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
                 Cliente con mayor gasto
             </button>
-            <div v-if="clienteMayorGasto" class="mt-4 bg-white p-4 rounded shadow col-span-2"> <!-- Ocupa ambas columnas -->
+            <div v-if="clienteMayorGasto" class="bg-white p-4 rounded shadow col-span-2"> <!-- Ocupa ambas columnas -->
                 <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
                 <p><strong>Nombre:</strong> {{ clienteMayorGasto.nombre }}</p>
                 <p><strong>Total Gastado:</strong> ${{ clienteMayorGasto.totalGastado }}</p>
