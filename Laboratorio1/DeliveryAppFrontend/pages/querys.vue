@@ -7,7 +7,6 @@
       </button>
       <div v-if="clienteMayorGasto" class="mt-4 bg-white p-4 rounded shadow">
       <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-      <p><strong>RUT:</strong> {{ clienteMayorGasto.rut }}</p>
       <p><strong>Nombre:</strong> {{ clienteMayorGasto.nombre }}</p>
       <p><strong>Total Gastado:</strong> ${{ clienteMayorGasto.totalGastado }}</p>
     </div>
@@ -26,31 +25,29 @@
 </template>
 
 <script>
+import apiClient from '../service/http-common';
+
 export default {
     name: "QuerysPage",
     data() {
         return {
-            // Add your data properties here
             clienteMayorGasto: null
         };
     },
     methods: {
-        // Add your methods here
-async fetchClienteMayorGasto() {
-    try {
-        // Traer datos del endpoint de la API
-
-        const res = await fetch('http://localhost:8080/api/v1/sentenciassql/clienteMayorGastos', {
-
-        });
-
-        if (!res.ok) throw new Error("Error al obtener datos");
-        this.clienteMayorGasto = await res.json();
-    } catch (e) {
-        console.error("Error en fetchClienteMayorGasto:", e);
+        async fetchClienteMayorGasto() {
+            try {
+                const res = await apiClient.get('/api/v1/sentenciassql/clienteMayorGastos');
+                // Ajustar los datos para que coincidan con las claves del servidor
+                this.clienteMayorGasto = {
+                    nombre: res.data.nombreCliente,
+                    totalGastado: res.data.dineroGastado
+                };
+            } catch (e) {
+                console.error("Error en fetchClienteMayorGasto:", e);
+            }
+        }
     }
-},
-    },
 };
 </script>
 
