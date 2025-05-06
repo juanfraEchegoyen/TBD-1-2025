@@ -1,90 +1,114 @@
 <template>
     <div>
         <h1 class="text-2xl font-bold mb-4">Querys Complejas</h1>
-        <!-- Cliente con mayor gasto -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4"> <!-- Contenedor con dos columnas -->
-            <button @click="fetchClienteMayorGasto" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Cliente con mayor gasto
-            </button>
-            <div v-if="clienteMayorGasto" class="bg-white p-4 rounded shadow col-span-2"> <!-- Ocupa ambas columnas -->
-                <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-                <p><strong>Nombre:</strong> {{ clienteMayorGasto.nombre }}</p>
-                <p><strong>Total Gastado:</strong> ${{ clienteMayorGasto.totalGastado }}</p>
+
+        <!-- Contenedor con barra de desplazamiento -->
+        <div class="max-h-[80vh] overflow-y-auto p-4 bg-gray-100 rounded shadow">
+            <!-- Cliente con mayor gasto -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchClienteMayorGasto" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Cliente con mayor gasto
+                </button>
+                <div v-if="clienteMayorGasto" class="relative bg-white p-4 rounded shadow col-span-3">
+                    <button @click="clienteMayorGasto = null" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
+                    <p><strong>Nombre:</strong> {{ clienteMayorGasto.nombre }}</p>
+                    <p><strong>Total Gastado:</strong> ${{ clienteMayorGasto.totalGastado }}</p>
+                </div>
             </div>
-        </div>
-        <!-- Producto más vendido -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <button @click="fetchProductoMasVendido" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Producto/Servicio más vendido
-            </button>
-            <div v-if="productoMasVendido && productoMasVendido.length" class="mt-4 bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-2">Productos más vendidos:</h2>
-                <div class="max-h-64 overflow-y-auto"> <!-- Contenedor con barra de desplazamiento -->
+
+            <!-- Producto más vendido -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchProductoMasVendido" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Producto/Servicio más vendido
+                </button>
+                <div v-if="productoMasVendido && productoMasVendido.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="productoMasVendido = []" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Productos más vendidos:</h2>
+                    <div class="max-h-64 overflow-y-auto">
+                        <ul>
+                            <li v-for="producto in productoMasVendido" :key="producto.nombreProducto" class="mb-2">
+                                <strong>Nombre:</strong> {{ producto.nombreProducto }} - 
+                                <strong>Categoría:</strong> {{ producto.categoria }} - 
+                                <strong>Total Pedidos:</strong> {{ producto.totalPedidos }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empresas con más entregas fallidas -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchEmpresasConMasEntregasFallidas" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Empresas con más entregas fallidas
+                </button>
+                <div v-if="empresasConMasEntregasFallidas" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="empresasConMasEntregasFallidas = null" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
                     <ul>
-                        <li v-for="producto in productoMasVendido" :key="producto.nombreProducto" class="mb-2">
-                            <strong>Nombre:</strong> {{ producto.nombreProducto }} - 
-                            <strong>Categoría:</strong> {{ producto.categoria }} - 
-                            <strong>Total Pedidos:</strong> {{ producto.totalPedidos }}
+                        <li v-for="empresa in empresasConMasEntregasFallidas" :key="empresa.nombre" class="mb-2">
+                            <strong>Nombre:</strong> {{ empresa.nombre }} - <strong>Total Fallidas:</strong> {{ empresa.totalFallidas }}
                         </li>
                     </ul>
                 </div>
             </div>
-        </div>
-        <!-- Empresas con más entregas fallidas -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <button @click="fetchEmpresasConMasEntregasFallidas" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Empresas con mas entregas fallidas
-            </button>
-            <div v-if="empresasConMasEntregasFallidas" class="mt-4 bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-                <ul>
-                    <li v-for="empresa in empresasConMasEntregasFallidas" :key="empresa.nombre" class="mb-2">
-                        <strong>Nombre:</strong> {{ empresa.nombre }} - <strong>Total Fallidas:</strong> {{ empresa.totalFallidas }}
-                    </li>
-                </ul>
+
+            <!-- Tiempo promedio repartidor -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchTiempoPromedioReapartidor" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Tiempo promedio repartidor
+                </button>
+                <div v-if="tiempoPromedioRepartidor.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="tiempoPromedioRepartidor = []" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
+                    <ul>
+                        <li v-for="repartidor in tiempoPromedioRepartidor" :key="repartidor.rut" class="mb-2">
+                            <strong>Nombre:</strong> {{ repartidor.nombre }} - 
+                            <strong>Rut:</strong> {{ repartidor.rut }} - 
+                            <strong>Tiempo Promedio:</strong> {{ repartidor.tiempoPromedio }}
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <!-- Tiempo promedio repartidor -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <button @click="fetchTiempoPromedioReapartidor" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Tiempo promedio repartidor
-            </button>
-            <div v-if="tiempoPromedioRepartidor" class="mt-4 bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-                <ul>
-                    <li v-for="repartidor in tiempoPromedioRepartidor" :key="repartidor.rut" class="mb-2">
-                        <strong>Nombre:</strong> {{ repartidor.nombre }} - 
-                        <strong>Rut:</strong> {{ repartidor.rut }} - 
-                        <strong>Tiempo Promedio:</strong> {{ repartidor.tiempoPromedio }}
-                    </li>
-                </ul>
+
+            <!-- Repartidor mejor rendimiento -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchRepartidorMejorRendimiento" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Repartidor mejor rendimiento
+                </button>
+                <div v-if="repartidorMejorRendimiento.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="repartidorMejorRendimiento = []" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
+                    <ul>
+                        <li v-for="repartidor in repartidorMejorRendimiento" :key="repartidor.nombre" class="mb-2">
+                            <strong>Nombre:</strong> {{ repartidor.nombre }} - 
+                            <strong>Puntuación:</strong> {{ repartidor.puntuacion }} - 
+                            <strong>Entregas:</strong> {{ repartidor.entregas }}
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <!-- Repartidor mejor rendimiento -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <button @click="fetchRepartidorMejorRendimiento" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Repartidor mejor rendimiento
-            </button>
-            <div v-if="repartidorMejorRendimiento" class="mt-4 bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-                <ul>
-                    <li v-for="repartidor in repartidorMejorRendimiento" :key="repartidor.nombre" class="mb-2">
-                        <strong>Nombre:</strong> {{ repartidor.nombre }} - 
-                        <strong>Puntuación:</strong> {{ repartidor.puntuacion }} - 
-                        <strong>Entregas:</strong> {{ repartidor.entregas }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <!-- Método de pago más utilizado -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <button @click="fetchMetodoPagoFrecuente" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-                Método de pago más utilizado
-            </button>
-            <div v-if="metodoPagoFrecuente" class="mt-4 bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-                <p><strong>Nombre:</strong> {{ metodoPagoFrecuente.nombre }}</p>
-                <p><strong>Cantidad de usos:</strong> {{ metodoPagoFrecuente.usos }}</p>
+
+            <!-- Método de pago más utilizado -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchMetodoPagoFrecuente" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
+                    Método de pago más utilizado
+                </button>
+                <div v-if="metodoPagoFrecuente" class="mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
+                    <p><strong>Nombre:</strong> {{ metodoPagoFrecuente.nombre }}</p>
+                    <p><strong>Cantidad de usos:</strong> {{ metodoPagoFrecuente.usos }}</p>
+                </div>
             </div>
         </div>
     </div>
