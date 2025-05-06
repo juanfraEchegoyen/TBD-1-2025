@@ -28,7 +28,7 @@
                     <button @click="productoMasVendido = []" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
                         ✖
                     </button>
-                    <h2 class="text-xl font-semibold mb-2">Productos más vendidos:</h2>
+                    <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
                     <div class="max-h-64 overflow-y-auto">
                         <ul>
                             <li v-for="producto in productoMasVendido" :key="producto.nombreProducto" class="mb-2">
@@ -104,7 +104,10 @@
                 <button @click="fetchMetodoPagoFrecuente" class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
                     Método de pago más utilizado
                 </button>
-                <div v-if="metodoPagoFrecuente" class="mt-4 bg-white p-4 rounded shadow col-span-3">
+                <div v-if="metodoPagoFrecuente" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="metodoPagoFrecuente = null" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        ✖
+                    </button>
                     <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
                     <p><strong>Nombre:</strong> {{ metodoPagoFrecuente.nombre }}</p>
                     <p><strong>Cantidad de usos:</strong> {{ metodoPagoFrecuente.usos }}</p>
