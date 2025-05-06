@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MetodoPagoFrecuente {
-    private String nombreMediodepago;
+    private String nombreMedioDePago;
     private int cantidadUsos;
 }

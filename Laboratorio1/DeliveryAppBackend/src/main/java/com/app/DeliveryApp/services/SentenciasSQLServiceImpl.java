@@ -1,6 +1,5 @@
 package com.app.DeliveryApp.services;
 
-import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
 
     @Override
     public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
-        System.out.println("Entrando a la consulta de tiempo promedio S");
         if (sentenciasSQLRepository.getTiempoPromedioRepartidor() == null){
             throw new IllegalArgumentException("No hay repartidores registrados");
         }
@@ -60,8 +58,8 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public String getMetodoPagoFrecuente() {
-        if (sentenciasSQLRepository.getMetodoPagoFrecuente().isEmpty()){
+    public MetodoPagoFrecuente getMetodoPagoFrecuente() {
+        if (sentenciasSQLRepository.getMetodoPagoFrecuente() == null){
             throw new IllegalArgumentException("No hay métodos de pago registrados");
         }
         return sentenciasSQLRepository.getMetodoPagoFrecuente();

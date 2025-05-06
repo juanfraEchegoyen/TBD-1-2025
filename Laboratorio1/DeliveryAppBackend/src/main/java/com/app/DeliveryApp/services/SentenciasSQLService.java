@@ -10,6 +10,6 @@ public interface SentenciasSQLService {
     List<EmpresaEntregasFallidas> getEmpresasEntregasFallidas();
     List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor();
     List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento();
-    String getMetodoPagoFrecuente();
+    MetodoPagoFrecuente getMetodoPagoFrecuente();
 
 }
