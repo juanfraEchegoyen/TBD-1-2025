@@ -121,7 +121,6 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 
     @Override
     public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
-        System.out.println("Entrando a la consulta de tiempo promedio R");
         try {
             return jdbcTemplate.query(SELECT_TIEMPO_PROMEDIO_REPARTIDOR_SQL,
                     (rs, rowNum) -> new RepartidorTiempoPromedio(
@@ -151,14 +150,14 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public String getMetodoPagoFrecuente(){
+    public MetodoPagoFrecuente getMetodoPagoFrecuente(){
         try {
-            return Objects.requireNonNull(jdbcTemplate.queryForObject(SELECT_METODO_PAGO_FRECUENTE_SQL,
+            return jdbcTemplate.queryForObject(SELECT_METODO_PAGO_FRECUENTE_SQL,
                     (rs, rowNum) -> new MetodoPagoFrecuente(
                             rs.getString("nombre_mediodepago"),
                             rs.getInt("cantidad_usos")
                     )
-            )).getNombreMediodepago();
+            );
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el método de pago más frecuente", ex);
         }

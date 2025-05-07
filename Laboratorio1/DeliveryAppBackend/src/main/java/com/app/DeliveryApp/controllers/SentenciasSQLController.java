@@ -58,7 +58,6 @@ public class SentenciasSQLController {
 
     @GetMapping("/tiempoPromedioRepartidor")
     public ResponseEntity<List<RepartidorTiempoPromedio>> getTiempoPromedioRepartidor() {
-        System.out.println("Entrando a la consulta de tiempo promedio C");
         try {
             List<RepartidorTiempoPromedio> tiempoPromedio = sentenciasSQLService.getTiempoPromedioRepartidor();
             return ResponseEntity.ok(tiempoPromedio);
@@ -82,9 +81,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/metodoPagoFrecuente")
-    public ResponseEntity<String> getMetodoPagoFrecuente() {
+    public ResponseEntity<MetodoPagoFrecuente> getMetodoPagoFrecuente() {
         try {
-            String metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
+            MetodoPagoFrecuente metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
             return ResponseEntity.ok(metodoPago);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
