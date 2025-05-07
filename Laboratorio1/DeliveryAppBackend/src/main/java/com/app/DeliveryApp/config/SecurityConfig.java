@@ -1,6 +1,7 @@
 package com.app.DeliveryApp.config;
 
 import com.app.DeliveryApp.jwt.JwtAuthenticationFilter;
+import com.app.DeliveryApp.jwt.JwtEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +24,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtEntryPoint jwtEntryPoint;
 
+    public SecurityConfig(JwtEntryPoint jwtEntryPoint) {
+        this.jwtEntryPoint = jwtEntryPoint;
+    }
     // Descripción: Este método configura el codificador de contraseñas utilizando BCrypt.
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -44,6 +49,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configura CORS
                 .csrf(AbstractHttpConfigurer::disable) // Desactiva la protección CSRF
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint)) // Configura el punto de entrada de excepciones
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configura la gestión de sesiones para que sea sin estado
                 .authorizeHttpRequests(auth -> auth // Configura las solicitudes HTTP autorizadas
                         .requestMatchers(
