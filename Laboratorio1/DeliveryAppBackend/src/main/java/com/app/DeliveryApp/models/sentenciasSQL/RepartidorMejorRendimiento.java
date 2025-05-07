@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RepartidorMejorRendimiento {
     private String nombreRepartidor;
-    private Double puntacion;
+    private Double puntuacion;
     private Integer entregas;
 }

@@ -31,4 +31,12 @@ export const menuOptions = [
     isDoble: false,
     submenu: []
   },
+  {
+    title: 'Consultas SQL',
+    icon: 'bx:bar-chart-alt',
+    link: '/querys',
+    active: false,
+    isDoble: false,
+    submenu: []
+  },
 ];
