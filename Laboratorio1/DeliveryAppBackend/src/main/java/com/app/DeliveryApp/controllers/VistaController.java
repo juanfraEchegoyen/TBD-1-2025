@@ -1,11 +1,11 @@
 package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.models.views.ResumenPedidosCliente;
-import com.app.DeliveryApp.models.views.ResumenDesempenoRepartidor;
-import com.app.DeliveryApp.models.views.ResumenEmpresasPedidos;
+import com.app.DeliveryApp.models.views.DesempenoRepartidor;
+import com.app.DeliveryApp.models.views.EmpresaPedidos;
 import com.app.DeliveryApp.services.ResumenPedidosClienteService;
-import com.app.DeliveryApp.services.ResumenDesempenoRepartidorService;
-import com.app.DeliveryApp.services.ResumenEmpresasPedidosService;
+import com.app.DeliveryApp.services.DesempenoRepartidorService;
+import com.app.DeliveryApp.services.EmpresaPedidosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +23,7 @@ public class VistaController {
     private DesempenoRepartidorService desempenoRepartidorService;
 
     @Autowired
-    private EmpresasPedidosService empresasPedidosService;
+    private EmpresaPedidosService empresasPedidosService;
 
     @GetMapping("/resumen-clientes")
     public List<ResumenPedidosCliente> getResumenClientes() {
@@ -36,7 +36,7 @@ public class VistaController {
     }
 
     @GetMapping("/empresas-mas-pedidos")
-    public List<EmpresasPedidos> getResumenEmpresas() {
+    public List<EmpresaPedidos> getResumenEmpresas() {
         return empresasPedidosService.getResumen();
     }
 }
