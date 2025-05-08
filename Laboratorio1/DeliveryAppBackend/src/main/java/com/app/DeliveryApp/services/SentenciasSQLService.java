@@ -1,17 +1,16 @@
 package com.app.DeliveryApp.services;
 
-import com.app.DeliveryApp.dto.RankingBonusDTO;
-import com.app.DeliveryApp.models.sentenciasSQL.*;
+import com.app.DeliveryApp.dto.*;
 
 import java.util.List;
 
 public interface SentenciasSQLService {
-    ClienteGasto getClienteConMayorGastos();
-    List<ProductoMasVendido> getProductosMasVendidosUltimoMes();
-    List<EmpresaEntregasFallidas> getEmpresasEntregasFallidas();
-    List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor();
-    List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento();
-    MetodoPagoFrecuente getMetodoPagoFrecuente();
+    ClienteGastoDTO getClienteConMayorGastos();
+    List<ProductoMasVendidoDTO> getProductosMasVendidosUltimoMes();
+    List<EmpresaEntregasFallidasDTO> getEmpresasEntregasFallidas();
+    List<RepartidorTiempoPromedioDTO> getTiempoPromedioRepartidor();
+    List<RepartidorMejorRendimientoDTO> getRepartidoresMejorRendimiento();
+    MetodoPagoFrecuenteDTO getMetodoPagoFrecuente();
     List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
 
 }

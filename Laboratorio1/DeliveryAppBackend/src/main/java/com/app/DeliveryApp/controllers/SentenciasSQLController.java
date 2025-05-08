@@ -1,7 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
-import com.app.DeliveryApp.dto.RankingBonusDTO;
-import com.app.DeliveryApp.models.sentenciasSQL.*;
+import com.app.DeliveryApp.dto.*;
 import com.app.DeliveryApp.services.SentenciasSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,9 @@ public class SentenciasSQLController {
     private SentenciasSQLService sentenciasSQLService;
 
     @GetMapping("/clienteMayorGastos")
-    public ResponseEntity<ClienteGasto> getClienteConMayorGastos() {
+    public ResponseEntity<ClienteGastoDTO> getClienteConMayorGastos() {
         try {
-            ClienteGasto clienteGasto = sentenciasSQLService.getClienteConMayorGastos();
+            ClienteGastoDTO clienteGasto = sentenciasSQLService.getClienteConMayorGastos();
             return ResponseEntity.ok(clienteGasto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -34,9 +33,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/productosMasVendidos")
-    public ResponseEntity<List<ProductoMasVendido>> getProductosMasVendidosUltimoMes() {
+    public ResponseEntity<List<ProductoMasVendidoDTO>> getProductosMasVendidosUltimoMes() {
         try {
-            List<ProductoMasVendido> productos = sentenciasSQLService.getProductosMasVendidosUltimoMes();
+            List<ProductoMasVendidoDTO> productos = sentenciasSQLService.getProductosMasVendidosUltimoMes();
             return ResponseEntity.ok(productos);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -46,9 +45,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/empresasEntregasFallidas")
-    public ResponseEntity<List<EmpresaEntregasFallidas>> getEmpresasEntregasFallidas() {
+    public ResponseEntity<List<EmpresaEntregasFallidasDTO>> getEmpresasEntregasFallidas() {
         try {
-            List<EmpresaEntregasFallidas> empresas = sentenciasSQLService.getEmpresasEntregasFallidas();
+            List<EmpresaEntregasFallidasDTO> empresas = sentenciasSQLService.getEmpresasEntregasFallidas();
             return ResponseEntity.ok(empresas);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -58,9 +57,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/tiempoPromedioRepartidor")
-    public ResponseEntity<List<RepartidorTiempoPromedio>> getTiempoPromedioRepartidor() {
+    public ResponseEntity<List<RepartidorTiempoPromedioDTO>> getTiempoPromedioRepartidor() {
         try {
-            List<RepartidorTiempoPromedio> tiempoPromedio = sentenciasSQLService.getTiempoPromedioRepartidor();
+            List<RepartidorTiempoPromedioDTO> tiempoPromedio = sentenciasSQLService.getTiempoPromedioRepartidor();
             return ResponseEntity.ok(tiempoPromedio);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -70,9 +69,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/repartidoresMejorRendimiento")
-    public ResponseEntity<List<RepartidorMejorRendimiento>> getRepartidoresMejorRendimiento() {
+    public ResponseEntity<List<RepartidorMejorRendimientoDTO>> getRepartidoresMejorRendimiento() {
         try {
-            List<RepartidorMejorRendimiento> repartidores = sentenciasSQLService.getRepartidoresMejorRendimiento();
+            List<RepartidorMejorRendimientoDTO> repartidores = sentenciasSQLService.getRepartidoresMejorRendimiento();
             return ResponseEntity.ok(repartidores);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -82,9 +81,9 @@ public class SentenciasSQLController {
     }
 
     @GetMapping("/metodoPagoFrecuente")
-    public ResponseEntity<MetodoPagoFrecuente> getMetodoPagoFrecuente() {
+    public ResponseEntity<MetodoPagoFrecuenteDTO> getMetodoPagoFrecuente() {
         try {
-            MetodoPagoFrecuente metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
+            MetodoPagoFrecuenteDTO metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
             return ResponseEntity.ok(metodoPago);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
