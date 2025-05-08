@@ -9,8 +9,8 @@
                 <button @click="fetchClienteMayorGasto" class="btn-primary">
                     Cliente con mayor gasto
                 </button>
-                <div v-if="clienteMayorGasto" class="relative bg-white p-4 rounded shadow col-span-3">
-                    <button @click="clienteMayorGasto = null" class="close-btn">
+                <div v-if="clienteMayorGasto && consultaActiva === 'clienteMayorGasto'" class="relative bg-white p-4 rounded shadow col-span-3">
+                    <button @click="clienteMayorGasto = null; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -24,8 +24,8 @@
                 <button @click="fetchProductoMasVendido" class="btn-primary">
                     Producto más vendido
                 </button>
-                <div v-if="productoMasVendido && productoMasVendido.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="productoMasVendido = []" class="close-btn">
+                <div v-if="productoMasVendido && productoMasVendido.length && consultaActiva === 'productoMasVendido'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="productoMasVendido = []; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -53,8 +53,8 @@
                 <button @click="fetchEmpresasConMasEntregasFallidas" class="btn-primary">
                     Empresas con más entregas fallidas
                 </button>
-                <div v-if="empresasConMasEntregasFallidas" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="empresasConMasEntregasFallidas = null" class="close-btn">
+                <div v-if="empresasConMasEntregasFallidas && consultaActiva === 'empresasConMasEntregasFallidas'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="empresasConMasEntregasFallidas = null; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -80,8 +80,8 @@
                 <button @click="fetchTiempoPromedioReapartidor" class="btn-primary">
                     Tiempo promedio repartidor
                 </button>
-                <div v-if="tiempoPromedioRepartidor.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="tiempoPromedioRepartidor = []" class="close-btn">
+                <div v-if="tiempoPromedioRepartidor.length && consultaActiva === 'tiempoPromedioRepartidor'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="tiempoPromedioRepartidor = []; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -109,8 +109,8 @@
                 <button @click="fetchRepartidorMejorRendimiento" class="btn-primary">
                     Repartidor mejor rendimiento
                 </button>
-                <div v-if="repartidorMejorRendimiento.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="repartidorMejorRendimiento = []" class="close-btn">
+                <div v-if="repartidorMejorRendimiento.length && consultaActiva === 'repartidorMejorRendimiento'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="repartidorMejorRendimiento = []; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -138,8 +138,8 @@
                 <button @click="fetchMetodoPagoFrecuente" class="btn-primary">
                     Método de pago más utilizado
                 </button>
-                <div v-if="metodoPagoFrecuente" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="metodoPagoFrecuente = null" class="close-btn">
+                <div v-if="metodoPagoFrecuente && consultaActiva === 'metodoPagoFrecuente'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="metodoPagoFrecuente = null; consultaActiva = null" class="close-btn">
                         ✖
                     </button>
                     <h2 class="text-xl font-semibold mb-2"</h2>
@@ -197,8 +197,9 @@ export default {
     name: "QuerysPage",
     data() {
         return {
+            consultaActiva: null, // Estado centralizado para la consulta activa
             clienteMayorGasto: null,
-            productoMasVendido: [], // Inicializar como array
+            productoMasVendido: [],
             empresasConMasEntregasFallidas: null,
             tiempoPromedioRepartidor: [],
             repartidorMejorRendimiento: [],
@@ -209,6 +210,7 @@ export default {
     },
     methods: {
         async fetchClienteMayorGasto() {
+            this.consultaActiva = 'clienteMayorGasto'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/clienteMayorGastos');
                 this.clienteMayorGasto = {
@@ -220,14 +222,16 @@ export default {
             }
         },
         async fetchProductoMasVendido() {
+            this.consultaActiva = 'productoMasVendido'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/productosMasVendidos');
-                this.productoMasVendido = res.data; // Guardar el listado completo
+                this.productoMasVendido = res.data;
             } catch (e) {
                 console.error("Error en fetchProductoMasVendido:", e);
             }
         },
         async fetchEmpresasConMasEntregasFallidas() {
+            this.consultaActiva = 'empresasConMasEntregasFallidas'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/empresasEntregasFallidas');
                 this.empresasConMasEntregasFallidas = res.data.map(empresa => ({
@@ -238,7 +242,8 @@ export default {
                 console.error("Error en fetchEmpresasConMasEntregasFallidas:", e);
             }
         },
-        async fetchTiempoPromedioReapartidor(){
+        async fetchTiempoPromedioReapartidor() {
+            this.consultaActiva = 'tiempoPromedioRepartidor'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/tiempoPromedioRepartidor');
                 this.tiempoPromedioRepartidor = response.data.map(item => ({
@@ -250,7 +255,8 @@ export default {
                 console.error("Error en fetchTiempoPromedioRepartidor:", error);
             }
         },
-        async fetchRepartidorMejorRendimiento(){
+        async fetchRepartidorMejorRendimiento() {
+            this.consultaActiva = 'repartidorMejorRendimiento'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/repartidoresMejorRendimiento');
                 this.repartidorMejorRendimiento = response.data.map(item => ({
@@ -262,7 +268,8 @@ export default {
                 console.error("Error en fetchRepartidorMejorRendimiento:", error);
             }
         },
-        async fetchMetodoPagoFrecuente(){
+        async fetchMetodoPagoFrecuente() {
+            this.consultaActiva = 'metodoPagoFrecuente'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/metodoPagoFrecuente');
                 this.metodoPagoFrecuente = {

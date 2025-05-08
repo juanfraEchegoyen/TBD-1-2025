@@ -8,6 +8,14 @@ export const menuOptions = [
     submenu: []
   },
   {
+    title: 'Crear Pedido',
+    icon: 'bx:bxs-plus-circle',
+    link: '/crear-pedido',
+    active: false,
+    isDoble: false,
+    submenu: []
+  },
+  {
     title: 'Resumen por Cliente',
     icon: 'bx:bxs-user-detail',
     link: '/resumen-clientes',

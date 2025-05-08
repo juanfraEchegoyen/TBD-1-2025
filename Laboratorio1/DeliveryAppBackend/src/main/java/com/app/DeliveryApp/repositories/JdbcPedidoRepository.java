@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.repositories;
 
+import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.models.Pedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -67,6 +68,40 @@ public class JdbcPedidoRepository implements PedidoRepository {
         }
 
         return pedido;
+    }
+
+
+    public void RegistrarPedido(Pedido pedido, DetallePedido detalle) {
+
+        String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql,
+                pedido.getEstadoEntrega(),
+                pedido.getPrioridadPedido(),
+                pedido.isProblemaCritico(),
+                pedido.getRutCliente(),
+                pedido.getRutEmpresa(),
+                pedido.getRutRepartidor(),
+                detalle.getPrecioTotal(),
+                detalle.getTiempoEntrega(),
+                detalle.getFechaEntrega(),
+                detalle.getCantidad(),
+                detalle.getIdProducto()
+        );
+    }
+
+    public void actualizarEstadoPedido(Integer idPedido, String nuevoEstado) {
+        String sql = "CALL actualizar_estado_pedido(?, ?)";
+        jdbcTemplate.update(sql, idPedido, nuevoEstado);
+    }
+
+    public void Aumentar_stock_al_fallar(Integer idPedido) {
+        String sql = "CALL Aumentar_stock_al_fallar(?)";
+        jdbcTemplate.update(sql, idPedido);
+    }
+
+    public void descontar_stock_al_confirmar(Integer idPedido) {
+        String sql = "CALL descontar_stock_al_confirmar(?)";
+        jdbcTemplate.update(sql, idPedido);
     }
 
     @Override

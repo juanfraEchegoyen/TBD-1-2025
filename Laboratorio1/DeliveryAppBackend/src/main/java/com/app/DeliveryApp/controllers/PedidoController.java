@@ -3,6 +3,7 @@ package com.app.DeliveryApp.controllers;
 import com.app.DeliveryApp.models.Pedido;
 import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.dto.PedidoRequestDTO;
+import com.app.DeliveryApp.repositories.JdbcPedidoRepository;
 import com.app.DeliveryApp.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,12 @@ import java.util.NoSuchElementException;
 public class PedidoController {
 
     private final PedidoService pedidoService;
+    private final JdbcPedidoRepository jdbcPedidoRepository;
 
     @Autowired
     public PedidoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
+        this.jdbcPedidoRepository = new JdbcPedidoRepository();
     }
 
     @PostMapping
@@ -39,6 +42,31 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear pedido: " + e.getMessage());
         }
     }
+
+    @PostMapping("/registrar")
+    public ResponseEntity<String> RegistrarPedido(@RequestBody Pedido pedido, DetallePedido detallePedido) {
+        jdbcPedidoRepository.RegistrarPedido(pedido,detallePedido);
+        return ResponseEntity.ok("Pedido registrado correctamente");
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<String> actualizarEstadoPedido(@PathVariable Integer id, @RequestParam String nuevoEstado) {
+        jdbcPedidoRepository.actualizarEstadoPedido(id, nuevoEstado);
+        return ResponseEntity.ok("Estado actualizado correctamente");
+    }
+
+    @PutMapping("/{id}/confirmar")
+    public ResponseEntity<String> descontarStockAlConfirmar(@PathVariable Integer id) {
+        jdbcPedidoRepository.descontar_stock_al_confirmar(id);
+        return ResponseEntity.ok("Stock descontado correctamente");
+    }
+
+    @PutMapping("/{id}/fallado")
+    public ResponseEntity<String> aumentarStockAlFallar(@PathVariable Integer id) {
+        jdbcPedidoRepository.Aumentar_stock_al_fallar(id);
+        return ResponseEntity.ok("Stock aumentado por pedido fallido");
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> obtenerPedidoPorId(@PathVariable Long id) {
