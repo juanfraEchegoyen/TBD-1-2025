@@ -147,6 +147,45 @@
                     <p><strong>Cantidad de usos:</strong> {{ metodoPagoFrecuente.usos }}</p>
                 </div>
             </div>
+            
+            <!-- Separador de secciones -->
+            <hr class="my-8 border-t-2 border-gray-300" />
+            
+            <!-- Título de la nueva sección -->
+            <h1 class="text-2xl font-bold mb-4">Actividades Bonus</h1>
+            
+            <!-- Ranking de devoluciones o cancelaciones -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <button @click="fetchRankingDevolucionesOCancelaciones" class="btn-primary btn-bonus">
+                    Ranking de devoluciones o cancelaciones
+                </button>
+                <div v-if="rankingDevolucionesCancelaciones.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
+                    <button @click="rankingDevolucionesCancelaciones = []" class="close-btn">
+                        ✖
+                    </button>
+                    <h2 class="text-xl font-semibold mb-2">Ranking de productos por devoluciones y cancelaciones</h2>
+                    <table class="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border border-gray-300 px-4 py-2">Producto</th>
+                                <th class="border border-gray-300 px-4 py-2">Categoría</th>
+                                <th class="border border-gray-300 px-4 py-2">Devoluciones</th>
+                                <th class="border border-gray-300 px-4 py-2">Cancelaciones</th>
+                                <th class="border border-gray-300 px-4 py-2">Total Problemas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="producto in rankingDevolucionesCancelaciones" :key="producto.nombre_producto">
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.nombre_producto }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.categoria }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.devoluciones }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.cancelaciones }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.problemas }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -164,6 +203,8 @@ export default {
             tiempoPromedioRepartidor: [],
             repartidorMejorRendimiento: [],
             metodoPagoFrecuente: null,
+            // Agregamos la nueva variable para el ranking
+            rankingDevolucionesCancelaciones: [],
         };
     },
     methods: {
@@ -231,6 +272,28 @@ export default {
             } catch (error) {
                 console.error("Error en fetchMetodoPagoFrecuente:", error);
             }
+        },
+        // Nuevo método para buscar el ranking de devoluciones o cancelaciones
+        async fetchRankingDevolucionesOCancelaciones() {
+            try {
+                // Llamada a la API
+                const response = await apiClient.get('/api/v1/sentenciassql/rankingDevolucionesOCancelaciones');
+                
+                // Asignar los datos a la variable
+                this.rankingDevolucionesCancelaciones = response.data;
+            } catch (error) {
+                console.error("Error en fetchRankingDevolucionesOCancelaciones:", error);
+                
+                // Manejo del error 404 o cualquier otro error
+                if (error.response && error.response.status === 404) {
+                    alert("La API de ranking de devoluciones no está disponible o el endpoint no existe");
+                } else {
+                    alert("Error al obtener el ranking de devoluciones: " + error.message);
+                }
+                
+                // Inicializar con array vacío para evitar errores
+                this.rankingDevolucionesCancelaciones = [];
+            }
         }
     }
 };
@@ -252,6 +315,15 @@ h1 {
 
 .btn-primary:hover {
     background-color: #dc2626; /* rojo oscuro */
+}
+
+/* Estilo especial para el botón de bonus */
+.btn-bonus {
+    background-color: #8b5cf6; /* púrpura */
+}
+
+.btn-bonus:hover {
+    background-color: #7c3aed; /* púrpura oscuro */
 }
 
 .close-btn {
