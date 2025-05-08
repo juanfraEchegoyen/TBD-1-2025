@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.repositories;
 
+import com.app.DeliveryApp.dto.RankingBonusDTO;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -14,6 +15,21 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+
+    //Bonus Generar un ranking de productos o servicios según devoluciones o cancelaciones.
+    private static String SELECT_RANKING_DEVOLUCIONES_O_CANCELACIONES = """
+            SELECT pr.nombre_producto, pr.categoria,
+                COUNT(CASE WHEN p.estado_entrega = 'Devolución' THEN 1 END) AS devoluciones,
+                COUNT(CASE WHEN p.estado_entrega = 'Cancelada' THEN 1 END) AS cancelaciones,
+                COUNT(*) AS total_problemas
+            FROM Producto pr
+            JOIN DetallePedido dp ON pr.id_producto = dp.id_producto
+            JOIN Pedido p ON dp.id_pedido = p.id_pedido
+            WHERE p.estado_entrega IN ('Cancelada', 'Devolución')
+            GROUP BY pr.nombre_producto, pr.categoria
+            ORDER BY total_problemas DESC
+            """;
 
     private static final String SELECT_CLIENTE_CON_MAYOR_GASTOS_SQL = """
             SELECT c.nombre_cliente, SUM(dp.precio_total) AS dinero_gastado
@@ -160,6 +176,23 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             );
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el método de pago más frecuente", ex);
+        }
+    }
+
+    @Override
+    public List<RankingBonusDTO> getRankingDevolucionesOCancelaciones() {
+        try {
+            return jdbcTemplate.query(SELECT_RANKING_DEVOLUCIONES_O_CANCELACIONES,
+                    (rs, rowNum) -> new RankingBonusDTO(
+                            rs.getString("nombre_producto"),
+                            rs.getString("categoria"),
+                            rs.getInt("devoluciones"),
+                            rs.getInt("cancelaciones"),
+                            rs.getInt("total_problemas")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
         }
     }
 

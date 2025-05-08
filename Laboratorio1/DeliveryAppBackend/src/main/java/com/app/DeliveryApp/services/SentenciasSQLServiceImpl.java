@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.RankingBonusDTO;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,5 +64,13 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
             throw new IllegalArgumentException("No hay métodos de pago registrados");
         }
         return sentenciasSQLRepository.getMetodoPagoFrecuente();
+    }
+
+    @Override
+    public List<RankingBonusDTO> getRankingDevolucionesOCancelaciones() {
+        if (sentenciasSQLRepository.getRankingDevolucionesOCancelaciones().isEmpty()){
+            throw new IllegalArgumentException("No hay devoluciones o cancelaciones registradas");
+        }
+        return sentenciasSQLRepository.getRankingDevolucionesOCancelaciones();
     }
 }

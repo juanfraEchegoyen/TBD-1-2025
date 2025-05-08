@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.RankingBonusDTO;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 
 import java.util.List;
@@ -11,5 +12,6 @@ public interface SentenciasSQLService {
     List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor();
     List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento();
     MetodoPagoFrecuente getMetodoPagoFrecuente();
+    List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
 
 }

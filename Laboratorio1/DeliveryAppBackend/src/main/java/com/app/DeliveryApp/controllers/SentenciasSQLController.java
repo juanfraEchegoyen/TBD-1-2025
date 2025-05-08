@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
+import com.app.DeliveryApp.dto.RankingBonusDTO;
 import com.app.DeliveryApp.models.sentenciasSQL.*;
 import com.app.DeliveryApp.services.SentenciasSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,18 @@ public class SentenciasSQLController {
         try {
             MetodoPagoFrecuente metodoPago = sentenciasSQLService.getMetodoPagoFrecuente();
             return ResponseEntity.ok(metodoPago);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/rankingDevolucionesOCancelaciones")
+    public ResponseEntity<List<RankingBonusDTO>> getRankingDevolucionesOCancelaciones() {
+        try {
+            List<RankingBonusDTO> ranking = sentenciasSQLService.getRankingDevolucionesOCancelaciones();
+            return ResponseEntity.ok(ranking);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
