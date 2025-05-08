@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="text-2xl font-bold mb-4">Querys Complejas</h1>
+        <h1 class="text-2xl font-bold mb-4">Consulta de datos</h1>
 
         <!-- Contenedor con barra de desplazamiento -->
         <div class="max-h-[80vh] overflow-y-auto p-4 bg-gray-100 rounded shadow">
@@ -90,7 +90,7 @@
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 px-4 py-2">Rut</th>
                                 <th class="border border-gray-300 px-4 py-2">Nombre</th>
-                                <th class="border border-gray-300 px-4 py-2">Tiempo Promedio</th>
+                                <th class="border border-gray-300 px-4 py-2">Tiempo Promedio (minutos)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,7 +176,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="producto in rankingDevolucionesCancelaciones" :key="producto.nombre_producto">
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.nombre_producto }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ producto.producto }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ producto.categoria }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ producto.devoluciones }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ producto.cancelaciones }}</td>

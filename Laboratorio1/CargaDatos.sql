@@ -49,7 +49,7 @@ INSERT INTO Repartidor (rut_repartidor, nombre_repartidor, telefono, puntuacion_
 ('13131313-2', 'María Díaz', '913000002', 3, 3),
 ('14141414-3', 'Pedro Ramírez', '913000003', 3, 4),
 ('15151515-4', 'Claudia Fuentes', '913000004', 5, 3),
-('16161616-5', 'José Navarro', '913000005', 3, 6);
+('16161616-5', 'José Navarro', '913000005', 3, 7);
 
 -- Puntuaciones
 INSERT INTO Puntuacion (puntaje, comentario, rut_repartidor) VALUES 
@@ -67,7 +67,9 @@ INSERT INTO Puntuacion (puntaje, comentario, rut_repartidor) VALUES
 (4, 'Muy puntual', '12121212-1'),
 (5, 'Excelente atención', '16161616-5'),
 (3, 'Amable y rápido', '14141414-3'),
-(4, 'Buen servicio', '16161616-5');
+(4, 'Buen servicio', '16161616-5'),
+(3, 'Buen servicio', '16161616-5'),
+(1, 'Penca', '16161616-5');
 
 -- Pedidos
 INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES 
@@ -90,7 +92,9 @@ INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_clie
 ('Entrega fallida', 'Baja', true, '77777777-7', '80000000-3', '16161616-5'), -- Producto 11
 ('Entregado', 'Alta', false, '88888888-8', '80000000-4', '14141414-3'),  -- Producto 12
 ('Pendiente', 'Baja', false, '99999999-9', '80000000-4', '15151515-4'),  -- Producto 13
-('Entregado', 'Media', false, '10101010-0', '80000000-4', '16161616-5'); -- Producto 14
+('Entregado', 'Media', false, '10101010-0', '80000000-4', '16161616-5'), -- Producto 14
+('Cancelada', 'Baja', false, '10101010-0', '80000000-4', '16161616-5'), -- Producto 14
+('Devolución', 'Baja', true, '11111111-1', '80000000-4', '16161616-5'); -- Producto 14
 
 
 -- DetallePedido (modificado para reflejar popularidad de productos)
@@ -114,7 +118,9 @@ INSERT INTO DetallePedido (precio_total, tiempo_entrega, fecha_entrega, cantidad
 (7000, 50, '2025-05-09', 1, 17, 11),  -- Sushi Roll
 (4000, 10, '2025-05-10', 2, 18, 12),  -- Galletas
 (6000, 20, '2025-05-11', 1, 19, 13),  -- Torta de Chocolate
-(1100, 20, '2025-05-12', 1, 20, 14);  -- Helado de Vainilla
+(1100, 20, '2025-05-12', 1, 20, 14),  -- Helado de Vainilla
+(2200, 20, '2025-05-13', 2, 21, 14),  -- Helado de Vainilla
+(1100, 40, '2025-05-14', 1, 22, 14);  -- Helado de Vainilla
 
 -- Medios de pago
 INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido) VALUES 
@@ -137,4 +143,6 @@ INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido) VALUES
 ('Efectivo', '77777777-7', 7),
 ('Crédito', '88888888-8',8 ),
 ('Débito', '99999999-9', 9),
-('Transferencia', '10101010-0', 10);
+('Transferencia', '10101010-0', 10),
+('Transferencia', '11111111-1', 10),
+('Débito', '11111111-1', 10);
