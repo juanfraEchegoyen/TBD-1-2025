@@ -10,4 +10,5 @@ public interface ClienteService {
     List<Cliente> obtenerTodosLosClientes();
     Optional<Cliente> actualizarCliente(String rut, Cliente clienteActualizado);
     boolean eliminarCliente(String rut);
+    double calcularRiesgoCliente(String rutCliente);
 }

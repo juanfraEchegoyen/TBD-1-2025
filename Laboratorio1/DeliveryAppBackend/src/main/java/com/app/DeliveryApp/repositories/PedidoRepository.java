@@ -10,4 +10,6 @@ public interface PedidoRepository {
     List<Pedido> findAll();
     int update(Pedido pedido);
     int deleteById(Long id);
+    int countByRutCliente(String rutCliente);
+    int countByRutClienteAndEstado(String rutCliente, String estado);
 }

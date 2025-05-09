@@ -2,6 +2,7 @@ package com.app.DeliveryApp.services;
 
 import com.app.DeliveryApp.models.Cliente;
 import com.app.DeliveryApp.repositories.ClienteRepository;
+import com.app.DeliveryApp.repositories.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,9 @@ import java.util.Optional;
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+
+    @Autowired
+    private PedidoRepository pedidoRepository;
 
     @Autowired
     public ClienteServiceImpl(ClienteRepository clienteRepository) {
@@ -65,5 +69,17 @@ public class ClienteServiceImpl implements ClienteService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public double calcularRiesgoCliente(String rutCliente) {
+        int totalPedidos = pedidoRepository.countByRutCliente(rutCliente);
+        int pedidosFallidos = pedidoRepository.countByRutClienteAndEstado(rutCliente, "Entrega fallida");
+
+        if (totalPedidos == 0) return 0.0;
+        
+        double riesgo = ((double) pedidosFallidos / totalPedidos) * 100;
+
+        return Math.round(riesgo);
     }
 }
