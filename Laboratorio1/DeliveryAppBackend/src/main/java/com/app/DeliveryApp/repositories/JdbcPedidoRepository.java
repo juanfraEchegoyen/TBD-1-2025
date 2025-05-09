@@ -142,4 +142,18 @@ public class JdbcPedidoRepository implements PedidoRepository {
         }
         return jdbcTemplate.update(DELETE_PEDIDO_BY_ID_SQL, id);
     }
+
+    @Override
+    public int countByRutCliente(String rutCliente) {
+        String sql = "SELECT COUNT(*) FROM Pedido WHERE rut_cliente = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, rutCliente);
+        return count != null ? count : 0;
+    }
+
+    @Override
+    public int countByRutClienteAndEstado(String rutCliente, String estado) {
+        String sql = "SELECT COUNT(*) FROM Pedido WHERE rut_cliente = ? AND estado_entrega = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, rutCliente, estado);
+        return count != null ? count : 0;
+    }
 }

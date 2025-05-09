@@ -45,6 +45,13 @@ public class ClienteController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // obtener riesgo de cliente por rut
+    @GetMapping("/{rut}/riesgo")
+    public ResponseEntity<Double> obtenerRiesgoCliente(@PathVariable String rut) {
+        double riesgo = clienteService.calcularRiesgoCliente(rut);
+        return ResponseEntity.ok(riesgo);
+    }
+
     // obtener todos los clientes
     @GetMapping
     public ResponseEntity<List<Cliente>> obtenerTodosLosClientes() {
