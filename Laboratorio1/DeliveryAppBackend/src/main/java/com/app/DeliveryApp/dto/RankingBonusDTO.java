@@ -53,3 +53,4 @@ public class RankingBonusDTO {
         this.categoria = categoria;
     }
 }
+

@@ -81,18 +81,18 @@ CREATE TABLE IF NOT EXISTS MedioDePago (
 );
 
 -- Usuario
-CREATE TABLE IF NOT EXISTS Usuario (
-	id_usuario SERIAL PRIMARY KEY,
-	nombre VARCHAR(100) NOT NULL UNIQUE,
-	email VARCHAR(255) NOT NULL UNIQUE,
-	password VARCHAR(255) NOT NULL
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
 );
 
 -- Notificacion
 CREATE TABLE IF NOT EXISTS Notificacion (
-	id_notificacion SERIAL PRIMARY KEY,
-	mensaje TEXT,
-	fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	id_pedido INT,
-	FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+    id_notificacion SERIAL PRIMARY KEY,
+    mensaje TEXT,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pedido INT,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
 );

@@ -188,7 +188,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
                             rs.getInt("cancelaciones"),
                             rs.getInt("total_problemas")
                     )
-            );
+            );  // Añade este paréntesis de cierre
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
         }
