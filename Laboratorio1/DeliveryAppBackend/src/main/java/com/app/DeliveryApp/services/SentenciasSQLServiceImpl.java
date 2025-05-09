@@ -1,6 +1,6 @@
 package com.app.DeliveryApp.services;
 
-import com.app.DeliveryApp.models.sentenciasSQL.*;
+import com.app.DeliveryApp.dto.*;
 import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public ClienteGasto getClienteConMayorGastos() {
+    public ClienteGastoDTO getClienteConMayorGastos() {
         if (sentenciasSQLRepository.getClienteConMayorGastos().getNombreCliente().isEmpty()){
             throw new IllegalArgumentException("No hay clientes registrados");
         }
@@ -26,7 +26,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public List<ProductoMasVendido> getProductosMasVendidosUltimoMes() {
+    public List<ProductoMasVendidoDTO> getProductosMasVendidosUltimoMes() {
         if (sentenciasSQLRepository.getProductosMasVendidosUltimoMes().isEmpty()){
             throw new IllegalArgumentException("No hay productos vendidos en el último mes");
         }
@@ -34,7 +34,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public List<EmpresaEntregasFallidas> getEmpresasEntregasFallidas() {
+    public List<EmpresaEntregasFallidasDTO> getEmpresasEntregasFallidas() {
         if (sentenciasSQLRepository.getEmpresasEntregasFallidas().isEmpty()){
             throw new IllegalArgumentException("No hay entregas fallidas registradas");
         }
@@ -42,7 +42,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
+    public List<RepartidorTiempoPromedioDTO> getTiempoPromedioRepartidor() {
         if (sentenciasSQLRepository.getTiempoPromedioRepartidor() == null){
             throw new IllegalArgumentException("No hay repartidores registrados");
         }
@@ -50,7 +50,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento() {
+    public List<RepartidorMejorRendimientoDTO> getRepartidoresMejorRendimiento() {
         if (sentenciasSQLRepository.getRepartidoresMejorRendimiento().isEmpty()){
             throw new IllegalArgumentException("No hay repartidores registrados");
         }
@@ -58,10 +58,18 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     }
 
     @Override
-    public MetodoPagoFrecuente getMetodoPagoFrecuente() {
+    public MetodoPagoFrecuenteDTO getMetodoPagoFrecuente() {
         if (sentenciasSQLRepository.getMetodoPagoFrecuente() == null){
             throw new IllegalArgumentException("No hay métodos de pago registrados");
         }
         return sentenciasSQLRepository.getMetodoPagoFrecuente();
+    }
+
+    @Override
+    public List<RankingBonusDTO> getRankingDevolucionesOCancelaciones() {
+        if (sentenciasSQLRepository.getRankingDevolucionesOCancelaciones().isEmpty()){
+            throw new IllegalArgumentException("No hay devoluciones o cancelaciones registradas");
+        }
+        return sentenciasSQLRepository.getRankingDevolucionesOCancelaciones();
     }
 }

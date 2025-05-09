@@ -1,19 +1,33 @@
 package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.sentenciasSQL.*;
+import com.app.DeliveryApp.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+
+    //Bonus Generar un ranking de productos o servicios según devoluciones o cancelaciones.
+    private static String SELECT_RANKING_DEVOLUCIONES_O_CANCELACIONES = """
+            SELECT pr.nombre_producto, pr.categoria,
+                COUNT(CASE WHEN p.estado_entrega = 'Devolución' THEN 1 END) AS devoluciones,
+                COUNT(CASE WHEN p.estado_entrega = 'Cancelada' THEN 1 END) AS cancelaciones,
+                COUNT(*) AS total_problemas
+            FROM Producto pr
+            JOIN DetallePedido dp ON pr.id_producto = dp.id_producto
+            JOIN Pedido p ON dp.id_pedido = p.id_pedido
+            WHERE p.estado_entrega IN ('Cancelada', 'Devolución')
+            GROUP BY pr.nombre_producto, pr.categoria
+            ORDER BY total_problemas DESC
+            """;
 
     private static final String SELECT_CLIENTE_CON_MAYOR_GASTOS_SQL = """
             SELECT c.nombre_cliente, SUM(dp.precio_total) AS dinero_gastado
@@ -77,10 +91,10 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             """;
 
     @Override
-    public ClienteGasto getClienteConMayorGastos() {
+    public ClienteGastoDTO getClienteConMayorGastos() {
         try {
             return jdbcTemplate.queryForObject(SELECT_CLIENTE_CON_MAYOR_GASTOS_SQL,
-                    (rs, rowNum) -> new ClienteGasto(
+                    (rs, rowNum) -> new ClienteGastoDTO(
                             rs.getString("nombre_cliente"),
                             rs.getInt("dinero_gastado")
                     )
@@ -91,10 +105,10 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public List<ProductoMasVendido> getProductosMasVendidosUltimoMes() {
+    public List<ProductoMasVendidoDTO> getProductosMasVendidosUltimoMes() {
         try {
             return jdbcTemplate.query(SELECT_PRODUCTOS_MAS_VENDIDOS_ULTIMO_MES_SQL,
-                    (rs, rowNum) -> new ProductoMasVendido(
+                    (rs, rowNum) -> new ProductoMasVendidoDTO(
                             rs.getString("categoria"),
                             rs.getString("nombre_producto"),
                             rs.getInt("total_pedidos")
@@ -106,10 +120,10 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public List<EmpresaEntregasFallidas> getEmpresasEntregasFallidas() {
+    public List<EmpresaEntregasFallidasDTO> getEmpresasEntregasFallidas() {
         try {
             return jdbcTemplate.query(SELECT_EMPRESAS_ENTREGAS_FALLIDAS_SQL,
-                    (rs, rowNum) -> new EmpresaEntregasFallidas(
+                    (rs, rowNum) -> new EmpresaEntregasFallidasDTO(
                             rs.getString("nombre_empresa"),
                             rs.getInt("total_entregas_fallidas")
                     )
@@ -120,10 +134,10 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public List<RepartidorTiempoPromedio> getTiempoPromedioRepartidor() {
+    public List<RepartidorTiempoPromedioDTO> getTiempoPromedioRepartidor() {
         try {
             return jdbcTemplate.query(SELECT_TIEMPO_PROMEDIO_REPARTIDOR_SQL,
-                    (rs, rowNum) -> new RepartidorTiempoPromedio(
+                    (rs, rowNum) -> new RepartidorTiempoPromedioDTO(
                             rs.getString("rut_repartidor"),
                             rs.getString("nombre_repartidor"),
                             rs.getDouble("tiempo_promedio")
@@ -135,10 +149,10 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public List<RepartidorMejorRendimiento> getRepartidoresMejorRendimiento() {
+    public List<RepartidorMejorRendimientoDTO> getRepartidoresMejorRendimiento() {
         try {
             return jdbcTemplate.query(SELECT_REPARTIDORES_MEJOR_RENDIMIENTO_SQL,
-                    (rs, rowNum) -> new RepartidorMejorRendimiento(
+                    (rs, rowNum) -> new RepartidorMejorRendimientoDTO(
                             rs.getString("nombre_repartidor"),
                             rs.getDouble("puntuacion"),
                             rs.getInt("entregas")
@@ -150,16 +164,33 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     }
 
     @Override
-    public MetodoPagoFrecuente getMetodoPagoFrecuente(){
+    public MetodoPagoFrecuenteDTO getMetodoPagoFrecuente(){
         try {
             return jdbcTemplate.queryForObject(SELECT_METODO_PAGO_FRECUENTE_SQL,
-                    (rs, rowNum) -> new MetodoPagoFrecuente(
+                    (rs, rowNum) -> new MetodoPagoFrecuenteDTO(
                             rs.getString("nombre_mediodepago"),
                             rs.getInt("cantidad_usos")
                     )
             );
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el método de pago más frecuente", ex);
+        }
+    }
+
+    @Override
+    public List<RankingBonusDTO> getRankingDevolucionesOCancelaciones() {
+        try {
+            return jdbcTemplate.query(SELECT_RANKING_DEVOLUCIONES_O_CANCELACIONES,
+                    (rs, rowNum) -> new RankingBonusDTO(
+                            rs.getString("nombre_producto"),
+                            rs.getString("categoria"),
+                            rs.getInt("devoluciones"),
+                            rs.getInt("cancelaciones"),
+                            rs.getInt("total_problemas")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
         }
     }
 
