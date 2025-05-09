@@ -62,3 +62,4 @@ WHERE p.prioridad_pedido = 'Alta'
 GROUP BY mp.nombre_mediodepago
 ORDER BY cantidad_usos DESC
 LIMIT 1;
+

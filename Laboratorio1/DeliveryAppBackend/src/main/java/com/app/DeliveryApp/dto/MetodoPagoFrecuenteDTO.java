@@ -1,4 +1,4 @@
-package com.app.DeliveryApp.models.sentenciasSQL;
+package com.app.DeliveryApp.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetodoPagoFrecuente {
+public class MetodoPagoFrecuenteDTO {
     private String nombreMedioDePago;
     private int cantidadUsos;
 }

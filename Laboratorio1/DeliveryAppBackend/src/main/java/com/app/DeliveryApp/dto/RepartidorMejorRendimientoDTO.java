@@ -1,4 +1,4 @@
-package com.app.DeliveryApp.models.sentenciasSQL;
+package com.app.DeliveryApp.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RepartidorTiempoPromedio {
-    private String rutRepartidor;
+public class RepartidorMejorRendimientoDTO {
     private String nombreRepartidor;
-    private Double tiempoPromedio;
+    private Double puntuacion;
+    private Integer entregas;
 }
