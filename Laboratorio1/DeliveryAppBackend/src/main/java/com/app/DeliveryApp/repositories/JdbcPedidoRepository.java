@@ -72,8 +72,17 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
 
     public void RegistrarPedido(Pedido pedido, DetallePedido detalle) {
-
         String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        // Convertir Double a Integer para precio_total
+        Integer precioTotal = detalle.getPrecioTotal().intValue();
+
+        // Convertir java.util.Date a java.sql.Date
+        java.sql.Date sqlFechaEntrega = new java.sql.Date(detalle.getFechaEntrega().getTime());
+
+        // Convertir Long a Integer para idProducto
+        Integer idProducto = detalle.getIdProducto().intValue();
+
         jdbcTemplate.update(sql,
                 pedido.getEstadoEntrega(),
                 pedido.getPrioridadPedido(),
@@ -81,11 +90,11 @@ public class JdbcPedidoRepository implements PedidoRepository {
                 pedido.getRutCliente(),
                 pedido.getRutEmpresa(),
                 pedido.getRutRepartidor(),
-                detalle.getPrecioTotal(),
+                precioTotal,           // Double → Integer
                 detalle.getTiempoEntrega(),
-                detalle.getFechaEntrega(),
+                sqlFechaEntrega,       // java.util.Date → java.sql.Date
                 detalle.getCantidad(),
-                detalle.getIdProducto()
+                idProducto             // Long → Integer
         );
     }
 

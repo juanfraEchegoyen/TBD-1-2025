@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
+import com.app.DeliveryApp.dto.RegistroPedidoDTO;
 import com.app.DeliveryApp.models.Pedido;
 import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.dto.PedidoRequestDTO;
@@ -44,13 +45,24 @@ public class PedidoController {
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<String> RegistrarPedido(@RequestBody Pedido pedido, DetallePedido detallePedido) {
-        jdbcPedidoRepository.RegistrarPedido(pedido,detallePedido);
+    public ResponseEntity<String> RegistrarPedido(@RequestBody RegistroPedidoDTO registroDTO) {
+        Pedido pedido = new Pedido();
+        pedido.setPrioridadPedido(registroDTO.getPrioridadPedido());
+        pedido.setRutCliente(registroDTO.getRutCliente());
+
+        DetallePedido detallePedido = new DetallePedido();
+        detallePedido.setCantidad(registroDTO.getCantidad());
+        detallePedido.setIdProducto(registroDTO.getIdProducto());
+
+        String resultado = pedidoService.registrarPedido(pedido, detallePedido);
+        if (resultado != null) {
+            return ResponseEntity.badRequest().body(resultado);
+        }
         return ResponseEntity.ok("Pedido registrado correctamente");
     }
 
-    @PutMapping("/{id}/estado")
-    public ResponseEntity<String> actualizarEstadoPedido(@PathVariable Integer id, @RequestParam String nuevoEstado) {
+    @PutMapping("/{id}/{nuevoEstado}/estado")
+    public ResponseEntity<String> actualizarEstadoPedido(@PathVariable Integer id, @PathVariable String nuevoEstado) {
         jdbcPedidoRepository.actualizarEstadoPedido(id, nuevoEstado);
         return ResponseEntity.ok("Estado actualizado correctamente");
     }
