@@ -10,4 +10,5 @@ public interface ProductoService {
     List<Producto> obtenerTodosLosProductos();
     Optional<Producto> actualizarProducto(Long id, Producto productoActualizado);
     boolean eliminarProducto(Long id);
+
 }

@@ -14,4 +14,5 @@ public class Producto {
     private String categoria;
     private String tipoProducto;
     private int stock;
+    private String rutEmpresa;
 }
