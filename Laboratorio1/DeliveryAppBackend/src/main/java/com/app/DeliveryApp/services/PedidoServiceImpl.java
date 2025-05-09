@@ -80,6 +80,55 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoRepository.findAll();
     }
 
+
+    @Override
+    public String registrarPedido(Pedido pedido, DetallePedido detallePedido) {
+        Pedido newPedido = new Pedido();
+        newPedido.setEstadoEntrega("Pendiente");
+        newPedido.setPrioridadPedido(pedido.getPrioridadPedido());
+        newPedido.setProblemaCritico(false);
+        newPedido.setRutCliente(pedido.getRutCliente());
+        //buscar la empresa basándonos en el producto
+        Optional<Producto> productoOpt = productoRepository.findById(detallePedido.getIdProducto());
+        if(!productoOpt.isPresent()) {
+            return "El producto no existe";
+        }
+        Producto producto = productoOpt.get();
+
+        // Verificar si la empresa existe
+        String rutEmpresa = producto.getRutEmpresa();
+        if(empresaRepository.findByRut(rutEmpresa).isEmpty()) {
+            return "La empresa con RUT " + rutEmpresa + " no existe";
+        }
+        newPedido.setRutEmpresa(producto.getRutEmpresa());
+
+        //obtener todos los repartidores y seleccionar un al azar
+        List<Repartidor> repartidores = repartidorRepository.findAll();
+        if (repartidores.isEmpty()) {
+            return "No hay repartidores disponibles";
+        }
+        int randomIndex = (int) (Math.random() * repartidores.size());
+        Repartidor repartidorSeleccionado = repartidores.get(randomIndex);
+        newPedido.setRutRepartidor(repartidorSeleccionado.getRut());
+
+
+        //DetallePedido
+        DetallePedido newDetallePedido = new DetallePedido();
+        newDetallePedido.setCantidad(detallePedido.getCantidad());
+        //obtener el precio del producto
+        double precioProducto = producto.getPrecio() * detallePedido.getCantidad();
+        newDetallePedido.setPrecioTotal(precioProducto);
+        //generar la fecha de entrega random entre 20 a 40
+        int tiempoEntregaRandom = (int) (Math.random() * (40 - 20 + 1)) + 20;
+        newDetallePedido.setTiempoEntrega(tiempoEntregaRandom);
+        newDetallePedido.setFechaEntrega(new java.util.Date());
+        newDetallePedido.setIdProducto(detallePedido.getIdProducto());
+        newDetallePedido.setIdPedido(newPedido.getIdPedido());
+
+        pedidoRepository.RegistrarPedido(newPedido,newDetallePedido);
+        return null;
+    }
+
     @Override
     @Transactional
     public Optional<Pedido> actualizarPedido(Long id, Pedido pedidoActualizado) {
@@ -190,4 +239,6 @@ public class PedidoServiceImpl implements PedidoService {
             throw new IllegalArgumentException("No se pudo cambiar el estado desde '" + estadoActual + "' a '" + estadoNuevo + "'.");
         }
     }
+
+
 }

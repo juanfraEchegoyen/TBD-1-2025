@@ -20,27 +20,27 @@ INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES
 ('80000000-5', 'Delibox Express');
 
 -- Productos
-INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock) VALUES 
-('Burger Clásica', 5000, 'Comida Rápida', 'Hamburguesa', 100),
-('Pizza Napolitana', 8000, 'Comida Rápida', 'Pizza', 50),
-('Sándwich Veggie', 4000, 'Comida Rápida', 'Sándwich', 60),
-('Wrap de Pollo', 7500, 'Comida Rápida', 'Wrap', 65),
-('Empanada de Pino', 3000, 'Comida Rápida', 'Empanada', 80),
-('Pan Italiano', 1000, 'Panadería', 'Pan', 90),
-('Marraqueta Doble', 750, 'Panadería', 'Pan', 100),
-('Pan amasado', 500, 'Panadería', 'Pan', 55),
-('Croissant de Mantequilla', 800, 'Panadería', 'Pan Dulce', 80),
-('Taco Mexicano', 1500, 'Internacional', 'Taco', 70),
-('Sushi Roll', 7000, 'Internacional', 'Sushi', 50),
-('Galletas Artesanales', 2000, 'Dulces', 'Postre', 75),
-('Torta de Chocolate', 6000, 'Dulces', 'Pastel', 30),
-('Helado de Vainilla', 1100, 'Dulces', 'Postre', 40),
-('Bebida Cola 1.5L', 3000, 'Bebidas', 'Gaseosa', 60),
-('Jugo Natural de Naranja 1.5L', 2500, 'Bebidas', 'Jugo', 40),
-('Agua Mineral con Gas', 1200, 'Bebidas', 'Agua', 70),
-('Café Molido Premium', 4500, 'Bebidas', 'Café', 30),
-('Té Verde Importado', 3500, 'Bebidas', 'Té', 50),
-('Batido Proteico', 4000, 'Bebidas', 'Batido', 25);
+INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa) VALUES 
+('Burger Clásica', 5000, 'Comida Rápida', 'Hamburguesa', 100, '80000000-1'),
+('Pizza Napolitana', 8000, 'Comida Rápida', 'Pizza', 50, '80000000-1'),
+('Sándwich Veggie', 4000, 'Comida Rápida', 'Sándwich', 60, '80000000-1'),
+('Wrap de Pollo', 7500, 'Comida Rápida', 'Wrap', 65, '80000000-1'),
+('Empanada de Pino', 3000, 'Comida Rápida', 'Empanada', 80, '80000000-2'),
+('Pan Italiano', 1000, 'Panadería', 'Pan', 90, '80000000-2'),
+('Marraqueta Doble', 750, 'Panadería', 'Pan', 100, '80000000-2'),
+('Pan amasado', 500, 'Panadería', 'Pan', 55, '80000000-3'),
+('Croissant de Mantequilla', 800, 'Panadería', 'Pan Dulce', 80, '80000000-3'),
+('Taco Mexicano', 1500, 'Internacional', 'Taco', 70, '80000000-3'),
+('Sushi Roll', 7000, 'Internacional', 'Sushi', 50, '80000000-3'),
+('Galletas Artesanales', 2000, 'Dulces', 'Postre', 75, '80000000-4'),
+('Torta de Chocolate', 6000, 'Dulces', 'Pastel', 30, '80000000-4'),
+('Helado de Vainilla', 1100, 'Dulces', 'Postre', 40, '80000000-4'),
+('Bebida Cola 1.5L', 3000, 'Bebidas', 'Gaseosa', 60, '80000000-5'),
+('Jugo Natural de Naranja 1.5L', 2500, 'Bebidas', 'Jugo', 40, '80000000-5'),
+('Agua Mineral con Gas', 1200, 'Bebidas', 'Agua', 70, '80000000-5'),
+('Café Molido Premium', 4500, 'Bebidas', 'Café', 30, '80000000-5'),
+('Té Verde Importado', 3500, 'Bebidas', 'Té', 50, '80000000-5'),
+('Batido Proteico', 4000, 'Bebidas', 'Batido', 25, '80000000-5');
 
 
 -- Repartidores

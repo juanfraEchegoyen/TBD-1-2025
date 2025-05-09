@@ -11,4 +11,5 @@ public interface PedidoService {
     List<Pedido> obtenerTodosLosPedidos();
     Optional<Pedido> actualizarPedido(Long id, Pedido pedidoActualizado); 
     boolean eliminarPedido(Long id);
+    public String registrarPedido(Pedido pedido, DetallePedido detallePedido);
 }

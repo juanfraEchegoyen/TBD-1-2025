@@ -1,5 +1,3 @@
--- TABLAS
-
 -- Repartidor
 CREATE TABLE IF NOT EXISTS Repartidor (
 	rut_repartidor VARCHAR(15) PRIMARY KEY,
@@ -47,14 +45,16 @@ CREATE TABLE IF NOT EXISTS Pedido (
 	FOREIGN KEY (rut_repartidor) REFERENCES Repartidor(rut_repartidor)
 );
 
--- Producto
+-- Producto (modificada para incluir rut_empresa)
 CREATE TABLE IF NOT EXISTS Producto (
 	id_producto SERIAL PRIMARY KEY,
 	nombre_producto VARCHAR(100) NOT NULL,
 	precio INT,
 	categoria VARCHAR(100),
 	tipo_producto VARCHAR(50),
-	stock INT
+	stock INT,
+	rut_empresa VARCHAR(15),
+	FOREIGN KEY (rut_empresa) REFERENCES EmpresaAsociada(rut_empresa)
 );
 
 -- Detalle de pedido
@@ -81,18 +81,18 @@ CREATE TABLE IF NOT EXISTS MedioDePago (
 );
 
 -- Usuario
-CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
+CREATE TABLE IF NOT EXISTS Usuario (
+	id_usuario SERIAL PRIMARY KEY,
+	nombre VARCHAR(100) NOT NULL UNIQUE,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL
 );
 
----- Notificacion
+-- Notificacion
 CREATE TABLE IF NOT EXISTS Notificacion (
-    id_notificacion SERIAL PRIMARY KEY,
-    mensaje TEXT,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    id_pedido INT,
-    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+	id_notificacion SERIAL PRIMARY KEY,
+	mensaje TEXT,
+	fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	id_pedido INT,
+	FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
 );
