@@ -12,6 +12,7 @@ const clienteAPI = axios.create({
 clienteAPI.interceptors.request.use(
   (config) => {
     const tokenAcceso = localStorage.getItem('accessToken');
+    console.log("Enviando solicitud con token:", tokenAcceso);
     if (tokenAcceso) {
       config.headers['Authorization'] = `Bearer ${tokenAcceso}`;
     }
