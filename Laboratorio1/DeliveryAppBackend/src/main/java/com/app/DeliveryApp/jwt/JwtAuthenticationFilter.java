@@ -37,13 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest peticion, HttpServletResponse respuesta, FilterChain cadenaFiltros)
             throws ServletException, IOException {
+        System.out.println("Interceptando solicitud: " + peticion.getRequestURI()); 
         try {
             // Paso 1: Extraer el token del encabezado
             String jwt = extraerTokenJwt(peticion);
+            System.out.println("Token recibido en la petición: " + jwt);
 
             if (jwt != null) {
                 // Paso 2: Obtener el nombre de usuario del token
                 String nombreUsuario = token.extraerNombreDeUsuario(jwt);
+                System.out.println("Usuario extraído del token: " + nombreUsuario); // Debug
 
                 // Paso 3: Verificar si hay un usuario y no está ya autenticado
                 if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -319,9 +319,10 @@ export default {
       }
       
       try {
-        await apiClient.put(
-          `/api/v1/pedidos/${this.cambioEstado.idPedido}/${this.cambioEstado.nuevoEstado}/estado`
-        );
+        await apiClient.put(`/api/v1/pedidos/${this.cambioEstado.idPedido}/estado`, null, {
+          params: { nuevoEstado: this.cambioEstado.nuevoEstado },
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}`}
+      });
         
         this.mostrarExito(`Estado del pedido ${this.cambioEstado.idPedido} actualizado a ${this.cambioEstado.nuevoEstado}`);
         this.cambioEstado.idPedido = null;

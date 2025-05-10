@@ -19,7 +19,9 @@ import java.util.NoSuchElementException;
 @CrossOrigin(origins="http://localhost:3000")
 public class PedidoController {
 
+    @Autowired
     private final PedidoService pedidoService;
+    @Autowired
     private final JdbcPedidoRepository jdbcPedidoRepository;
 
     @Autowired
@@ -61,11 +63,13 @@ public class PedidoController {
         return ResponseEntity.ok("Pedido registrado correctamente");
     }
 
-    @PutMapping("/{id}/{nuevoEstado}/estado")
-    public ResponseEntity<String> actualizarEstadoPedido(@PathVariable Integer id, @PathVariable String nuevoEstado) {
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<String> actualizarEstadoPedido(@PathVariable Integer id, @RequestParam String nuevoEstado) {
+        System.out.println("id: " + id +",Estado " +nuevoEstado);
         jdbcPedidoRepository.actualizarEstadoPedido(id, nuevoEstado);
         return ResponseEntity.ok("Estado actualizado correctamente");
     }
+
 
     @PutMapping("/{id}/confirmar")
     public ResponseEntity<String> descontarStockAlConfirmar(@PathVariable Integer id) {
