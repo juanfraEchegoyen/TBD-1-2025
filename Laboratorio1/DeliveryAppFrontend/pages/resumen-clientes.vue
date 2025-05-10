@@ -37,7 +37,7 @@ import { tokenAutorizacion } from '~/service/http-common'
 import clienteAPI from '~/service/http-common'
 
 const resumen = ref<any[]>([])
-const riesgos = ref<Record<string, number>>({})
+const riesgos = ref<Record<string, number | string>>({})
 const loading = ref(true)
 
 async function fetchRiesgo(rut: string) {
@@ -45,7 +45,11 @@ async function fetchRiesgo(rut: string) {
     const res = await clienteAPI.get(`/api/v1/clientes/${rut}/riesgo`)
     riesgos.value[rut] = res.data
   } catch (e) {
-    riesgos.value[rut] = null 
+    if (e.response && e.response.status === 401) {
+      riesgos.value[rut] = 'No autorizado'
+    } else {
+      riesgos.value[rut] = 'Error'
+    }
   }
 }
 
