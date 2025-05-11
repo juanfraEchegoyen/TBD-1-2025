@@ -66,7 +66,7 @@ public class PedidoController {
         if (resultado != null) {
             return ResponseEntity.badRequest().body(resultado);
         }
-        return ResponseEntity.ok("Pedido registrado correctamente");
+        return null;
     }
 
     @PutMapping("/{id}/estado")

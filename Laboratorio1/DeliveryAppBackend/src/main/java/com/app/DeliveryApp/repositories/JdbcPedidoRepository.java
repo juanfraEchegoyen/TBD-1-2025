@@ -1,6 +1,7 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.models.DetallePedido;
+import com.app.DeliveryApp.models.MedioPago;
 import com.app.DeliveryApp.models.Pedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -71,8 +72,8 @@ public class JdbcPedidoRepository implements PedidoRepository {
     }
 
 
-    public void RegistrarPedido(Pedido pedido, DetallePedido detalle) {
-        String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public void RegistrarPedido(Pedido pedido, DetallePedido detalle, MedioPago medioPago) {
+        String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Convertir Double a Integer para precio_total
         Integer precioTotal = detalle.getPrecioTotal().intValue();
@@ -94,7 +95,8 @@ public class JdbcPedidoRepository implements PedidoRepository {
                 detalle.getTiempoEntrega(),
                 sqlFechaEntrega,       // java.util.Date → java.sql.Date
                 detalle.getCantidad(),
-                idProducto             // Long → Integer
+                idProducto,             // Long → Integer
+                medioPago.getNombreMedioPago()
         );
     }
 

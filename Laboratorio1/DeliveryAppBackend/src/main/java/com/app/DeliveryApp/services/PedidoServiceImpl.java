@@ -127,15 +127,12 @@ public class PedidoServiceImpl implements PedidoService {
         newDetallePedido.setFechaEntrega(new java.util.Date());
         newDetallePedido.setIdProducto(detallePedido.getIdProducto());
         newDetallePedido.setIdPedido(newPedido.getIdPedido());
-
-
         //MedioPago
         MedioPago newMedioPago = new MedioPago();
         newMedioPago.setNombreMedioPago(medioPago.getNombreMedioPago());
         newMedioPago.setRutCliente(newPedido.getRutCliente());
         newMedioPago.setIdPedido(newPedido.getIdPedido());
-        medioPagoRepository.save(newMedioPago);
-        pedidoRepository.RegistrarPedido(newPedido,newDetallePedido);
+        pedidoRepository.RegistrarPedido(newPedido, newDetallePedido, newMedioPago);
 
         return null;
     }

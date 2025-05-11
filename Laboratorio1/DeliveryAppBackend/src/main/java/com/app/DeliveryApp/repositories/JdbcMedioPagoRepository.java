@@ -48,7 +48,7 @@ public class JdbcMedioPagoRepository implements MedioPagoRepository {
             PreparedStatement ps = connection.prepareStatement(INSERT_MEDIOPAGO_SQL, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, medioPago.getNombreMedioPago());
             ps.setString(2, medioPago.getRutCliente());
-            ps.setLong(3, medioPago.getIdMedioPago());
+            ps.setLong(3, medioPago.getIdPedido());
             return ps;
         }, keyHolder);
 

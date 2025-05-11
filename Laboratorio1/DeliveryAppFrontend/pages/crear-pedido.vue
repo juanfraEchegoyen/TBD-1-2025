@@ -323,20 +323,22 @@ export default {
         // Llamada simplificada a la API con solo los campos necesarios
         console.log(this.registroPedido);
         const response = await apiClient.post('/api/v1/pedidos/registrar', this.registroPedido);
-        console.log(response.data);
+
+        if (response.status === 200 || response.status === 201) {
+          this.mostrarExito('Pedido registrado');
         
-        this.mostrarExito('Pedido registrado correctamente');
-        
-        // Restablecer formulario
-        this.registroPedido = {
-          prioridadPedido: 'Media',
-          rutCliente: '',
-          cantidad: 1,
-          idProducto: '',
-          nombreMedioPago: ''
-        };
-        this.precioTotal = 0;
-        
+          // Restablecer formulario
+          this.registroPedido = {
+            prioridadPedido: 'Media',
+            rutCliente: '',
+            cantidad: 1,
+            idProducto: '',
+            nombreMedioPago: ''
+          };
+          this.precioTotal = 0;
+        } else {
+          this.mostrarError('Error inesperado al registrar el pedido');
+        }
       } catch (error) {
         this.mostrarError('Error al registrar el pedido: ' + (error.response?.data || error.message));
       }

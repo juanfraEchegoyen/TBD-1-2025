@@ -9,7 +9,8 @@ CREATE PROCEDURE registrar_pedido(
     IN tiempo_entrega INT,
     IN fecha_entrega DATE,
     IN cantidad INT,
-    IN id_producto_pedido INT
+    IN id_producto_pedido INT,
+    IN nombre_mediodepago VARCHAR(50)
 )
 LANGUAGE plpgsql
 AS $$
@@ -48,6 +49,9 @@ BEGIN
 
     INSERT INTO DetallePedido (precio_total, tiempo_entrega, fecha_entrega, cantidad, id_pedido, id_producto)
     VALUES (precio_total, tiempo_entrega, fecha_entrega, cantidad, nuevo_id_pedido, id_producto_pedido);
+
+    INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido)
+    VALUES (nombre_mediodepago, rut_cliente_pedido, nuevo_id_pedido);
 
     COMMIT;
 END;
