@@ -1,23 +1,23 @@
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Gestión de Pedidos</h1>
+  <div class="container">
+    <h1 class="titulo">Gestión de Pedidos</h1>
     
     <!-- Navegación entre funcionalidades -->
-    <div class="flex flex-wrap gap-2 mb-4">
+    <div class="tabs">
       <BaseButton 
-        :class="{ 'bg-red-700': activeTab === 'register' }"
+        :class="{ 'tab-activa': activeTab === 'register' }"
         @click="activeTab = 'register'"
       >
         Registrar Pedido
       </BaseButton>
       <BaseButton 
-        :class="{ 'bg-red-700': activeTab === 'status' }"
+        :class="{ 'tab-activa': activeTab === 'status' }"
         @click="activeTab = 'status'"
       >
         Cambiar Estado
       </BaseButton>
       <BaseButton 
-        :class="{ 'bg-red-700': activeTab === 'stock' }"
+        :class="{ 'tab-activa': activeTab === 'stock' }"
         @click="activeTab = 'stock'"
       >
         Gestionar Stock
@@ -25,29 +25,29 @@
     </div>
 
     <!-- Contenido según la pestaña activa -->
-    <div v-if="activeTab === 'register'" class="bg-white p-4 rounded-lg shadow-md">
-      <h2 class="text-lg font-semibold mb-2">Registrar Nuevo Pedido</h2>
+    <div v-if="activeTab === 'register'" class="panel">
+      <h2 class="subtitulo">Registrar Nuevo Pedido</h2>
       
-      <!-- Formulario simplificado de registro de pedido -->
+      <!-- Formulario de registro de pedido -->
       <form @submit.prevent="registrarPedido">
         <!-- Datos de pedido -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+        <div class="form-grid">
           <div>
-            <label class="block text-sm mb-1">RUT Cliente:</label>
+            <label class="label">RUT Cliente:</label>
             <input 
               v-model="registroPedido.rutCliente" 
               type="text" 
-              class="w-full px-2 py-1 border rounded-md text-sm"
+              class="input"
               required
               placeholder="Ej: 12345678-9"
             />
           </div>
 
           <div>
-            <label class="block text-sm mb-1">Prioridad:</label>
+            <label class="label">Prioridad:</label>
             <select
               v-model="registroPedido.prioridadPedido"
-              class="w-full px-2 py-1 border rounded-md text-sm"
+              class="input"
               required
             >
               <option value="Baja">Baja</option>
@@ -57,15 +57,14 @@
             </select>
           </div>
         </div>
-
         <!-- Datos del producto -->
         <div class="mb-3 mt-2">
           <div class="flex flex-wrap items-end gap-2">
-            <div class="w-full md:w-1/2">
-              <label class="block text-sm mb-1">Producto:</label>
+            <div class="producto-select">
+              <label class="label">Producto:</label>
               <select
                 v-model="registroPedido.idProducto"
-                class="w-full px-2 py-1 border rounded-md text-sm"
+                class="input"
                 required
                 @change="calcularTotal"
               >
@@ -76,17 +75,18 @@
               </select>
             </div>
             <div class="w-20">
-              <label class="block text-sm mb-1">Cantidad:</label>
+              <label class="label">Cantidad:</label>
               <input 
                 v-model.number="registroPedido.cantidad" 
                 type="number" 
                 min="1"
-                class="w-full px-2 py-1 border rounded-md text-sm"
+                :max= "productoSeleccionado ? productoSeleccionado.stock : 1"
+                class="input"
                 @change="calcularTotal"
               />
             </div>
             <div class="ml-auto text-right">
-              <p class="text-sm font-bold">Total: ${{ precioTotal || 0 }}</p>
+              <p class="total">Total: ${{ precioTotal || 0 }}</p>
             </div>
           </div>
         </div>
@@ -99,13 +99,13 @@
       </form>
     </div>
 
-    <!-- Las demás pestañas permanecen sin cambios -->
-    <div v-if="activeTab === 'status'" class="bg-white p-4 rounded-lg shadow-md">
-      <h2 class="text-lg font-semibold mb-2">Cambiar Estado de Pedido</h2>
+    <!-- Pestaña para cambiar estado del pedido -->
+    <div v-if="activeTab === 'status'" class="panel">
+      <h2 class="subtitulo">Cambiar Estado de Pedido</h2>
       
       <div class="flex flex-col md:flex-row gap-4 mb-4">
-        <div class="w-full md:w-1/2">
-          <label class="block text-sm mb-1">ID del Pedido:</label>
+        <div class="producto-select">
+          <label class="label">ID del Pedido:</label>
           <input 
             v-model="cambioEstado.idPedido" 
             type="number" 
@@ -113,8 +113,8 @@
           />
         </div>
 
-        <div class="w-full md:w-1/2">
-          <label class="block text-sm mb-1">Nuevo Estado:</label>
+        <div class="producto-select">
+          <label class="label">Nuevo Estado:</label>
           <select 
             v-model="cambioEstado.nuevoEstado" 
             class="w-full px-2 py-1 border rounded-md"
@@ -122,6 +122,7 @@
             <option value="Entrega fallida">Entrega fallida</option>
             <option value="Entregado">Entregado</option>
             <option value="Devolución">Devolución</option>
+            <option value="Cancelada">Cancelada</option>
           </select>
         </div>
       </div>
@@ -131,11 +132,12 @@
       </BaseButtonGreen>
     </div>
 
-    <div v-if="activeTab === 'stock'" class="bg-white p-4 rounded-lg shadow-md">
-      <h2 class="text-lg font-semibold mb-2">Confirmar Pedido y Actualizar Stock</h2>
+    <!-- Pestaña para gestionar el stock-->
+    <div v-if="activeTab === 'stock'" class="panel">
+      <h2 class="subtitulo">Confirmar Pedido y Actualizar Stock</h2>
       
       <div class="mb-4">
-        <label class="block text-sm mb-1">ID del Pedido a confirmar:</label>
+        <label class="label">ID del Pedido a confirmar:</label>
         <input 
           v-model="idPedidoConfirmar" 
           type="number" 
@@ -149,8 +151,8 @@
     </div>
 
     <!-- Lista de Pedidos -->
-    <div v-if="activeTab === 'list'" class="bg-white p-6 rounded-lg shadow-md">
-      <h2 class="text-xl font-semibold mb-4">Lista de Pedidos</h2>
+    <div v-if="activeTab === 'list'" class="panel">
+      <h2 class="subtitulo mb-4">Lista de Pedidos</h2>
       
       <div v-if="loading" class="text-center py-4">
         <p>Cargando pedidos...</p>
@@ -161,34 +163,34 @@
       </div>
       
       <div v-else class="overflow-x-auto">
-        <table class="w-full border-collapse border border-gray-300">
+        <table class="tabla">
           <thead>
-            <tr class="bg-gray-100">
-              <th class="border border-gray-300 px-4 py-2">ID</th>
-              <th class="border border-gray-300 px-4 py-2">Cliente</th>
-              <th class="border border-gray-300 px-4 py-2">Empresa</th>
-              <th class="border border-gray-300 px-4 py-2">Dirección</th>
-              <th class="border border-gray-300 px-4 py-2">Estado</th>
-              <th class="border border-gray-300 px-4 py-2">Acciones</th>
+            <tr class="tabla-header">
+              <th >ID</th>
+              <th >Cliente</th>
+              <th >Empresa</th>
+              <th >Dirección</th>
+              <th >Estado</th>
+              <th >Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="pedido in pedidos" :key="pedido.idPedido" class="hover:bg-gray-50">
-              <td class="border border-gray-300 px-4 py-2">{{ pedido.idPedido }}</td>
-              <td class="border border-gray-300 px-4 py-2">{{ pedido.idCliente }}</td>
-              <td class="border border-gray-300 px-4 py-2">{{ pedido.idEmpresa }}</td>
-              <td class="border border-gray-300 px-4 py-2">{{ pedido.direccionEntrega }}</td>
-              <td class="border border-gray-300 px-4 py-2">{{ pedido.estado }}</td>
-              <td class="border border-gray-300 px-4 py-2 flex justify-around">
+              <td >{{ pedido.idPedido }}</td>
+              <td >{{ pedido.idCliente }}</td>
+              <td >{{ pedido.idEmpresa }}</td>
+              <td >{{ pedido.direccionEntrega }}</td>
+              <td >{{ pedido.estado }}</td>
+              <td class="acciones">
                 <button 
                   @click="cambioEstado.idPedido = pedido.idPedido; activeTab = 'status'" 
-                  class="text-blue-500 hover:text-blue-700"
+                  class="accion-estado"
                 >
                   Cambiar Estado
                 </button>
                 <button 
                   @click="idPedidoConfirmar = pedido.idPedido; activeTab = 'stock'" 
-                  class="text-green-500 hover:text-green-700"
+                  class="accion-confirmar"
                 >
                   Confirmar
                 </button>
@@ -200,7 +202,7 @@
     </div>
 
     <!-- Mensajes de estado -->
-    <div v-if="mensaje" class="mt-4 p-2 rounded text-sm" :class="mensajeEstilo">
+    <div v-if="mensaje" class="mensaje" :class="mensajeEstilo">
       {{ mensaje }}
     </div>
   </div>
@@ -245,6 +247,9 @@ export default {
   computed: {
     fechaHoy() {
       return new Date().toISOString().split('T')[0];
+    },
+    productoSeleccionado() {
+      return this.productos.find(p => p.idProducto === this.registroPedido.idProducto);
     }
   },
   created() {
@@ -289,13 +294,15 @@ export default {
     },
     async registrarPedido() {
       try {
-        if (!this.registroPedido.idProducto || this.registroPedido.cantidad <= 0) {
-          this.mostrarError('Debe seleccionar un producto y especificar una cantidad válida');
+        const producto = this.productoSeleccionado;
+        if (!producto) {
+          this.mostrarError('Debe seleccionar un producto válido');
           return;
         }
-        
         // Llamada simplificada a la API con solo los campos necesarios
+        console.log(this.registroPedido);
         const response = await apiClient.post('/api/v1/pedidos/registrar', this.registroPedido);
+        console.log(response.data);
         
         this.mostrarExito('Pedido registrado correctamente');
         
@@ -372,5 +379,111 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos adicionales específicos para esta página */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.titulo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.tab-activa {
+  background-color: #b91c1c !important;
+  color: #fff !important;
+}
+.panel {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 1rem;
+}
+.subtitulo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.label {
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+.input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+.producto-select {
+  width: 100%;
+  max-width: 415px;
+}
+.cantidad-input {
+  width: 80px;
+}
+.total {
+  font-size: 1rem;
+  font-weight: bold;
+}
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+  margin-bottom: 1rem;
+}
+.tabla th,
+.tabla td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  text-align: left;
+}
+.tabla-header {
+  background-color: #f3f4f6;
+}
+.acciones {
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+.accion-estado {
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.accion-estado:hover {
+  color: #1d4ed8;
+}
+.accion-confirmar {
+  color: #16a34a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.accion-confirmar:hover {
+  color: #166534;
+}
+.mensaje {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
 </style>

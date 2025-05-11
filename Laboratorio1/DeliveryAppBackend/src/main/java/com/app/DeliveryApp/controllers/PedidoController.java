@@ -57,6 +57,7 @@ public class PedidoController {
         detallePedido.setIdProducto(registroDTO.getIdProducto());
 
         String resultado = pedidoService.registrarPedido(pedido, detallePedido);
+        System.out.println("Entrando en registroPedido2");
         if (resultado != null) {
             return ResponseEntity.badRequest().body(resultado);
         }

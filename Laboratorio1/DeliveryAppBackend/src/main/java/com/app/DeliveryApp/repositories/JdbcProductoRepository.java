@@ -24,11 +24,11 @@ public class JdbcProductoRepository implements ProductoRepository {
     private JdbcTemplate jdbcTemplate;
 
     private static final String INSERT_PRODUCTO_SQL =
-            "INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SELECT_PRODUCTO_BY_ID_SQL =
-            "SELECT id_producto, nombre_producto, precio, categoria, tipo_producto, stock FROM Producto WHERE id_producto = ?";
+            "SELECT id_producto, nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa FROM Producto WHERE id_producto = ?";
     private static final String SELECT_ALL_PRODUCTOS_SQL =
-            "SELECT id_producto, nombre_producto, precio, categoria, tipo_producto, stock FROM Producto";
+            "SELECT id_producto, nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa FROM Producto";
     private static final String UPDATE_PRODUCTO_SQL =
             "UPDATE Producto SET nombre_producto = ?, precio = ?, categoria = ?, tipo_producto = ?, stock = ? WHERE id_producto = ?";
     private static final String DELETE_PRODUCTO_BY_ID_SQL =
@@ -49,9 +49,8 @@ public class JdbcProductoRepository implements ProductoRepository {
 
         producto.setCategoria(rs.getString("categoria"));
         producto.setTipoProducto(rs.getString("tipo_producto"));
-
         producto.setStock(rs.getInt("stock"));
-
+        producto.setRutEmpresa(rs.getString("rut_empresa"));
 
         return producto;
     };
