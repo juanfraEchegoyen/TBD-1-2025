@@ -10,17 +10,19 @@
       >
         Registrar Pedido
       </BaseButton>
-      <BaseButton 
-        :class="{ 'tab-activa': activeTab === 'status' }"
-        @click="activeTab = 'status'"
-      >
-        Cambiar Estado
-      </BaseButton>
+      
       <BaseButton 
         :class="{ 'tab-activa': activeTab === 'stock' }"
         @click="activeTab = 'stock'"
       >
         Gestionar Stock
+      </BaseButton>
+
+      <BaseButton 
+        :class="{ 'tab-activa': activeTab === 'status' }"
+        @click="activeTab = 'status'"
+      >
+        Cambiar Estado
       </BaseButton>
     </div>
 
@@ -148,7 +150,7 @@
         <label class="label">Selecciona un Pedido a confirmar:</label>
         <select v-model="idPedidoConfirmar" class="w-full px-2 py-1 border rounded-md">
           <option value="" disabled selected>Selecciona un pedido</option>
-          <option v-for="pedido in pedidos" :key="pedido.idPedido" :value="pedido.idPedido">
+          <option v-for="pedido in pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente')" :key="pedido.idPedido" :value="pedido.idPedido">
             {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
           </option>
         </select>
