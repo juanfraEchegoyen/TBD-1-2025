@@ -19,6 +19,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final ClienteRepository clienteRepository;
     private final EmpresaRepository empresaRepository;
     private final RepartidorRepository repartidorRepository;
+    private final MedioPagoRepository medioPagoRepository;
 
     @Autowired
     public PedidoServiceImpl(PedidoRepository pedidoRepository,
@@ -26,13 +27,15 @@ public class PedidoServiceImpl implements PedidoService {
                              ProductoRepository productoRepository,
                              ClienteRepository clienteRepository,
                              EmpresaRepository empresaRepository,
-                             RepartidorRepository repartidorRepository) {
+                             RepartidorRepository repartidorRepository,
+                             MedioPagoRepository medioPagoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.detallePedidoRepository = detallePedidoRepository;
         this.productoRepository = productoRepository;
         this.clienteRepository = clienteRepository;
         this.empresaRepository = empresaRepository;
         this.repartidorRepository = repartidorRepository;
+        this.medioPagoRepository = medioPagoRepository;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class PedidoServiceImpl implements PedidoService {
 
 
     @Override
-    public String registrarPedido(Pedido pedido, DetallePedido detallePedido) {
+    public String registrarPedido(Pedido pedido, DetallePedido detallePedido, MedioPago medioPago) {
         Pedido newPedido = new Pedido();
         newPedido.setEstadoEntrega("Pendiente");
         newPedido.setPrioridadPedido(pedido.getPrioridadPedido());
@@ -125,7 +128,15 @@ public class PedidoServiceImpl implements PedidoService {
         newDetallePedido.setIdProducto(detallePedido.getIdProducto());
         newDetallePedido.setIdPedido(newPedido.getIdPedido());
 
+
+        //MedioPago
+        MedioPago newMedioPago = new MedioPago();
+        newMedioPago.setNombreMedioPago(medioPago.getNombreMedioPago());
+        newMedioPago.setRutCliente(newPedido.getRutCliente());
+        newMedioPago.setIdPedido(newPedido.getIdPedido());
+        medioPagoRepository.save(newMedioPago);
         pedidoRepository.RegistrarPedido(newPedido,newDetallePedido);
+
         return null;
     }
 

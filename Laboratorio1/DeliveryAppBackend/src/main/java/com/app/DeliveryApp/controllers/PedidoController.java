@@ -1,6 +1,7 @@
 package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.dto.RegistroPedidoDTO;
+import com.app.DeliveryApp.models.MedioPago;
 import com.app.DeliveryApp.models.Pedido;
 import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.dto.PedidoRequestDTO;
@@ -56,8 +57,12 @@ public class PedidoController {
         detallePedido.setCantidad(registroDTO.getCantidad());
         detallePedido.setIdProducto(registroDTO.getIdProducto());
 
-        String resultado = pedidoService.registrarPedido(pedido, detallePedido);
-        System.out.println("Entrando en registroPedido2");
+        MedioPago medioPago = new MedioPago();
+        medioPago.setNombreMedioPago(registroDTO.getNombreMedioPago());
+        medioPago.setRutCliente(registroDTO.getRutCliente());
+
+        String resultado = pedidoService.registrarPedido(pedido, detallePedido, medioPago);
+
         if (resultado != null) {
             return ResponseEntity.badRequest().body(resultado);
         }

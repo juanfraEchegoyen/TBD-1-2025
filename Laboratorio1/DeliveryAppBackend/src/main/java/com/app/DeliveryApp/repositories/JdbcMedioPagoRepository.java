@@ -20,7 +20,7 @@ public class JdbcMedioPagoRepository implements MedioPagoRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private static final String INSERT_MEDIOPAGO_SQL =
-            "INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente) VALUES (?, ?)";
+            "INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido) VALUES (?, ?, ?)";
     private static final String SELECT_MEDIOPAGO_BY_ID_SQL =
             "SELECT id_mediodepago, nombre_mediodepago, rut_cliente FROM MedioDePago WHERE id_mediodepago = ?";
     private static final String SELECT_ALL_MEDIOSPAGO_SQL =
@@ -48,6 +48,7 @@ public class JdbcMedioPagoRepository implements MedioPagoRepository {
             PreparedStatement ps = connection.prepareStatement(INSERT_MEDIOPAGO_SQL, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, medioPago.getNombreMedioPago());
             ps.setString(2, medioPago.getRutCliente());
+            ps.setLong(3, medioPago.getIdMedioPago());
             return ps;
         }, keyHolder);
 

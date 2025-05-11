@@ -13,6 +13,9 @@ public class RegistroPedidoDTO {
     private int cantidad;
     private Long idProducto;
 
+    // De MedioDePago
+    private String nombreMedioPago;
+
 
 
 

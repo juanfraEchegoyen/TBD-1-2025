@@ -83,10 +83,19 @@ CREATE PROCEDURE descontar_stock_al_confirmar(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    estado_actual VARCHAR(50);
 BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM Pedido WHERE id_pedido = id_pedido_confirmado) THEN
         RAISE EXCEPTION 'El pedido no existe';
+    END IF;
+
+    -- Verifica si el pedido ya fue confirmado
+    SELECT estado_entrega INTO estado_actual FROM Pedido WHERE id_pedido = id_pedido_confirmado;
+
+    IF estado_actual = 'Entregado' OR estado_actual = 'Entrega fallida' THEN
+        RAISE EXCEPTION 'El pedido ya fue entregado o se perdió en el camino. No se puede volver a descontar el stock.';
     END IF;
 
     -- descontamos
