@@ -9,7 +9,8 @@ CREATE PROCEDURE registrar_pedido(
     IN tiempo_entrega INT,
     IN fecha_entrega DATE,
     IN cantidad INT,
-    IN id_producto_pedido INT
+    IN id_producto_pedido INT,
+    IN nombre_mediodepago VARCHAR(50)
 )
 LANGUAGE plpgsql
 AS $$
@@ -49,6 +50,9 @@ BEGIN
     INSERT INTO DetallePedido (precio_total, tiempo_entrega, fecha_entrega, cantidad, id_pedido, id_producto)
     VALUES (precio_total, tiempo_entrega, fecha_entrega, cantidad, nuevo_id_pedido, id_producto_pedido);
 
+    INSERT INTO MedioDePago (nombre_mediodepago, rut_cliente, id_pedido)
+    VALUES (nombre_mediodepago, rut_cliente_pedido, nuevo_id_pedido);
+
     COMMIT;
 END;
 $$;
@@ -83,10 +87,19 @@ CREATE PROCEDURE descontar_stock_al_confirmar(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    estado_actual VARCHAR(50);
 BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM Pedido WHERE id_pedido = id_pedido_confirmado) THEN
         RAISE EXCEPTION 'El pedido no existe';
+    END IF;
+
+    -- Verifica si el pedido ya fue confirmado
+    SELECT estado_entrega INTO estado_actual FROM Pedido WHERE id_pedido = id_pedido_confirmado;
+
+    IF estado_actual = 'Entregado' OR estado_actual = 'Entrega fallida' THEN
+        RAISE EXCEPTION 'El pedido ya fue entregado o se perdió en el camino. No se puede volver a descontar el stock.';
     END IF;
 
     -- descontamos

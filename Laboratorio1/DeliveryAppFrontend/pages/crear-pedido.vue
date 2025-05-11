@@ -60,6 +60,7 @@
         <!-- Datos del producto -->
         <div class="mb-3 mt-2">
           <div class="flex flex-wrap items-end gap-2">
+            <!-- Producto -->
             <div class="producto-select">
               <label class="label">Producto:</label>
               <select
@@ -74,6 +75,7 @@
                 </option>
               </select>
             </div>
+            <!-- Cantidad -->
             <div class="w-20">
               <label class="label">Cantidad:</label>
               <input 
@@ -85,9 +87,27 @@
                 @change="calcularTotal"
               />
             </div>
+            
+            <!-- Medio de pago -->
+            <div class="w-full">
+              <label class="label">Medio de Pago:</label>
+              <select
+                v-model="registroPedido.nombreMedioPago"
+                class="input"
+                required
+              >
+                <option value="" disabled selected>Seleccione un medio de pago</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Crédito">Tarjeta de Crédito</option>
+                <option value="Débito">Tarjeta de Débito</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </div>
+
             <div class="ml-auto text-right">
               <p class="total">Total: ${{ precioTotal || 0 }}</p>
             </div>
+
           </div>
         </div>
 
@@ -145,7 +165,7 @@
         />
       </div>
 
-      <BaseButtonGreen @click="confirmarPedido" :disabled="!idPedidoConfirmar">
+      <BaseButtonGreen @click="confirmarPedido">
         Confirmar Pedido y Actualizar Stock
       </BaseButtonGreen>
     </div>
@@ -227,7 +247,8 @@ export default {
         prioridadPedido: 'Media',
         rutCliente: '',
         cantidad: 1,
-        idProducto: ''
+        idProducto: '',
+        nombreMedioPago: ''
       },
       // Mantenemos los objetos originales para otras funcionalidades
       cambioEstado: {
@@ -302,19 +323,22 @@ export default {
         // Llamada simplificada a la API con solo los campos necesarios
         console.log(this.registroPedido);
         const response = await apiClient.post('/api/v1/pedidos/registrar', this.registroPedido);
-        console.log(response.data);
+
+        if (response.status === 200 || response.status === 201) {
+          this.mostrarExito('Pedido registrado');
         
-        this.mostrarExito('Pedido registrado correctamente');
-        
-        // Restablecer formulario
-        this.registroPedido = {
-          prioridadPedido: 'Media',
-          rutCliente: '',
-          cantidad: 1,
-          idProducto: ''
-        };
-        this.precioTotal = 0;
-        
+          // Restablecer formulario
+          this.registroPedido = {
+            prioridadPedido: 'Media',
+            rutCliente: '',
+            cantidad: 1,
+            idProducto: '',
+            nombreMedioPago: ''
+          };
+          this.precioTotal = 0;
+        } else {
+          this.mostrarError('Error inesperado al registrar el pedido');
+        }
       } catch (error) {
         this.mostrarError('Error al registrar el pedido: ' + (error.response?.data || error.message));
       }
@@ -350,7 +374,7 @@ export default {
       
       try {
         const response = await apiClient.put(`/api/v1/pedidos/${this.idPedidoConfirmar}/confirmar`);
-        
+        console.log(response.data);
         this.mostrarExito(`Pedido ${this.idPedidoConfirmar} confirmado y stock actualizado`);
         this.idPedidoConfirmar = null;
         
