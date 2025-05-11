@@ -33,13 +33,8 @@
         <!-- Datos de pedido -->
         <div class="form-grid">
           <div>
-            <label class="label">Cliente:</label>
-            <select v-model="registroPedido.rutCliente" class="input" required>
-              <option value="" disabled selected>Seleccione un cliente</option>
-              <option v-for="cliente in clientes" :key="cliente.rutCliente" :value="cliente.rutCliente">
-                {{ cliente.nombre }}<span v-if="cliente.rutCliente"> ({{ cliente.rutCliente }})</span>
-              </option>
-            </select>
+            <label class="label">Cliente (RUT):</label>
+            <input v-model="registroPedido.rutCliente" class="input" required placeholder="Ingrese el RUT del cliente" />
           </div>
 
           <div>
