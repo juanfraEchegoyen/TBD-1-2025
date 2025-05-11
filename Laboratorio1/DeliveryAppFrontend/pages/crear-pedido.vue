@@ -33,14 +33,13 @@
         <!-- Datos de pedido -->
         <div class="form-grid">
           <div>
-            <label class="label">RUT Cliente:</label>
-            <input 
-              v-model="registroPedido.rutCliente" 
-              type="text" 
-              class="input"
-              required
-              placeholder="Ej: 12345678-9"
-            />
+            <label class="label">Cliente:</label>
+            <select v-model="registroPedido.rutCliente" class="input" required>
+              <option value="" disabled selected>Seleccione un cliente</option>
+              <option v-for="cliente in clientes" :key="cliente.rutCliente" :value="cliente.rutCliente">
+                {{ cliente.nombre }}<span v-if="cliente.rutCliente"> ({{ cliente.rutCliente }})</span>
+              </option>
+            </select>
           </div>
 
           <div>
@@ -256,6 +255,7 @@ export default {
       empresas: [],
       repartidores: [],
       pedidos: [],
+      clientes: [],
       precioTotal: 0,
       loading: false
     };
@@ -269,12 +269,21 @@ export default {
     }
   },
   created() {
+    this.fetchClientes();
     this.fetchProductos();
     this.fetchEmpresas();
     this.fetchRepartidores();
     this.fetchPedidos();
   },
   methods: {
+    async fetchClientes() {
+      try {
+        const response = await apiClient.get('/api/v1/clientes');
+        this.clientes = response.data;
+      } catch (error) {
+        this.mostrarError('Error al cargar clientes: ' + (error.response?.data || error.message));
+      }
+    },
     async fetchProductos() {
       try {
         const response = await apiClient.get('/api/v1/productos');
