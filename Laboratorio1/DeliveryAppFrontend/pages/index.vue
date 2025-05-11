@@ -5,7 +5,7 @@
     <p class="text-lg text-gray-700 mb-6 text-center max-w-xl">
       Gestion de pedidos, clientes y empresas.
     </p>
-    <div class="flex gap-4">
+    <div class="flex gap-4" v-if="isAuth">
       <nuxt-link to="/crear-pedido" class="bg-primary text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-red-700 transition-colors">
         Crear Pedido
       </nuxt-link>
@@ -18,3 +18,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import authService from '@/service/authService'
+
+const isAuth = computed(() => authService.isAuthenticated.value)
+</script>
