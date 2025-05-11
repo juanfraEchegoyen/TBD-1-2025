@@ -122,23 +122,19 @@
     <!-- Pestaña para cambiar estado del pedido -->
     <div v-if="activeTab === 'status'" class="panel">
       <h2 class="subtitulo">Cambiar Estado de Pedido</h2>
-      
       <div class="flex flex-col md:flex-row gap-4 mb-4">
         <div class="producto-select">
-          <label class="label">ID del Pedido:</label>
-          <input 
-            v-model="cambioEstado.idPedido" 
-            type="number" 
-            class="w-full px-2 py-1 border rounded-md"
-          />
+          <label class="label">Selecciona un Pedido:</label>
+          <select v-model="cambioEstado.idPedido" class="w-full px-2 py-1 border rounded-md">
+            <option value="" disabled selected>Selecciona un pedido</option>
+            <option v-for="pedido in pedidos" :key="pedido.idPedido" :value="pedido.idPedido">
+              {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
+            </option>
+          </select>
         </div>
-
         <div class="producto-select">
           <label class="label">Nuevo Estado:</label>
-          <select 
-            v-model="cambioEstado.nuevoEstado" 
-            class="w-full px-2 py-1 border rounded-md"
-          >
+          <select v-model="cambioEstado.nuevoEstado" class="w-full px-2 py-1 border rounded-md">
             <option value="Entrega fallida">Entrega fallida</option>
             <option value="Entregado">Entregado</option>
             <option value="Devolución">Devolución</option>
@@ -146,7 +142,6 @@
           </select>
         </div>
       </div>
-
       <BaseButtonGreen @click="cambiarEstadoPedido" :disabled="!cambioEstado.idPedido">
         Actualizar Estado
       </BaseButtonGreen>
@@ -155,16 +150,15 @@
     <!-- Pestaña para gestionar el stock-->
     <div v-if="activeTab === 'stock'" class="panel">
       <h2 class="subtitulo">Confirmar Pedido y Actualizar Stock</h2>
-      
       <div class="mb-4">
-        <label class="label">ID del Pedido a confirmar:</label>
-        <input 
-          v-model="idPedidoConfirmar" 
-          type="number" 
-          class="w-full px-2 py-1 border rounded-md"
-        />
+        <label class="label">Selecciona un Pedido a confirmar:</label>
+        <select v-model="idPedidoConfirmar" class="w-full px-2 py-1 border rounded-md">
+          <option value="" disabled selected>Selecciona un pedido</option>
+          <option v-for="pedido in pedidos" :key="pedido.idPedido" :value="pedido.idPedido">
+            {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
+          </option>
+        </select>
       </div>
-
       <BaseButtonGreen @click="confirmarPedido">
         Confirmar Pedido y Actualizar Stock
       </BaseButtonGreen>
@@ -261,6 +255,7 @@ export default {
       productos: [],
       empresas: [],
       repartidores: [],
+      pedidos: [],
       precioTotal: 0,
       loading: false
     };
@@ -277,6 +272,7 @@ export default {
     this.fetchProductos();
     this.fetchEmpresas();
     this.fetchRepartidores();
+    this.fetchPedidos();
   },
   methods: {
     async fetchProductos() {
@@ -301,6 +297,17 @@ export default {
         this.repartidores = response.data;
       } catch (error) {
         this.mostrarError('Error al cargar repartidores: ' + (error.response?.data || error.message));
+      }
+    },
+    async fetchPedidos() {
+      this.loading = true;
+      try {
+        const response = await apiClient.get('/api/v1/pedidos');
+        this.pedidos = response.data;
+      } catch (error) {
+        this.mostrarError('Error al cargar pedidos: ' + (error.response?.data || error.message));
+      } finally {
+        this.loading = false;
       }
     },
     calcularTotal() {
