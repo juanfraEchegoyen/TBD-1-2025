@@ -52,7 +52,7 @@ public class PedidoServiceImpl implements PedidoService {
         validarDetallesYStock(detalles);
 
         if (pedido.getEstadoEntrega() == null) {
-            pedido.setEstadoEntrega("PENDIENTE");
+            pedido.setEstadoEntrega("Pendiente");
         }
         Pedido nuevoPedido = pedidoRepository.save(pedido);
 
