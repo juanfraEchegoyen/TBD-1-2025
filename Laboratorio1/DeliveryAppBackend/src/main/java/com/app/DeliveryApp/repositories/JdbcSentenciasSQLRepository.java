@@ -84,7 +84,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             SELECT mp.nombre_mediodepago, COUNT(*) AS cantidad_usos
             FROM MedioDePago AS mp
             JOIN Pedido AS p ON p.id_pedido = mp.id_pedido
-            WHERE p.prioridad_pedido = 'Alta'
+            WHERE p.prioridad_pedido = 'Urgente'
             GROUP BY mp.nombre_mediodepago
             ORDER BY cantidad_usos DESC
             LIMIT 1
