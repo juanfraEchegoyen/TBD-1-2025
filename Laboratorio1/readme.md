@@ -1,28 +1,58 @@
 # Guía rápida para ejecutar el Backend y Frontend
 
-## 1. Ejecutar el Backend
+## 1. Configuración de variables de entorno
+
+Antes de ejecutar la aplicación, se deben definir las variables de entorno necesarias para la conexión a la base de datos.
+
+Ejemplo de estructura para las variables de entorno
+
+```
+ADDRESS=localhost
+PORT=5432
+PASS=*contraseña_postgres*
+```
+
+Estas se pueden configurar directamente en IntelliJ en el apartado environment variables.
+
+## 2. Ejecutar el Backend
+
+### Opción A: Desde la terminal
 
 1. Abre una terminal y navega a la carpeta del backend:
-   ```bash
+   ```powershell
    cd DeliveryAppBackend
    ```
 2. Compila y ejecuta el backend con Maven:
-   ```bash
+   ```powershell
    mvn spring-boot:run
+   ```
 3. El backend estará disponible por defecto en: http://localhost:8080
 
-## 2. Ejecutar el Frontend
+### Opción B: Desde IntelliJ IDEA
+
+1. Abre el proyecto `DeliveryAppBackend` en IntelliJ IDEA.
+2. Ve a la clase principal `DeliveryAppApplication.java`.
+3. Haz clic derecho y selecciona `Run 'DeliveryAppApplication'`.
+4. Si necesitas agregar variables de entorno:
+   - Ve a `Run > Edit Configurations...`
+   - En el campo `Environment variables`, agrega:
+     ```
+     ADDRESS=localhost;PORT=5432;PASS=*contraseña_postgres*
+     ```
+   - Guarda y ejecuta.
+
+## 3. Ejecutar el Frontend
 
 1. Abre otra terminal y navega a la carpeta del frontend:
-   ```bash
+   ```powershell
    cd DeliveryAppFrontend
    ```
-2. Instala las dependencias (solo la primera vez):
-   ```bash
+2. Instala las dependencias:
+   ```powershell
    npm install
    ```
 3. Ejecuta el frontend:
-   ```bash
+   ```powershell
    npm run dev
    ```
 4. El frontend estará disponible por defecto en: http://localhost:3000
