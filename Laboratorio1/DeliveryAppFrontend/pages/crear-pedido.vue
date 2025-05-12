@@ -123,7 +123,7 @@
           <label class="label">Selecciona un Pedido:</label>
           <select v-model="cambioEstado.idPedido" class="w-full px-2 py-1 border rounded-md">
             <option value="" disabled selected>Selecciona un pedido</option>
-            <option v-for="pedido in pedidos" :key="pedido.idPedido" :value="pedido.idPedido">
+            <option v-for="pedido in pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente')" :key="pedido.idPedido" :value="pedido.idPedido">
               {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
             </option>
           </select>
@@ -145,9 +145,9 @@
 
     <!-- Pestaña para gestionar el stock-->
     <div v-if="activeTab === 'stock'" class="panel">
-      <h2 class="subtitulo">Confirmar Pedido y Actualizar Stock</h2>
+      <h2 class="subtitulo">Actualizar Stock</h2>
       <div class="mb-4">
-        <label class="label">Selecciona un Pedido a confirmar:</label>
+        <label class="label">Selecciona un pedido:</label>
         <select v-model="idPedidoConfirmar" class="w-full px-2 py-1 border rounded-md">
           <option value="" disabled selected>Selecciona un pedido</option>
           <option v-for="pedido in pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente')" :key="pedido.idPedido" :value="pedido.idPedido">
@@ -156,7 +156,7 @@
         </select>
       </div>
       <BaseButtonGreen @click="confirmarPedido">
-        Confirmar Pedido y Actualizar Stock
+        Actualizar Stock
       </BaseButtonGreen>
     </div>
 
