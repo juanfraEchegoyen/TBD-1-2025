@@ -73,7 +73,7 @@ INSERT INTO Puntuacion (puntaje, comentario, rut_repartidor) VALUES
 
 -- Pedidos
 INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES 
-('Entregado', 'Alta', false, '11111111-1', '80000000-1', '12121212-1'),   -- Producto 1: comida rápida
+('Entregado', 'Urgente', false, '11111111-1', '80000000-1', '12121212-1'),   -- Producto 1: comida rápida
 ('Pendiente', 'Media', false, '22222222-2', '80000000-1', '13131313-2'), -- Producto 1
 ('Entregado', 'Baja', false, '33333333-3', '80000000-1', '14141414-3'),  -- Producto 1
 ('Entrega fallida', 'Alta', true, '44444444-4', '80000000-1', '16161616-5'), -- Producto 2
@@ -88,11 +88,11 @@ INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_clie
 ('Pendiente', 'Media', false, '33333333-3', '80000000-2', '14141414-3'), -- Producto 7
 ('Entregado', 'Baja', false, '44444444-4', '80000000-3', '15151515-4'),  -- Producto 8
 ('Pendiente', 'Alta', false, '55555555-5', '80000000-3', '16161616-5'),  -- Producto 9
-('Entregado', 'Media', false, '66666666-6', '80000000-3', '12121212-1'), -- Producto 10
+('Entregado', 'Urgente', false, '66666666-6', '80000000-3', '12121212-1'), -- Producto 10
 ('Entrega fallida', 'Baja', true, '77777777-7', '80000000-3', '16161616-5'), -- Producto 11
-('Entregado', 'Alta', false, '88888888-8', '80000000-4', '14141414-3'),  -- Producto 12
+('Entregado', 'Urgente', false, '88888888-8', '80000000-4', '14141414-3'),  -- Producto 12
 ('Pendiente', 'Baja', false, '99999999-9', '80000000-4', '15151515-4'),  -- Producto 13
-('Entregado', 'Media', false, '10101010-0', '80000000-4', '16161616-5'), -- Producto 14
+('Entregado', 'Urgente', false, '10101010-0', '80000000-4', '16161616-5'), -- Producto 14
 ('Cancelada', 'Baja', false, '10101010-0', '80000000-4', '16161616-5'), -- Producto 14
 ('Devolución', 'Baja', true, '11111111-1', '80000000-4', '16161616-5'); -- Producto 14
 
