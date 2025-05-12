@@ -1,3 +1,34 @@
+# Guía rápida para ejecutar el Backend y Frontend
+
+## 1. Ejecutar el Backend
+
+1. Abre una terminal y navega a la carpeta del backend:
+   ```bash
+   cd DeliveryAppBackend
+   ```
+2. Compila y ejecuta el backend con Maven:
+   ```bash
+   mvn spring-boot:run
+3. El backend estará disponible por defecto en: http://localhost:8080
+
+## 2. Ejecutar el Frontend
+
+1. Abre otra terminal y navega a la carpeta del frontend:
+   ```bash
+   cd DeliveryAppFrontend
+   ```
+2. Instala las dependencias (solo la primera vez):
+   ```bash
+   npm install
+   ```
+3. Ejecuta el frontend:
+   ```bash
+   npm run dev
+   ```
+4. El frontend estará disponible por defecto en: http://localhost:3000
+
+---
+
 # DeliveryApp - Procedimiento de Inicialización de Base de Datos
 
 Este documento describe el procedimiento para crear e inicializar la base de datos `deliveryapp` usando los scripts SQL provistos en este repositorio.
