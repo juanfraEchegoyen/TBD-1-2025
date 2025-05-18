@@ -1,4 +1,4 @@
-package com.app.GeoTaskApp.Models;
+package com.app.GeoTaskApp.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
