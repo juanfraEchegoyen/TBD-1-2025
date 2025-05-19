@@ -1,9 +1,10 @@
-package com.app.GeoTaskApp.Controller;
+package com.app.GeoTaskApp.controllers;
 
-import com.app.GeoTaskApp.Dto.LoginRequestDTO;
-import com.app.GeoTaskApp.Dto.RefreshTokenRequestDTO;
-import com.app.GeoTaskApp.Models.Usuario;
-import com.app.GeoTaskApp.Service.AuthService;
+import com.app.GeoTaskApp.dto.LoginRequestDTO;
+import com.app.GeoTaskApp.dto.RefreshTokenRequestDTO;
+import com.app.GeoTaskApp.dto.UsuarioRegistroDTO;
+import com.app.GeoTaskApp.models.Usuario;
+import com.app.GeoTaskApp.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,12 +36,13 @@ public class AuthController {
      * La contraseña se guarda encriptada para mayor seguridad
      */
     @PostMapping("/registro")
-    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody UsuarioRegistroDTO usuarioDTO) {
         try {
-            // Intenta registrar el usuario usando el servicio de autenticación
+            Usuario usuario = new Usuario();
+            usuario.setNombre(usuarioDTO.getNombre());
+            usuario.setPassword(usuarioDTO.getPassword());
+            usuario.setUbicacionFromString(usuarioDTO.getUbicacion());
             servicioAutenticacion.registro(usuario);
-
-            // Si todo sale bien, devuelve un mensaje de éxito
             Map<String, String> respuesta = new HashMap<>();
             respuesta.put("mensaje", "Usuario registrado exitosamente");
             return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
