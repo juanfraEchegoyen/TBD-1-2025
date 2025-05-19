@@ -1,30 +1,25 @@
-package com.app.GeoTaskApp.models;
+package com.app.GeoTaskApp.dto;
 
-public class Sector {
-    private Long idSector;
+public class UsuarioRegistroDTO {
     private String nombre;
-    private String ubicacion; 
-
-    public Long getIdSector() {
-        return idSector;
-    }
-
-    public void setIdSector(Long idSector) {
-        this.idSector = idSector;
-    }
+    private String password;
+    private String ubicacion;
 
     public String getNombre() {
         return nombre;
     }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
     public String getUbicacion() {
         return ubicacion;
     }
-
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
     }
