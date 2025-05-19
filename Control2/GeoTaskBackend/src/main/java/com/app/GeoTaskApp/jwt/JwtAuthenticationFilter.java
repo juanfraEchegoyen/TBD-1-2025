@@ -43,7 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwt != null) {
                 // Paso 2: Obtener el nombre de usuario del token
-                String nombreUsuario = token.extraerNombreDeUsuario(jwt);
+                String nombreUsuario = null;
+                try {
+                    nombreUsuario = token.extraerNombreDeUsuario(jwt);
+                } catch (Exception e) {
+                    logger.warn("Token JWT inválido: " + e.getMessage());
+                    respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
 
                 // Paso 3: Verificar si hay un usuario y no está ya autenticado
                 if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -64,11 +71,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         // Paso 7: Establecer la autenticación en el contexto de seguridad
                         SecurityContextHolder.getContext().setAuthentication(autenticacion);
+                    } else {
+                        logger.warn("Token JWT no válido para el usuario: " + nombreUsuario);
+                        respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
                     }
                 }
             }
         } catch (Exception e) {
             logger.error("No se pudo establecer la autenticación del usuario", e);
+            respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         // Continuar con la cadena de filtros
