@@ -1,7 +1,7 @@
 package com.app.GeoTaskApp.controllers;
 
 import com.app.GeoTaskApp.models.Tarea;
-import com.app.GeoTaskApp.respositories.JdbcTareaRepository;
+import com.app.GeoTaskApp.services.TareaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,16 +12,16 @@ import java.util.List;
 @RequestMapping("/api/tareas")
 public class TareaController {
     @Autowired
-    private JdbcTareaRepository tareaRepository;
+    private TareaService tareaService;
 
     @GetMapping
     public List<Tarea> getAllTareas() {
-        return tareaRepository.findAll();
+        return tareaService.getAllTareas();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Tarea> getTareaById(@PathVariable Long id) {
-        Tarea tarea = tareaRepository.findById(id);
+        Tarea tarea = tareaService.getTareaById(id);
         if (tarea == null) {
             return ResponseEntity.notFound().build();
         }
@@ -30,8 +30,8 @@ public class TareaController {
 
     @PostMapping
     public ResponseEntity<String> createTarea(@RequestBody Tarea tarea) {
-        int result = tareaRepository.save(tarea);
-        if (result > 0) {
+        boolean result = tareaService.createTarea(tarea);
+        if (result) {
             return ResponseEntity.ok("Tarea creada correctamente");
         } else {
             return ResponseEntity.badRequest().body("No se pudo crear la tarea");
@@ -40,9 +40,8 @@ public class TareaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTarea(@PathVariable Long id, @RequestBody Tarea tarea) {
-        tarea.setIdTarea(id);
-        int result = tareaRepository.update(tarea);
-        if (result > 0) {
+        boolean result = tareaService.updateTarea(id, tarea);
+        if (result) {
             return ResponseEntity.ok("Tarea actualizada correctamente");
         } else {
             return ResponseEntity.badRequest().body("No se pudo actualizar la tarea");
@@ -51,8 +50,8 @@ public class TareaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTarea(@PathVariable Long id) {
-        int result = tareaRepository.delete(id);
-        if (result > 0) {
+        boolean result = tareaService.deleteTarea(id);
+        if (result) {
             return ResponseEntity.ok("Tarea eliminada correctamente");
         } else {
             return ResponseEntity.badRequest().body("No se pudo eliminar la tarea");
