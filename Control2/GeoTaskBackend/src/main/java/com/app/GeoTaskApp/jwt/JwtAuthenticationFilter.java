@@ -37,44 +37,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest peticion, HttpServletResponse respuesta, FilterChain cadenaFiltros)
             throws ServletException, IOException {
-        System.out.println("Interceptando solicitud: " + peticion.getRequestURI()); 
         try {
-            // Paso 1: Extraer el token del encabezado
             String jwt = extraerTokenJwt(peticion);
-            System.out.println("Token recibido en la petición: " + jwt);
 
             if (jwt != null) {
-                // Paso 2: Obtener el nombre de usuario del token
-                String nombreUsuario = token.extraerNombreDeUsuario(jwt);
-                System.out.println("Usuario extraído del token: " + nombreUsuario); // Debug
+                String nombreUsuario = null;
+                try {
+                    nombreUsuario = token.extraerNombreDeUsuario(jwt);
+                } catch (Exception e) {
+                    logger.warn("Token JWT inválido: " + e.getMessage());
+                    respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
 
-                // Paso 3: Verificar si hay un usuario y no está ya autenticado
                 if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    // Paso 4: Cargar los datos del usuario desde la base de datos
                     UserDetails datosUsuario = servicioDatosUsuario.loadUserByUsername(nombreUsuario);
-
-                    // Paso 5: Validar el token con los datos del usuario
                     if (token.validarToken(jwt, datosUsuario)) {
-                        // Paso 6: Crear el objeto de autenticación para el usuario
                         UsernamePasswordAuthenticationToken autenticacion =
                                 new UsernamePasswordAuthenticationToken(
                                         datosUsuario,
                                         null,
                                         datosUsuario.getAuthorities());
-
-                        // Añadir detalles de la petición a la autenticación
                         autenticacion.setDetails(new WebAuthenticationDetailsSource().buildDetails(peticion));
-
-                        // Paso 7: Establecer la autenticación en el contexto de seguridad
                         SecurityContextHolder.getContext().setAuthentication(autenticacion);
+                    } else {
+                        logger.warn("Token JWT no válido para el usuario: " + nombreUsuario);
+                        respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
                     }
                 }
             }
         } catch (Exception e) {
             logger.error("No se pudo establecer la autenticación del usuario", e);
+            respuesta.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
-
-        // Continuar con la cadena de filtros
         cadenaFiltros.doFilter(peticion, respuesta);
     }
 

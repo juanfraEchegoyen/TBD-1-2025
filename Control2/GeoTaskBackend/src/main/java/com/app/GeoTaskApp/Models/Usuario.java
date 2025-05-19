@@ -1,10 +1,10 @@
-package com.app.GeoTaskApp.Models;
+package com.app.GeoTaskApp.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Geometry;
-
+import org.locationtech.jts.io.WKTReader;
 
 
 @AllArgsConstructor
@@ -46,5 +46,11 @@ public class Usuario {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+    
+    public void setUbicacionFromString(String ubicacionStr) throws Exception {
+        WKTReader reader = new WKTReader();
+        Geometry geom = reader.read(ubicacionStr);
+        this.ubicacion = geom;
     }
 }

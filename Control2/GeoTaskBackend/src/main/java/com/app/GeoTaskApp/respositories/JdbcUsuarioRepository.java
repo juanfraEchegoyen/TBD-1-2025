@@ -1,6 +1,6 @@
-package com.app.GeoTaskApp.Repository;
+package com.app.GeoTaskApp.respositories;
 
-import com.app.GeoTaskApp.Models.Usuario;
+import com.app.GeoTaskApp.models.Usuario;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
@@ -22,13 +22,13 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     private JdbcTemplate jdbcTemplate;
 
     private static final String INSERT_USUARIO_SQL =
-            "INSERT INTO usuario (nombre, ubicacion, password) VALUES (?, ST_GeomFromText(?), ?) RETURNING id_usuario";
+            "INSERT INTO usuario (nombre, ubicacion, password) VALUES (?, ST_GeomFromText(?, 4326), ?) RETURNING id_usuario";
     private static final String SELECT_USUARIO_BY_ID_SQL =
             "SELECT id_usuario, nombre, ST_AsText(ubicacion) as ubicacion, password FROM usuario WHERE id_usuario = ?";
     private static final String SELECT_ALL_USUARIOS_SQL =
             "SELECT id_usuario, nombre, ST_AsText(ubicacion) as ubicacion, password FROM usuario";
     private static final String UPDATE_USUARIO_SQL =
-            "UPDATE usuario SET nombre = ?, ubicacion = ST_GeomFromText(?), password = ? WHERE id_usuario = ?";
+            "UPDATE usuario SET nombre = ?, ubicacion = ST_GeomFromText(?, 4326), password = ? WHERE id_usuario = ?";
     private static final String DELETE_USUARIO_BY_ID_SQL =
             "DELETE FROM usuario WHERE id_usuario = ?";
 

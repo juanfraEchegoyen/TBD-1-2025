@@ -1,7 +1,7 @@
-package com.app.GeoTaskApp.Repository;
+package com.app.GeoTaskApp.respositories;
 
 
-import com.app.GeoTaskApp.Models.Usuario;
+import com.app.GeoTaskApp.models.Usuario;
 
 import java.util.Optional;
 
