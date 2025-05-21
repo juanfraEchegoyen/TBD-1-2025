@@ -1,4 +1,4 @@
-package com.app.GeoTaskApp.models;
+package com.app.GeoTaskApp.Models;
 
 public class Sector {
     private Long idSector;

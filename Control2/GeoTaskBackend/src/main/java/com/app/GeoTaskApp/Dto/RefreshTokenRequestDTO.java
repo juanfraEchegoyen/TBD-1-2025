@@ -1,4 +1,4 @@
-package com.app.GeoTaskApp.dto;
+package com.app.GeoTaskApp.Dto;
 
 public class RefreshTokenRequestDTO {
     private String refreshToken;

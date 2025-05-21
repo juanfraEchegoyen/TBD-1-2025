@@ -1,6 +1,6 @@
 package com.app.GeoTaskApp.services;
 
-import com.app.GeoTaskApp.models.Sector;
+import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.respositories.JdbcSectorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

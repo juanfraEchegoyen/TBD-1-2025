@@ -1,6 +1,6 @@
 package com.app.GeoTaskApp.respositories;
 
-import com.app.GeoTaskApp.models.Usuario;
+import com.app.GeoTaskApp.Models.Usuario;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;

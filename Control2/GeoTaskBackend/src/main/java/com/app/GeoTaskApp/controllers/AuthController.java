@@ -1,9 +1,9 @@
 package com.app.GeoTaskApp.controllers;
 
-import com.app.GeoTaskApp.dto.LoginRequestDTO;
-import com.app.GeoTaskApp.dto.RefreshTokenRequestDTO;
-import com.app.GeoTaskApp.dto.UsuarioRegistroDTO;
-import com.app.GeoTaskApp.models.Usuario;
+import com.app.GeoTaskApp.Dto.LoginRequestDTO;
+import com.app.GeoTaskApp.Dto.RefreshTokenRequestDTO;
+import com.app.GeoTaskApp.Dto.UsuarioRegistroDTO;
+import com.app.GeoTaskApp.Models.Usuario;
 import com.app.GeoTaskApp.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

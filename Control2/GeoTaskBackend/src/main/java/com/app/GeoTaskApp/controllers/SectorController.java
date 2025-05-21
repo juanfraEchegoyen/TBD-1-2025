@@ -1,6 +1,6 @@
 package com.app.GeoTaskApp.controllers;
 
-import com.app.GeoTaskApp.models.Sector;
+import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.services.SectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

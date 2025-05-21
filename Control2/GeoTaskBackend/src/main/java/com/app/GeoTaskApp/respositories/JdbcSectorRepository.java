@@ -1,6 +1,6 @@
 package com.app.GeoTaskApp.respositories;
 
-import com.app.GeoTaskApp.models.Sector;
+import com.app.GeoTaskApp.Models.Sector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

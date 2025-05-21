@@ -1,7 +1,7 @@
 package com.app.GeoTaskApp.services;
 
 import com.app.GeoTaskApp.jwt.Token;
-import com.app.GeoTaskApp.models.Usuario;
+import com.app.GeoTaskApp.Models.Usuario;
 import com.app.GeoTaskApp.respositories.UsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
