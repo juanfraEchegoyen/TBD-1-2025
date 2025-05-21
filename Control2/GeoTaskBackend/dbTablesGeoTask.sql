@@ -10,10 +10,12 @@ CREATE TABLE usuario (
 );
 
 -- Tabla de sectores
-CREATE TABLE sector (
-    id_sector SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    ubicacion geometry(Point,4326) NOT NULL
+CREATE TABLE ubicacion (
+    id_ubicacion SERIAL PRIMARY KEY,
+    region VARCHAR(100) NOT NULL,
+    provincia VARCHAR(100) NOT NULL,
+    comuna VARCHAR(100) NOT NULL,
+    coordenadas geometry(Point,4326) NOT NULL
 );
 
 -- Tabla de tareas
@@ -24,7 +26,7 @@ CREATE TABLE tarea (
     fecha_vencimiento DATE NOT NULL,
     estado VARCHAR(30) NOT NULL,
     id_usuario INTEGER NOT NULL,
-    id_sector INTEGER NOT NULL,
+    id_ubicacion INTEGER NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-    FOREIGN KEY (id_sector) REFERENCES sector(id_sector)
+    FOREIGN KEY (id_ubicacion) REFERENCES ubicacion(id_ubicacion)
 );
