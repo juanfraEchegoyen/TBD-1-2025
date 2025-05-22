@@ -59,6 +59,16 @@
             Completadas
           </button>
         </div>
+
+        <!-- Buscador por palabra clave -->
+        <div class="mb-6">
+          <input
+            v-model="busqueda"
+            type="text"
+            placeholder="Buscar por título o descripción..."
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+        </div>
         
         <!-- Lista de tareas -->
         <ul>
@@ -129,18 +139,26 @@ import axios from 'axios'
 const tareas = ref([])
 const error = ref('')
 const filtroActual = ref('todas')
+const busqueda = ref('')
 const router = useRouter()
 
 // ----- PROPIEDADES COMPUTADAS ----
 
-// ENTRADA: Lista de tareas y filtro actual
-// PROCEDIMIENTO: Filtra las tareas según el criterio seleccionado
+// ENTRADA: Lista de tareas, filtro actual y texto de búsqueda
+// PROCEDIMIENTO: Filtra las tareas según el criterio seleccionado y la búsqueda
 // SALIDA: Lista de tareas filtrada
 const tareasFiltradas = computed(() => {
-  if (filtroActual.value === 'todas') return tareas.value
-  if (filtroActual.value === 'pendientes') return tareas.value.filter(t => t.estado !== 'Completada')
-  if (filtroActual.value === 'completadas') return tareas.value.filter(t => t.estado === 'Completada')
-  return tareas.value
+  let lista = tareas.value
+  if (filtroActual.value === 'pendientes') lista = lista.filter(t => t.estado !== 'Completada')
+  if (filtroActual.value === 'completadas') lista = lista.filter(t => t.estado === 'Completada')
+  if (busqueda.value.trim() !== '') {
+    const texto = busqueda.value.trim().toLowerCase()
+    lista = lista.filter(t =>
+      (t.titulo && t.titulo.toLowerCase().includes(texto)) ||
+      (t.descripcion && t.descripcion.toLowerCase().includes(texto))
+    )
+  }
+  return lista
 })
 
 // ----- AVISOS DE EXPIRACIÓN -----
