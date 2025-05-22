@@ -23,7 +23,7 @@ public class JdbcUbicacionRepository {
             ubicacion.setRegion(rs.getString("region"));
             ubicacion.setProvincia(rs.getString("provincia"));
             ubicacion.setComuna(rs.getString("comuna"));
-            ubicacion.setCoordenadas(rs.getString("ubicacion"));
+            ubicacion.setCoordenadas(rs.getString("coordenadas"));
             return ubicacion;
         }
     };

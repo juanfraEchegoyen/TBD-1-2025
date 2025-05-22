@@ -3,7 +3,7 @@ package com.app.GeoTaskApp.Dto;
 public class UsuarioRegistroDTO {
     private String nombre;
     private String password;
-    private String ubicacion;
+    private Long id_sector;
 
     public String getNombre() {
         return nombre;
@@ -17,10 +17,10 @@ public class UsuarioRegistroDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getUbicacion() {
-        return ubicacion;
+    public Long getId_sector() {
+        return id_sector;
     }
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setId_sector(Long id_sector) {
+        this.id_sector = id_sector;
     }
 }

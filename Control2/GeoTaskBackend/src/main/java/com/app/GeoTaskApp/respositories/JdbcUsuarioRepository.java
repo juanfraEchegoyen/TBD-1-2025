@@ -22,13 +22,13 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     private JdbcTemplate jdbcTemplate;
 
     private static final String INSERT_USUARIO_SQL =
-            "INSERT INTO usuario (nombre, ubicacion, password) VALUES (?, ST_GeomFromText(?, 4326), ?) RETURNING id_usuario";
+            "INSERT INTO usuario (nombre, password, id_sector) VALUES (?, ?, ?) RETURNING id_usuario";
     private static final String SELECT_USUARIO_BY_ID_SQL =
-            "SELECT id_usuario, nombre, ST_AsText(ubicacion) as ubicacion, password FROM usuario WHERE id_usuario = ?";
+            "SELECT id_usuario, nombre, password, id_sector FROM usuario WHERE id_usuario = ?";
     private static final String SELECT_ALL_USUARIOS_SQL =
-            "SELECT id_usuario, nombre, ST_AsText(ubicacion) as ubicacion, password FROM usuario";
+            "SELECT id_usuario, nombre, password, id_sector FROM usuario";
     private static final String UPDATE_USUARIO_SQL =
-            "UPDATE usuario SET nombre = ?, ubicacion = ST_GeomFromText(?, 4326), password = ? WHERE id_usuario = ?";
+            "UPDATE usuario SET nombre = ?, password = ?, id_sector = ? WHERE id_usuario = ?";
     private static final String DELETE_USUARIO_BY_ID_SQL =
             "DELETE FROM usuario WHERE id_usuario = ?";
 
@@ -38,8 +38,8 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
                 INSERT_USUARIO_SQL,
                 Integer.class,
                 usuario.getNombre(),
-                usuario.getUbicacion() != null ? new WKTWriter().write(usuario.getUbicacion()) : null,
-                usuario.getPassword()
+                usuario.getPassword(),
+                usuario.getIdSector()
         );
 
         usuario.setIdUsuario(id);
@@ -53,19 +53,7 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
             usuario.setIdUsuario(rs.getInt("id_usuario"));
             usuario.setNombre(rs.getString("nombre"));
             usuario.setPassword(rs.getString("password"));
-
-            // Manejo correcto de la columna de geometría (WKT)
-            String wktGeometry = rs.getString("ubicacion");
-            if (wktGeometry != null) {
-                try {
-                    WKTReader reader = new WKTReader();
-                    Geometry geometry = reader.read(wktGeometry);
-                    usuario.setUbicacion(geometry);
-                } catch (ParseException e) {
-                    throw new SQLException("Error al parsear la geometría", e);
-                }
-            }
-
+            usuario.setIdSector(rs.getLong("id_sector"));
             return usuario;
         }
     };
@@ -76,10 +64,24 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
         if (usuario == null || usuario.getIdUsuario() == null) {
             throw new IllegalArgumentException("Usuario o idUsuario no pueden ser nulos para update");
         }
+
+        // Validar que se ingresó un sector
+        if (usuario.getIdSector() != null) {
+            String checkSql = "SELECT COUNT(*) FROM sector s JOIN ubicacion u ON " +
+                    "ST_Contains(u.coordenadas, s.ubicacion) " +
+                    "WHERE s.id_sector = ?";
+
+            int count = jdbcTemplate.queryForObject(checkSql, Integer.class, usuario.getIdSector());
+
+            if (count == 0) {
+                throw new IllegalArgumentException("El sector asignado al usuario no está dentro de un área permitida");
+            }
+        }
+
         return jdbcTemplate.update(UPDATE_USUARIO_SQL,
                 usuario.getNombre(),
-                usuario.getUbicacion() != null ? new WKTWriter().write(usuario.getUbicacion()) : null,
                 usuario.getPassword(),
+                usuario.getIdSector(),
                 usuario.getIdUsuario());
     }
 
@@ -108,11 +110,7 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     @Override
     public Optional<Usuario> findByNombre(String nombre){
         try {
-            Usuario usuario = jdbcTemplate.queryForObject(
-                    "SELECT id_usuario, nombre, ST_AsText(ubicacion) as ubicacion, password FROM usuario WHERE nombre = ?",
-                    usuarioRowMapper,
-                    nombre
-            );
+            Usuario usuario = jdbcTemplate.queryForObject("SELECT * FROM usuario WHERE nombre = ?", new Object[]{nombre}, usuarioRowMapper);
             return Optional.of(usuario);
         } catch (Exception e) {
             return Optional.empty();

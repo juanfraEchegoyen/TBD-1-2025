@@ -1,6 +1,10 @@
 package com.app.GeoTaskApp.controllers;
 
+import com.app.GeoTaskApp.Dto.TareaRequestDTO;
+import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.Models.Tarea;
+
+import com.app.GeoTaskApp.services.SectorService;
 import com.app.GeoTaskApp.services.TareaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +17,8 @@ import java.util.List;
 public class TareaController {
     @Autowired
     private TareaService tareaService;
+    @Autowired
+    SectorService sectorService;
 
     @GetMapping
     public List<Tarea> getAllTareas() {
@@ -29,13 +35,13 @@ public class TareaController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createTarea(@RequestBody Tarea tarea) {
-        boolean result = tareaService.createTarea(tarea);
-        if (result) {
+    public ResponseEntity<String> createTarea(@RequestBody TareaRequestDTO tareaRequestDTO) {
+    boolean result2 = tareaService.createTarea(tareaRequestDTO);
+        if (result2) {
             return ResponseEntity.ok("Tarea creada correctamente");
-        } else {
-            return ResponseEntity.badRequest().body("No se pudo crear la tarea");
         }
+
+    return ResponseEntity.badRequest().body("No se pudo crear la tarea");
     }
 
     @PutMapping("/{id}")

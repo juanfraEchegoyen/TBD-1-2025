@@ -2,7 +2,9 @@ package com.app.GeoTaskApp.controllers;
 
 import com.app.GeoTaskApp.Dto.LoginRequestDTO;
 import com.app.GeoTaskApp.Dto.RefreshTokenRequestDTO;
+import com.app.GeoTaskApp.Dto.RegistroRequestDTO;
 import com.app.GeoTaskApp.Dto.UsuarioRegistroDTO;
+import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.Models.Usuario;
 import com.app.GeoTaskApp.services.AuthService;
 import org.springframework.http.HttpStatus;
@@ -36,13 +38,9 @@ public class AuthController {
      * La contraseña se guarda encriptada para mayor seguridad
      */
     @PostMapping("/registro")
-    public ResponseEntity<?> registrarUsuario(@RequestBody UsuarioRegistroDTO usuarioDTO) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody RegistroRequestDTO solicitudRegistro) {
         try {
-            Usuario usuario = new Usuario();
-            usuario.setNombre(usuarioDTO.getNombre());
-            usuario.setPassword(usuarioDTO.getPassword());
-            usuario.setUbicacionFromString(usuarioDTO.getUbicacion());
-            servicioAutenticacion.registro(usuario);
+            servicioAutenticacion.registro(solicitudRegistro);
             Map<String, String> respuesta = new HashMap<>();
             respuesta.put("mensaje", "Usuario registrado exitosamente");
             return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
