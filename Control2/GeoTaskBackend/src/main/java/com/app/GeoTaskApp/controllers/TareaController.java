@@ -45,8 +45,8 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTarea(@PathVariable Long id, @RequestBody Tarea tarea) {
-        boolean result = tareaService.updateTarea(id, tarea);
+    public ResponseEntity<String> updateTarea(@PathVariable Long id, @RequestBody TareaRequestDTO tareaRequestDTO) {
+        boolean result = tareaService.updateTarea(id, tareaRequestDTO);
         if (result) {
             return ResponseEntity.ok("Tarea actualizada correctamente");
         } else {

@@ -1,6 +1,8 @@
 package com.app.GeoTaskApp.respositories;
 
 import com.app.GeoTaskApp.Models.Sector;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,17 +18,21 @@ public class JdbcSectorRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private RowMapper<Sector> sectorRowMapper = new RowMapper<Sector>() {
-        @Override
-        public Sector mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Sector sector = new Sector();
-            sector.setIdSector(rs.getLong("id_sector"));
-            sector.setAsignacion(rs.getString("asignacion"));
-            sector.setCalle(rs.getString("calle"));
-            sector.setComuna(rs.getString("comuna"));
-            sector.setUbicacion(rs.getObject("ubicacion", org.locationtech.jts.geom.Point.class));
-            return sector;
+    private RowMapper<Sector> sectorRowMapper = (rs, rowNum) -> {
+        Sector sector = new Sector();
+        sector.setIdSector(rs.getLong("id_sector"));
+        sector.setAsignacion(rs.getString("asignacion"));
+        sector.setCalle(rs.getString("calle"));
+        sector.setComuna(rs.getString("comuna"));
+        String wkt = rs.getString("ubicacion");
+        if (wkt != null) {
+            try {
+                sector.setUbicacion((Point) new WKTReader().read(wkt));
+            } catch (Exception e) {
+                throw new RuntimeException("Error al convertir WKT a Point", e);
+            }
         }
+        return sector;
     };
 
     public List<Sector> findAll() {
@@ -35,12 +41,8 @@ public class JdbcSectorRepository {
     }
 
     public Sector findById(Long id) {
-        try {
-            String sql = "SELECT * FROM sector WHERE id_sector = ?";
-            return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
-        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
-            return null;
-        }
+        String sql = "SELECT id_sector, asignacion, calle, comuna, ST_AsText(ubicacion) AS ubicacion FROM sector WHERE id_sector = ?";
+        return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
     }
 
     public Long save(Sector sector) {
