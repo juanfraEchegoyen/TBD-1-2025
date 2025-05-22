@@ -127,7 +127,14 @@ const register = async () => {
     // Convertir coordenadas a formato WKT para PostGIS
     const wkt = `POINT(${longitud.value} ${latitud.value})`;
     
-    // Enviar datos al servidor
+    // Prevenir envíos múltiples
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Registrando...';
+    }
+    
+    // Enviar datos al servidor SOLO cuando se presiona el botón de registro
     await axios.post('http://localhost:8080/auth/registro', {
       nombre: nombre.value,
       password: password.value,
@@ -142,6 +149,12 @@ const register = async () => {
     setTimeout(() => router.push('/login'), 1500);
   } catch (e) {
     error.value = e.response?.data?.error || 'Error al registrar usuario';
+    // Reactivar el botón en caso de error
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Registrarse';
+    }
   }
 };
 </script>

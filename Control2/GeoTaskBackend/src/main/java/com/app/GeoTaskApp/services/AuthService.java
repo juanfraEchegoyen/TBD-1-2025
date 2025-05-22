@@ -102,6 +102,7 @@ public class AuthService implements UserDetailsService {
             Map<String, String> tokens = new HashMap<>();
             tokens.put("accessToken", tokenAcceso);
             tokens.put("refreshToken", tokenRefresco);
+            tokens.put("userId", String.valueOf(repositorioUsuarios.findByNombre(nombre).get().getIdUsuario()));
 
             System.out.println("Autenticación exitosa para el usuario: " + nombre);
             return tokens;

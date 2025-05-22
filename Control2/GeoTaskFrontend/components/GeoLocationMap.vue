@@ -10,6 +10,7 @@
       />
       <button 
         @click="searchAddress" 
+        type="button" 
         class="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         Buscar
@@ -142,12 +143,18 @@ const setMarkerPosition = (lat, lng, address = null) => {
 // ----- FUNCIONES DE BÚSQUEDA Y GEOCODIFICACIÓN ----
 
 // ENTRADA: Consulta de búsqueda del usuario
-// PROCEDIMIENTO: Busca direcciones usando la API de OpenStreetMap Nominatim
+// PROCEDIMIENTO: Busca direcciones usando la API de OpenStreetMap Nominatim sin enviar el formulario
 // SALIDA: Resultados de búsqueda actualizados en el estado
-const searchAddress = async () => {
+const searchAddress = async (event) => {
+  // Prevenir envío de formulario si el evento existe
+  if (event && event.preventDefault) {
+    event.preventDefault();
+  }
+  
   if (!searchQuery.value.trim()) return;
   
   try {
+    // Solo realizar la búsqueda, no enviar el formulario
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery.value)}&limit=5&addressdetails=1`
     );
