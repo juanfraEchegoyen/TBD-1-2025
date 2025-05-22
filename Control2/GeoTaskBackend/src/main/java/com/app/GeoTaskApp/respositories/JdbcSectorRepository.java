@@ -53,15 +53,16 @@ public class JdbcSectorRepository {
         String wkt = new WKTWriter().write(sector.getUbicacion());
 
         // Verificar si el punto está dentro de algún polígono
-        String checkSql = "SELECT COUNT(*) FROM ubicacion WHERE ST_Contains(coordenadas, ST_GeomFromText(?, 4326))";
+        String checkSql = "SELECT COUNT(*) FROM ubicacion WHERE ST_Contains(coordenadas, ST_SetSRID(ST_GeomFromText(?, 4326), 4326))";
         int count = jdbcTemplate.queryForObject(checkSql, Integer.class, wkt);
 
         if (count == 0) {
+            System.out.println("El punto no está dentro de ningún polígono, no se guarda el sector");
             return 0L;
         }
 
         // Guardar el sector
-        String sql = "INSERT INTO sector (asignacion, comuna, calle, ubicacion) VALUES (?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_sector";
+        String sql = "INSERT INTO sector (asignacion, comuna, calle, ubicacion) VALUES (?, ?, ?, ST_SetSRID(ST_GeomFromText(?, 4326), 4326)) RETURNING id_sector";
         Long id = jdbcTemplate.queryForObject(sql, Long.class,
                 sector.getAsignacion(),
                 sector.getComuna(),
