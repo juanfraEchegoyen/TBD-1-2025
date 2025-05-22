@@ -12,6 +12,17 @@
           </GeoTaskButton>
         </div>
         
+        <!-- AVISOS DE TAREAS POR EXPIRAR -->
+        <div v-if="avisosExpiracion.length > 0" class="mb-4">
+          <div 
+            v-for="aviso in avisosExpiracion" 
+            :key="aviso.idTarea"
+            class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-2 text-sm font-semibold flex items-center"
+          >
+             La tarea <span class="mx-1 font-bold">"{{ aviso.titulo }}"</span> vencerá en 24 horas o menos.
+          </div>
+        </div>
+
         <!-- Filtros de tareas -->
         <div class="mb-6 flex space-x-4">
           <button 
@@ -130,6 +141,29 @@ const tareasFiltradas = computed(() => {
   if (filtroActual.value === 'pendientes') return tareas.value.filter(t => t.estado !== 'Completada')
   if (filtroActual.value === 'completadas') return tareas.value.filter(t => t.estado === 'Completada')
   return tareas.value
+})
+
+// ----- AVISOS DE EXPIRACIÓN -----
+const avisosExpiracion = computed(() => {
+  const avisos = []
+  const ahora = new Date()
+  tareas.value.forEach(tarea => {
+    if (tarea.estado !== 'Completada') {
+      const fechaVenc = new Date(tarea.fechaVencimiento || tarea.fecha_vencimiento)
+      if (!isNaN(fechaVenc.getTime())) {
+        const diffMs = fechaVenc - ahora
+        const diffHoras = diffMs / (1000 * 60 * 60)
+        if (diffHoras <= 48 && diffHoras > 0) {
+          avisos.push({
+            idTarea: tarea.idTarea,
+            titulo: tarea.titulo,
+            horasRestantes: diffHoras
+          })
+        }
+      }
+    }
+  })
+  return avisos
 })
 
 // ----- INICIALIZACIÓN ----
