@@ -59,7 +59,7 @@
             <div class="flex-grow">
               <div class="font-semibold text-lg text-gray-800">{{ tarea.titulo }}</div>
               <div class="text-gray-600 text-sm mb-1">{{ tarea.descripcion }}</div>
-              <div class="text-xs text-gray-400 mb-1">Vence: {{ formatearFecha(tarea.fechaVencimiento) }}</div>
+              <div class="text-xs text-gray-400 mb-1">Vence: {{ formatearFecha(tarea.fechaVencimiento || tarea.fecha_vencimiento) }}</div>
               <div class="text-xs text-gray-500 mb-1">{{ tarea.calle }}, {{ tarea.comuna }}</div>
               <span 
                 :class="tarea.estado === 'Completada' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" 
@@ -137,8 +137,13 @@ const tareasFiltradas = computed(() => {
 // ENTRADA: Ninguna
 // PROCEDIMIENTO: Inicializa la página al montarse
 // SALIDA: Carga las tareas desde la API
-onMounted(() => {
-  cargarTareas()
+onMounted(async () => {
+  await cargarTareas()
+  // Debug: ver qué formato tienen las fechas y toda la estructura
+  if (tareas.value.length > 0) {
+    console.log("Estructura completa de la tarea:", tareas.value[0])
+    console.log("Ejemplo de fechaVencimiento:", tareas.value[0].fechaVencimiento, typeof tareas.value[0].fechaVencimiento)
+  }
 })
 
 // ----- FUNCIONES DE COMUNICACIÓN CON API -----
@@ -172,7 +177,10 @@ const cargarTareas = async () => {
 // PROCEDIMIENTO: Redirecciona al formulario de edición de la tarea
 // SALIDA: Navegación a la página de edición
 const editarTarea = (id) => {
-  router.push(`/registroTareas/${id}`)
+  router.push({
+    path: '/editarTarea',
+    query: { id: id }
+  });
 }
 
 // ENTRADA: ID de la tarea a marcar como completada
@@ -229,18 +237,31 @@ const eliminarTarea = async (id) => {
 
 // ----- FUNCIONES DE UTILIDAD -----
 
-// ENTRADA: Fecha en formato ISO o timestamp
+// ENTRADA: Fecha en cualquier formato válido
 // PROCEDIMIENTO: Formatea la fecha para mostrarla de manera más amigable
 // SALIDA: Fecha formateada como DD/MM/YYYY
 const formatearFecha = (fecha) => {
-  if (!fecha) return 'Sin fecha'
+  if (!fecha) return 'Sin fecha definida'
   
-  const date = new Date(fecha)
-  return date.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
+  try {
+    // Intentar crear objeto Date desde cualquier formato que envíe el backend
+    const date = new Date(fecha)
+    
+    // Verificar si es una fecha válida
+    if (isNaN(date.getTime())) {
+      console.log('Fecha inválida:', fecha)
+      return 'Fecha inválida'
+    }
+    
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch (e) {
+    console.error('Error al formatear fecha:', e, fecha)
+    return 'Error de formato'
+  }
 }
 </script>
 

@@ -35,8 +35,12 @@ public class JdbcSectorRepository {
     }
 
     public Sector findById(Long id) {
-        String sql = "SELECT * FROM sector WHERE id_sector = ?";
-        return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
+        try {
+            String sql = "SELECT * FROM sector WHERE id_sector = ?";
+            return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public Long save(Sector sector) {

@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 @Repository
-public class JdbcUsuarioRepository implements UsuarioRepository {
+public class JdbcUsuarioRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -32,7 +32,6 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     private static final String DELETE_USUARIO_BY_ID_SQL =
             "DELETE FROM usuario WHERE id_usuario = ?";
 
-    @Override
     public Usuario save(Usuario usuario) {
         Integer id = jdbcTemplate.queryForObject(
                 INSERT_USUARIO_SQL,
@@ -47,7 +46,6 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     }
 
     private final RowMapper<Usuario> usuarioRowMapper = new RowMapper<Usuario>() {
-        @Override
         public Usuario mapRow(ResultSet rs, int rowNum) throws SQLException {
             Usuario usuario = new Usuario();
             usuario.setIdUsuario(rs.getInt("id_usuario"));
@@ -59,7 +57,6 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
     };
 
 
-    @Override
     public int update(Usuario usuario) {
         if (usuario == null || usuario.getIdUsuario() == null) {
             throw new IllegalArgumentException("Usuario o idUsuario no pueden ser nulos para update");
@@ -85,7 +82,6 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
                 usuario.getIdUsuario());
     }
 
-    @Override
     public int deleteById(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("El idUsuario no puede ser null");
@@ -93,7 +89,6 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
         return jdbcTemplate.update(DELETE_USUARIO_BY_ID_SQL, id);
     }
 
-    @Override
     public Optional<Usuario> findById(Integer id) {
         try {
             Usuario usuario = jdbcTemplate.queryForObject(
@@ -107,7 +102,7 @@ public class JdbcUsuarioRepository implements UsuarioRepository {
         }
     }
 
-    @Override
+
     public Optional<Usuario> findByNombre(String nombre){
         try {
             Usuario usuario = jdbcTemplate.queryForObject("SELECT * FROM usuario WHERE nombre = ?", new Object[]{nombre}, usuarioRowMapper);
