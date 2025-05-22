@@ -1,7 +1,10 @@
 package com.app.GeoTaskApp.services;
 
+import com.app.GeoTaskApp.Dto.RegistroRequestDTO;
+import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.jwt.Token;
 import com.app.GeoTaskApp.Models.Usuario;
+import com.app.GeoTaskApp.respositories.JdbcSectorRepository;
 import com.app.GeoTaskApp.respositories.UsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,16 +28,19 @@ public class AuthService implements UserDetailsService {
     private final PasswordEncoder codificadorContraseñas;
     private final AuthenticationManager gestorAutenticacion;
     private final Token utilidadToken;
+    private final JdbcSectorRepository sectorRepository;
 
     /**
      * Constructor que inicializa todos los componentes necesarios para la autenticación
      * La anotación @Lazy es necesaria para evitar dependencias circulares
      */
     public AuthService(UsuarioRepository repositorioUsuarios,
+                       JdbcSectorRepository sectorRepository,
                        PasswordEncoder codificadorContraseñas,
                        @Lazy AuthenticationManager gestorAutenticacion,
                        Token utilidadToken) {
         this.repositorioUsuarios = repositorioUsuarios;
+        this.sectorRepository = sectorRepository;
         this.codificadorContraseñas = codificadorContraseñas;
         this.gestorAutenticacion = gestorAutenticacion;
         this.utilidadToken = utilidadToken;
@@ -47,16 +53,24 @@ public class AuthService implements UserDetailsService {
      * 2. Encripta la contraseña para almacenarla de forma segura
      * 3. Guarda el usuario en la base de datos
      */
-    public void registro(Usuario usuario) {
+    public void registro(RegistroRequestDTO solicitudRegistro) {
+        Usuario usuario = solicitudRegistro.toUsuario();
+        Sector sector = solicitudRegistro.toSector();
+
         Optional<Usuario> usuarioExistente = repositorioUsuarios.findByNombre(usuario.getNombre());
         if (usuarioExistente.isPresent()) {
             throw new IllegalArgumentException("El usuario ya existe");
         }
-        // Encriptar la contraseña antes de guardarla
-        String contraseñaEncriptada = codificadorContraseñas.encode(usuario.getPassword());
-        usuario.setPassword(contraseñaEncriptada);
-        // Guardar el usuario en la base de datos
-        repositorioUsuarios.save(usuario);
+        if (sectorRepository.save(sector) != 0) {
+            usuario.setIdSector(sector.getIdSector());
+            // Encriptar la contraseña antes de guardarla
+            String contraseñaEncriptada = codificadorContraseñas.encode(usuario.getPassword());
+            usuario.setPassword(contraseñaEncriptada);
+            // Guardar el usuario en la base de datos
+            repositorioUsuarios.save(usuario);
+        } else {
+            throw new IllegalArgumentException("El sector no tiene una ubicación válida");
+        }
     }
 
     /**
@@ -67,26 +81,34 @@ public class AuthService implements UserDetailsService {
      * 3. Devuelve ambos tokens en un mapa para que el cliente pueda usarlos
      */
     public Map<String, String> login(String nombre, String contraseña) {
-        // Crear un token de autenticación con las credenciales recibidas
-        UsernamePasswordAuthenticationToken tokenAutenticacion =
-                new UsernamePasswordAuthenticationToken(nombre, contraseña);
+        System.out.println("Iniciando autenticación para el usuario: " + nombre);
 
-        // Verificar las credenciales usando el gestor de autenticación
-        Authentication resultadoAutenticacion = gestorAutenticacion.authenticate(tokenAutenticacion);
+        try {
+            // Crear un token de autenticación con las credenciales recibidas
+            UsernamePasswordAuthenticationToken tokenAutenticacion =
+                    new UsernamePasswordAuthenticationToken(nombre, contraseña);
 
-        // Guardar la autenticación en el contexto de seguridad
-        SecurityContextHolder.getContext().setAuthentication(resultadoAutenticacion);
+            // Verificar las credenciales usando el gestor de autenticación
+            Authentication resultadoAutenticacion = gestorAutenticacion.authenticate(tokenAutenticacion);
 
-        // Generar los tokens JWT
-        String tokenAcceso = utilidadToken.generarToken(resultadoAutenticacion);
-        String tokenRefresco = utilidadToken.generarTokenDeRefresco(nombre);
+            // Guardar la autenticación en el contexto de seguridad
+            SecurityContextHolder.getContext().setAuthentication(resultadoAutenticacion);
 
-        // Crear un mapa con ambos tokens para devolver al cliente
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", tokenAcceso);
-        tokens.put("refreshToken", tokenRefresco);
+            // Generar los tokens JWT
+            String tokenAcceso = utilidadToken.generarToken(resultadoAutenticacion);
+            String tokenRefresco = utilidadToken.generarTokenDeRefresco(nombre);
 
-        return tokens;
+            // Crear un mapa con ambos tokens para devolver al cliente
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", tokenAcceso);
+            tokens.put("refreshToken", tokenRefresco);
+
+            System.out.println("Autenticación exitosa para el usuario: " + nombre);
+            return tokens;
+        } catch (Exception e) {
+            System.err.println("Error durante la autenticación: " + e.getMessage());
+            throw new IllegalArgumentException("Credenciales inválidas");
+        }
     }
 
     /**
@@ -132,11 +154,13 @@ public class AuthService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String nombreUsuario) {
+        System.out.println("Cargando detalles del usuario: " + nombreUsuario);
         // Buscar el usuario en la base de datos
         Usuario usuario = repositorioUsuarios.findByNombre(nombreUsuario)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + nombreUsuario));
 
         // Crear un objeto UserDetails con la información del usuario
+        System.out.println("Detalles del usuario cargados: " + usuario);
         return new org.springframework.security.core.userdetails.User(
                 usuario.getNombre(),
                 usuario.getPassword(),

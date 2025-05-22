@@ -13,8 +13,7 @@ public class Usuario {
     private Integer idUsuario;
     private String nombre;
     private String password;
-    private Geometry ubicacion;
-
+    private Long idSector;
 
     public Integer getIdUsuario() {
         return idUsuario;
@@ -22,14 +21,6 @@ public class Usuario {
 
     public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
-    }
-
-    public Geometry getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(Geometry ubicacion) {
-        this.ubicacion = ubicacion;
     }
 
     public String getPassword() {
@@ -47,10 +38,13 @@ public class Usuario {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-    public void setUbicacionFromString(String ubicacionStr) throws Exception {
-        WKTReader reader = new WKTReader();
-        Geometry geom = reader.read(ubicacionStr);
-        this.ubicacion = geom;
+
+    public Long getIdSector() {
+        return idSector;
     }
+
+    public void setIdSector(Long idSector) {
+        this.idSector = idSector;
+    }
+
 }
