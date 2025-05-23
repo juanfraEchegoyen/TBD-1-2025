@@ -6,130 +6,153 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-public class JdbcQuerysRepository {
+import com.app.GeoTaskApp.Dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-    private final Connection connection;
+import java.util.List;
 
-    public JdbcQuerysRepository(Connection connection) {
-        this.connection = connection;
+@Repository
+public class JdbcQuerysRepository implements QueryRepository {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public List<TareaPorSectorDTO> getTareasPorSector(Long idUsuario) {
+        String sql = """
+            SELECT idSector, COUNT(*) AS cantidad_tareas
+            FROM Tarea
+            WHERE idUsuario = ?
+            GROUP BY idSector
+        """;
+
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new TareaPorSectorDTO(
+                        rs.getLong("idSector"),
+                        rs.getInt("cantidad_tareas")
+                ), idUsuario);
+    }
+    @Override
+    public List<SectorDTO> getSectoresConMasTareasPendientes() {
+        String sql = """
+            SELECT s.idSector, s.asignacion, s.comuna, s.calle,
+                   ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
+                   ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud
+            FROM Tarea t
+            JOIN Sector s ON t.idSector = s.idSector
+            WHERE t.estado = 'pendiente'
+            GROUP BY s.idSector, s.asignacion, s.comuna, s.calle, s.ubicacion
+            ORDER BY COUNT(*) DESC
+        """;
+
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new SectorDTO(
+                        rs.getLong("idSector"),
+                        rs.getString("asignacion"),
+                        rs.getString("comuna"),
+                        rs.getString("calle"),
+                        rs.getDouble("longitud"),
+                        rs.getDouble("latitud")
+                ));
     }
 
-    // ¿Cuántas tareas ha hecho el usuario por sector?
-    public void getTareasPorSector(int idUsuario) throws SQLException {
-        String sql = "SELECT idSector, COUNT(*) AS cantidad_tareas FROM Tarea WHERE idUsuario = ? GROUP BY idSector";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, idUsuario);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    System.out.println("Sector: " + rs.getLong("idSector") + " - Tareas: " + rs.getInt("cantidad_tareas"));
-                }
-            }
-        }
+    @Override
+    public TareaCercanaDTO getTareaPendienteMasCercanaV2(Long idUsuario) {
+        return getTareaPendienteMasCercana(idUsuario);
     }
 
-    // ¿En qué sectores geográficos se concentran la mayoría de las tareas pendientes?
-    public void getSectoresConMasTareasPendientes() throws SQLException {
-        String sql = "SELECT s.comuna, COUNT(*) AS cantidad_tareas " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "WHERE t.estado = 'pendiente' " +
-                "GROUP BY s.comuna " +
-                "ORDER BY cantidad_tareas DESC";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                System.out.println("Comuna: " + rs.getString("comuna") + " - Tareas pendientes: " + rs.getInt("cantidad_tareas"));
-            }
-        }
+    @Override
+    public TareaCercanaDTO getTareaPendienteMasCercana(Long idUsuario) {
+        String sql = """
+            SELECT t.idTarea, t.titulo,
+                   ST_Distance(s.ubicacion, sector_usuario.ubicacion) AS distancia
+            FROM Tarea t
+            JOIN Sector s ON t.idSector = s.idSector
+            JOIN Usuario u ON t.idUsuario = u.idUsuario
+            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
+            WHERE t.estado = 'pendiente'
+            ORDER BY distancia ASC
+            LIMIT 1
+        """;
+
+        return jdbcTemplate.queryForObject(sql,
+                (rs, rowNum) -> new TareaCercanaDTO(
+                        rs.getLong("idTarea"),
+                        rs.getString("titulo"),
+                        rs.getDouble("distancia")
+                ));
     }
 
-    //  ¿Cuál es la tarea pendiente más cercana a la ubicación del usuario?
-    public void getTareaPendienteMasCercana(int idUsuario) throws SQLException {
-        String sql = "SELECT t.idTarea, t.titulo, ST_Distance(s.ubicacion, sector_usuario.ubicacion) AS distancia " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "JOIN Usuario u ON t.idUsuario = u.idUsuario " +
-                "JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector " +
-                "WHERE t.estado = 'pendiente' " +
-                "ORDER BY distancia ASC " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                System.out.println("Tarea más cercana: " + rs.getString("titulo") + " - Distancia: " + rs.getDouble("distancia") + " metros");
-            }
-        }
+    @Override
+    public SectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
+        return getSectorConMasTareasCompletadasEnRadio(idUsuario, 2000);
     }
 
-    //  ¿Cuántas tareas ha realizado cada usuario por sector?
-    public void getCantidadTareasPorUsuarioPorSector() throws SQLException {
-        String sql = "SELECT t.idUsuario, s.idSector, COUNT(*) AS cantidad_tareas " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "WHERE t.estado = 'completado' " +
-                "GROUP BY t.idUsuario, s.idSector " +
-                "ORDER BY idUsuario, cantidad_tareas DESC";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                System.out.println("Usuario: " + rs.getInt("idUsuario") + " - Sector: " + rs.getLong("idSector") + " - Tareas completadas: " + rs.getInt("cantidad_tareas"));
-            }
-        }
+    public List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector() {
+        String sql = """
+            SELECT t.idUsuario, s.idSector, COUNT(*) AS cantidad_tareas
+            FROM Tarea t
+            JOIN Sector s ON t.idSector = s.idSector
+            WHERE t.estado = 'completado'
+            GROUP BY t.idUsuario, s.idSector
+            ORDER BY t.idUsuario, cantidad_tareas DESC
+        """;
+
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new UsuarioSectorDTO(
+                        rs.getLong("idUsuario"),
+                        rs.getLong("idSector"),
+                        rs.getInt("cantidad_tareas")
+                ));
     }
 
-    //  ¿Cuál es el sector con más tareas completadas dentro de un radio de 5 km desde la ubicación del usuario?
-    public void getSectorConMasTareasCompletadas(int idUsuario) throws SQLException {
-        String sql = "SELECT s.idSector, COUNT(*) AS tareas_completadas " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "JOIN Usuario u ON t.idUsuario = u.idUsuario " +
-                "JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector " +
-                "WHERE t.estado = 'completado' " +
-                "AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, 5000) " +
-                "GROUP BY s.idSector " +
-                "ORDER BY tareas_completadas DESC " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                System.out.println("Sector con más tareas completadas en 5km: " + rs.getLong("idSector"));
-            }
-        }
+    @Override
+    public SectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
+        return getSectorConMasTareasCompletadasEnRadio(idUsuario, 5000);
     }
 
-    //  ¿Cuál es el promedio de distancia entre las tareas completadas y el punto registrado del usuario?
-    public void getPromedioDistanciaTareasCompletadas(int idUsuario) throws SQLException {
-        String sql = "SELECT AVG(ST_Distance(s.ubicacion, sector_usuario.ubicacion)) AS promedio_distancia " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "JOIN Usuario u ON t.idUsuario = u.idUsuario " +
-                "JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector " +
-                "WHERE t.estado = 'completado'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                System.out.println("Promedio de distancia: " + rs.getDouble("promedio_distancia") + " metros");
-            }
-        }
+    public SectorDTO getSectorConMasTareasCompletadasEnRadio(Long idUsuario, int radioMetros) {
+        String sql = """
+            SELECT s.idSector, s.asignacion, s.comuna, s.calle,
+                   ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
+                   ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud,
+                   COUNT(*) AS tareas_completadas
+            FROM Tarea t
+            JOIN Sector s ON t.idSector = s.idSector
+            JOIN Usuario u ON t.idUsuario = u.idUsuario
+            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
+            WHERE t.estado = 'completado'
+              AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, ?)
+            GROUP BY s.idSector, s.asignacion, s.comuna, s.calle, s.ubicacion
+            ORDER BY tareas_completadas DESC
+            LIMIT 1
+        """;
+
+        return jdbcTemplate.queryForObject(sql,
+                (rs, rowNum) -> new SectorDTO(
+                        rs.getLong("idSector"),
+                        rs.getString("asignacion"),
+                        rs.getString("comuna"),
+                        rs.getString("calle"),
+                        rs.getDouble("longitud"),
+                        rs.getDouble("latitud")
+                ), radioMetros);
     }
 
-    //  ¿Cuál es el sector con más tareas completadas dentro de un radio de 2 km desde la ubicación del usuario?
-    public void getSectorConMasTareasCompletadas2km(int idUsuario) throws SQLException {
-        String sql = "SELECT s.idSector, COUNT(*) AS tareas_completadas " +
-                "FROM Tarea t " +
-                "JOIN Sector s ON t.idSector = s.idSector " +
-                "JOIN Usuario u ON t.idUsuario = u.idUsuario " +
-                "JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector " +
-                "WHERE t.estado = 'completado' " +
-                "AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, 2000) " +
-                "GROUP BY s.idSector " +
-                "ORDER BY tareas_completadas DESC " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                System.out.println("Sector con más tareas completadas en 2km: " + rs.getLong("idSector"));
-            }
-        }
+    public DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long idUsuario) {
+        String sql = """
+            SELECT AVG(ST_Distance(s.ubicacion, sector_usuario.ubicacion)) AS promedio_distancia
+            FROM Tarea t
+            JOIN Sector s ON t.idSector = s.idSector
+            JOIN Usuario u ON t.idUsuario = u.idUsuario
+            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
+            WHERE t.estado = 'completado'
+        """;
+
+        return jdbcTemplate.queryForObject(sql,
+                (rs, rowNum) -> new DistanciaPromedioDTO(
+                        rs.getDouble("promedio_distancia")
+                ));
     }
 }
