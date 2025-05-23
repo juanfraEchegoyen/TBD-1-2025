@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Repartidor {
     private String rut;
+    private String password;
     private String nombreRepartidor;
     private String telefono;
     private Double puntuacionPromedio;
