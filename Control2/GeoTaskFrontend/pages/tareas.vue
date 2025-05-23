@@ -25,39 +25,29 @@
 
         <!-- Filtros de tareas -->
         <div class="mb-6 flex space-x-4">
-          <button 
-            @click="filtroActual = 'todas'" 
-            :class="[
-              'px-4 py-2 rounded-full text-sm font-medium',
-              filtroActual === 'todas' 
-                ? 'bg-green-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            ]"
+          <GeoTaskButton 
+            :color="filtroActual === 'todas' ? 'green' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'todas'"
           >
             Todas
-          </button>
-          <button 
-            @click="filtroActual = 'pendientes'" 
-            :class="[
-              'px-4 py-2 rounded-full text-sm font-medium',
-              filtroActual === 'pendientes' 
-                ? 'bg-yellow-500 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            ]"
+          </GeoTaskButton>
+          
+          <GeoTaskButton 
+            :color="filtroActual === 'pendientes' ? 'yellow' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'pendientes'"
           >
             Pendientes
-          </button>
-          <button 
-            @click="filtroActual = 'completadas'" 
-            :class="[
-              'px-4 py-2 rounded-full text-sm font-medium',
-              filtroActual === 'completadas' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            ]"
+          </GeoTaskButton>
+          
+          <GeoTaskButton 
+            :color="filtroActual === 'completadas' ? 'blue' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'completadas'"
           >
             Completadas
-          </button>
+          </GeoTaskButton>
         </div>
 
         <!-- Buscador por palabra clave -->
@@ -81,7 +71,17 @@
               <div class="font-semibold text-lg text-gray-800">{{ tarea.titulo }}</div>
               <div class="text-gray-600 text-sm mb-1">{{ tarea.descripcion }}</div>
               <div class="text-xs text-gray-400 mb-1">Vence: {{ formatearFecha(tarea.fechaVencimiento || tarea.fecha_vencimiento) }}</div>
-              <div class="text-xs text-gray-500 mb-1">{{ tarea.calle }}, {{ tarea.comuna }}</div>
+              
+              <!-- Ubicación mejorada mostrando sector si existe -->
+              <div class="text-xs text-gray-500 mb-1">
+                <span v-if="tarea.sectorInfo" class="text-blue-600 font-semibold">
+                  📍 Sector: {{ tarea.sectorInfo.calle }}, {{ tarea.sectorInfo.comuna }}
+                </span>
+                <span v-else>
+                  📍 {{ tarea.calle }}, {{ tarea.comuna }}
+                </span>
+              </div>
+              
               <span 
                 :class="tarea.estado === 'Completada' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" 
                 class="px-2 py-1 rounded text-xs font-semibold"
@@ -92,27 +92,30 @@
             
             <div class="flex flex-col space-y-2 ml-4">
               <!-- Botones de acción -->
-              <button 
-                @click="editarTarea(tarea.idTarea)" 
-                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              <GeoTaskButton 
+                color="blue"
+                custom-class="px-3 py-1 text-sm"
+                @click="editarTarea(tarea.idTarea)"
               >
                 Editar
-              </button>
+              </GeoTaskButton>
               
-              <button 
+              <GeoTaskButton 
                 v-if="tarea.estado !== 'Completada'"
-                @click="marcarComoCompletada(tarea.idTarea)" 
-                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                color="green"
+                custom-class="px-3 py-1 text-sm"
+                @click="marcarComoCompletada(tarea.idTarea)"
               >
-                Completar
-              </button>
+                Completada
+              </GeoTaskButton>
               
-              <button 
-                @click="eliminarTarea(tarea.idTarea)" 
-                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+              <GeoTaskButton 
+                color="red"
+                custom-class="px-3 py-1 text-sm"
+                @click="eliminarTarea(tarea.idTarea)"
               >
                 Eliminar
-              </button>
+              </GeoTaskButton>
             </div>
           </li>
         </ul>
@@ -135,18 +138,36 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-// ----- VARIABLES DE ESTADO -----
 const tareas = ref([])
 const error = ref('')
 const filtroActual = ref('todas')
 const busqueda = ref('')
 const router = useRouter()
 
-// ----- PROPIEDADES COMPUTADAS ----
+// Función auxiliar para obtener headers de autenticación
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    router.push('/login')
+    return null
+  }
+  return { Authorization: `Bearer ${token}` }
+}
 
-// ENTRADA: Lista de tareas, filtro actual y texto de búsqueda
-// PROCEDIMIENTO: Filtra las tareas según el criterio seleccionado y la búsqueda
-// SALIDA: Lista de tareas filtrada
+// Función para cargar datos del sector
+const cargarSector = async (idSector) => {
+  try {
+    const headers = getAuthHeaders()
+    if (!headers) return null
+    
+    const { data } = await axios.get(`http://localhost:8080/api/sectores/${idSector}`, { headers })
+    return data
+  } catch (e) {
+    console.error('Error al cargar sector:', e)
+    return null
+  }
+}
+
 const tareasFiltradas = computed(() => {
   let lista = tareas.value
   if (filtroActual.value === 'pendientes') lista = lista.filter(t => t.estado !== 'Completada')
@@ -161,7 +182,6 @@ const tareasFiltradas = computed(() => {
   return lista
 })
 
-// ----- AVISOS DE EXPIRACIÓN -----
 const avisosExpiracion = computed(() => {
   const avisos = []
   const ahora = new Date()
@@ -184,37 +204,33 @@ const avisosExpiracion = computed(() => {
   return avisos
 })
 
-// ----- INICIALIZACIÓN ----
-
-// ENTRADA: Ninguna
-// PROCEDIMIENTO: Inicializa la página al montarse
-// SALIDA: Carga las tareas desde la API
 onMounted(async () => {
   await cargarTareas()
-  // Debug: ver qué formato tienen las fechas y toda la estructura
   if (tareas.value.length > 0) {
     console.log("Estructura completa de la tarea:", tareas.value[0])
     console.log("Ejemplo de fechaVencimiento:", tareas.value[0].fechaVencimiento, typeof tareas.value[0].fechaVencimiento)
   }
 })
 
-// ----- FUNCIONES DE COMUNICACIÓN CON API -----
-
-// ENTRADA: Ninguna
-// PROCEDIMIENTO: Carga las tareas del usuario desde la API
-// SALIDA: Actualiza la lista de tareas
 const cargarTareas = async () => {
   try {
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      router.push('/login')
-      return
-    }
+    const headers = getAuthHeaders()
+    if (!headers) return
     
-    const response = await axios.get('http://localhost:8080/api/tareas', { 
-      headers: { Authorization: `Bearer ${token}` } 
-    })
-    tareas.value = response.data
+    const { data } = await axios.get('http://localhost:8080/api/tareas', { headers })
+    
+    // Cargar datos del sector para cada tarea que tenga idSector
+    const tareasConSector = await Promise.all(
+      data.map(async (tarea) => {
+        if (tarea.idSector) {
+          const sectorInfo = await cargarSector(tarea.idSector)
+          return { ...tarea, sectorInfo }
+        }
+        return tarea
+      })
+    )
+    
+    tareas.value = tareasConSector
   } catch (e) {
     error.value = 'Error al cargar las tareas'
     console.error('Error al cargar tareas:', e)
@@ -225,81 +241,46 @@ const cargarTareas = async () => {
   }
 }
 
-// ENTRADA: ID de la tarea a editar
-// PROCEDIMIENTO: Redirecciona al formulario de edición de la tarea
-// SALIDA: Navegación a la página de edición
 const editarTarea = (id) => {
   router.push({
     path: '/editarTarea',
     query: { id: id }
-  });
+  })
 }
 
-// ENTRADA: ID de la tarea a marcar como completada
-// PROCEDIMIENTO: Actualiza el estado de la tarea a "Completada"
-// SALIDA: Tarea actualizada y lista refrescada
 const marcarComoCompletada = async (id) => {
   try {
-    const token = localStorage.getItem('accessToken')
+    const headers = getAuthHeaders()
+    if (!headers) return
     
-    // Encontrar la tarea actual
-    const tarea = tareas.value.find(t => t.idTarea === id)
-    if (!tarea) return
-    
-    // Clonar la tarea y cambiar su estado
-    const tareaActualizada = { ...tarea, estado: 'Completada' }
-    
-    // Enviar actualización a la API
-    await axios.put(`http://localhost:8080/api/tareas/${id}`, tareaActualizada, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    
-    // Actualizar localmente
+    await axios.patch(`http://localhost:8080/api/tareas/${id}/completar`, {}, { headers })    
     await cargarTareas()
-    
   } catch (e) {
-    error.value = 'Error al actualizar la tarea'
-    console.error('Error al actualizar tarea:', e)
+    error.value = 'Error al completar la tarea'
+    console.error('Error al completar tarea:', e)
   }
 }
 
-// ENTRADA: ID de la tarea a eliminar
-// PROCEDIMIENTO: Elimina la tarea del servidor
-// SALIDA: Tarea eliminada y lista refrescada
 const eliminarTarea = async (id) => {
-  if (!confirm('¿Estás seguro que deseas eliminar esta tarea?')) {
-    return
-  }
+  if (!confirm('¿Estás seguro que deseas eliminar esta tarea?')) return
   
   try {
-    const token = localStorage.getItem('accessToken')
+    const headers = getAuthHeaders()
+    if (!headers) return
     
-    await axios.delete(`http://localhost:8080/api/tareas/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    
-    // Actualizar lista de tareas
+    await axios.delete(`http://localhost:8080/api/tareas/${id}`, { headers })
     await cargarTareas()
-    
   } catch (e) {
     error.value = 'Error al eliminar la tarea'
     console.error('Error al eliminar tarea:', e)
   }
 }
 
-// ----- FUNCIONES DE UTILIDAD -----
-
-// ENTRADA: Fecha en cualquier formato válido
-// PROCEDIMIENTO: Formatea la fecha para mostrarla de manera más amigable
-// SALIDA: Fecha formateada como DD/MM/YYYY
 const formatearFecha = (fecha) => {
   if (!fecha) return 'Sin fecha definida'
   
   try {
-    // Intentar crear objeto Date desde cualquier formato que envíe el backend
     const date = new Date(fecha)
-    
-    // Verificar si es una fecha válida
     if (isNaN(date.getTime())) {
       console.log('Fecha inválida:', fecha)
       return 'Fecha inválida'

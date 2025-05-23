@@ -8,42 +8,24 @@
         </div>
         
         <form @submit.prevent="actualizarTarea">
-          <!-- Campos del formulario -->
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Título</label>
-            <input 
-              v-model="titulo" 
-              type="text" 
-              class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" 
-              required 
-            />
+            <input v-model="titulo" type="text" class="input-style" required />
           </div>
           
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Descripción</label>
-            <textarea 
-              v-model="descripcion" 
-              class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 h-24" 
-              required
-            ></textarea>
+            <textarea v-model="descripcion" class="input-style h-24" required></textarea>
           </div>
           
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Fecha de vencimiento</label>
-            <input 
-              v-model="fechaVencimiento" 
-              type="date" 
-              class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" 
-              required 
-            />
+            <input v-model="fechaVencimiento" type="date" class="input-style" required />
           </div>
 
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Estado</label>
-            <select 
-              v-model="estado" 
-              class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-            >
+            <select v-model="estado" class="input-style">
               <option value="Pendiente">Pendiente</option>
               <option value="Completada">Completada</option>
             </select>
@@ -56,42 +38,20 @@
             <LocationMapPicker 
               @update:location="updateLocation" 
               :initialLatitude="latitud" 
-              :initialLongitude="longitud" 
+              :initialLongitude="longitud"
+              :key="`${tareaId}-${mapKey}`"
             />
             
             <div class="mt-2">
               <label class="block mb-1 text-sm font-semibold text-gray-700">Dirección seleccionada</label>
-              <input 
-                v-model="address" 
-                type="text" 
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" 
-                readonly 
-              />
+              <input v-model="address" type="text" class="input-style" readonly />
             </div>
           </div>
           
           <div class="flex space-x-4">
-            <GeoTaskButton color="blue" class="flex-1" type="submit">
-              Guardar Cambios
-            </GeoTaskButton>
-            
-            <GeoTaskButton 
-              color="red" 
-              class="flex-1" 
-              type="button" 
-              @click="eliminarTarea"
-            >
-              Eliminar Tarea
-            </GeoTaskButton>
-            
-            <GeoTaskButton 
-              color="yellow" 
-              class="flex-1" 
-              type="button" 
-              @click="$router.push('/tareas')"
-            >
-              Cancelar
-            </GeoTaskButton>
+            <GeoTaskButton color="blue" custom-class="flex-1" type="submit">Guardar Cambios</GeoTaskButton>
+            <GeoTaskButton color="red" custom-class="flex-1" type="button" @click="eliminarTarea">Eliminar Tarea</GeoTaskButton>
+            <GeoTaskButton color="yellow" custom-class="flex-1" type="button" @click="$router.push('/tareas')">Cancelar</GeoTaskButton>
           </div>
         </form>
         
@@ -129,14 +89,15 @@ const longitud = ref(defaultLng);
 const address = ref('');
 const comuna = ref('');
 const calle = ref('');
-const addressData = ref(null);
 const error = ref('');
 const success = ref('');
 const tareaId = ref(null);
 const originalIdSector = ref(null); // Para mantener el sector original
 const locationChanged = ref(false); // Para rastrear si se cambió la ubicación
+const sectorData = ref(null); // Nueva variable para almacenar datos del sector
 const router = useRouter();
 const route = useRoute();
+const mapKey = ref(0); // Nueva variable para forzar re-renderización
 
 // ----- INICIALIZACIÓN -----
 
@@ -155,9 +116,44 @@ onMounted(async () => {
 
 // ----- FUNCIONES DE CARGA DE DATOS -----
 
+// ENTRADA: ID del sector
+// PROCEDIMIENTO: Obtiene los datos del sector del servidor
+// SALIDA: Datos del sector cargados en el estado
+const cargarSector = async (idSector) => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    
+    const response = await axios.get(`http://localhost:8080/api/sectores/${idSector}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    sectorData.value = response.data;
+    
+    // Actualizar coordenadas con los datos del sector
+    latitud.value = response.data.latitud;
+    longitud.value = response.data.longitud;
+    comuna.value = response.data.comuna;
+    calle.value = response.data.calle;
+    address.value = `${response.data.calle}, ${response.data.comuna}`;
+    
+    // Forzar re-renderización del mapa
+    mapKey.value++;
+    
+    console.log('Sector cargado:', sectorData.value);
+    console.log('Coordenadas del sector:', latitud.value, longitud.value);
+    
+  } catch (e) {
+    console.error('Error al cargar sector:', e);
+  }
+};
+
 // ENTRADA: ID de la tarea a cargar
-// PROCEDIMIENTO: Obtiene los datos de la tarea del servidor
-// SALIDA: Formulario inicializado con los datos de la tarea
+// PROCEDIMIENTO: Obtiene los datos de la tarea del servidor y carga el sector asociado
+// SALIDA: Formulario inicializado con los datos de la tarea y ubicación del sector
 const cargarTarea = async (id) => {
   try {
     const token = localStorage.getItem('accessToken');
@@ -169,9 +165,24 @@ const cargarTarea = async (id) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     const tarea = response.data;
+    
+    // Debug: ver qué estado viene del servidor
+    console.log('Estado recibido del servidor:', tarea.estado);
+    console.log('Tipo de estado:', typeof tarea.estado);
+    
     titulo.value = tarea.titulo;
     descripcion.value = tarea.descripcion;
-    estado.value = tarea.estado;
+    
+    // Asegurar que el estado se establezca correctamente desde el servidor
+    // Normalizar el estado para que coincida con las opciones del select
+    if (tarea.estado === 'Completada' || tarea.estado === 'completada') {
+      estado.value = 'Completada';
+    } else {
+      estado.value = 'Pendiente';
+    }
+    
+    console.log('Estado asignado:', estado.value);
+    
     // Guardar el idSector original
     originalIdSector.value = tarea.idSector; 
     
@@ -180,17 +191,24 @@ const cargarTarea = async (id) => {
       const fecha = new Date(tarea.fechaVencimiento);
       fechaVencimiento.value = fecha.toISOString().split('T')[0];
     }
-    // Si hay ubicación en formato WKT, extraer coordenadas
-    if (tarea.ubicacion) {
-      const match = tarea.ubicacion.match(/POINT\(([\d.-]+) ([\d.-]+)\)/);
-      if (match) {
-        longitud.value = parseFloat(match[1]);
-        latitud.value = parseFloat(match[2]);
+    
+    // Cargar datos del sector si existe idSector
+    if (tarea.idSector) {
+      await cargarSector(tarea.idSector);
+    } else {
+      // Si hay ubicación en formato WKT, extraer coordenadas (fallback)
+      if (tarea.ubicacion) {
+        const match = tarea.ubicacion.match(/POINT\(([\d.-]+) ([\d.-]+)\)/);
+        if (match) {
+          longitud.value = parseFloat(match[1]);
+          latitud.value = parseFloat(match[2]);
+        }
       }
+      comuna.value = tarea.comuna || '';
+      calle.value = tarea.calle || '';
+      address.value = tarea.calle ? `${tarea.calle}, ${tarea.comuna}` : '';
     }
-    comuna.value = tarea.comuna || '';
-    calle.value = tarea.calle || '';
-    address.value = tarea.calle ? `${tarea.calle}, ${tarea.comuna}` : '';
+    
   } catch (e) {
     error.value = 'No se pudo cargar la tarea';
     console.error('Error al cargar tarea:', e);
@@ -206,7 +224,6 @@ const updateLocation = (location) => {
   latitud.value = location.latitude;
   longitud.value = location.longitude;
   address.value = location.address || 'Dirección no disponible';
-  addressData.value = location.addressData;
   locationChanged.value = true; // Marcar que la ubicación fue cambiada
   
   // Extraer comuna y calle de los datos de dirección si están disponibles
@@ -328,4 +345,5 @@ const eliminarTarea = async () => {
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
+
 </style>

@@ -80,7 +80,7 @@ onMounted(() => {
   const initialLat = props.initialLatitude || 40.416775;
   const initialLng = props.initialLongitude || -3.703790;
   
-  map.value = L.map(mapContainer.value).setView([initialLat, initialLng], 13);
+  map.value = L.map(mapContainer.value).setView([initialLat, initialLng], 16);
   
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',

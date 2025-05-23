@@ -24,14 +24,17 @@ public class JdbcSectorRepository {
         sector.setAsignacion(rs.getString("asignacion"));
         sector.setCalle(rs.getString("calle"));
         sector.setComuna(rs.getString("comuna"));
-        String wkt = rs.getString("ubicacion");
-        if (wkt != null) {
-            try {
-                sector.setUbicacion((Point) new WKTReader().read(wkt));
-            } catch (Exception e) {
-                throw new RuntimeException("Error al convertir WKT a Point", e);
+
+        try {
+            String wkt = rs.getString("ubicacion");
+            if (wkt != null && !wkt.isEmpty()) {
+                sector.setUbicacionWkt(wkt);
             }
+        } catch (Exception e) {
+            // Manejo de error o logging
+            System.err.println("Error al convertir ubicación: " + e.getMessage());
         }
+
         return sector;
     };
 
@@ -41,8 +44,12 @@ public class JdbcSectorRepository {
     }
 
     public Sector findById(Long id) {
-        String sql = "SELECT id_sector, asignacion, calle, comuna, ST_AsText(ubicacion) AS ubicacion FROM sector WHERE id_sector = ?";
-        return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
+        try {
+            String sql = "SELECT id_sector, asignacion, calle, comuna, ST_AsText(ubicacion) AS ubicacion FROM sector WHERE id_sector = ?";
+            return jdbcTemplate.queryForObject(sql, sectorRowMapper, id);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Long save(Sector sector) {

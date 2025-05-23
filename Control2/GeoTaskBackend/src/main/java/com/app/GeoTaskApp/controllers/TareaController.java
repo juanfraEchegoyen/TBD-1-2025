@@ -63,4 +63,14 @@ public class TareaController {
             return ResponseEntity.badRequest().body("No se pudo eliminar la tarea");
         }
     }
+
+    @PatchMapping("/{id}/completar")
+    public ResponseEntity<String> completarTarea(@PathVariable Long id) {
+        boolean result = tareaService.completarTarea(id);
+        if (result) {
+            return ResponseEntity.ok("Tarea completada correctamente");
+        } else {
+            return ResponseEntity.badRequest().body("No se pudo completar la tarea");
+        }
+    }
 }

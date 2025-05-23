@@ -85,4 +85,14 @@ public class TareaService {
     public boolean deleteTarea(Long id) {
         return tareaRepository.delete(id) > 0;
     }
+
+    public boolean completarTarea(Long id) {
+        Tarea tareaExistente = tareaRepository.findById(id);
+
+        if (tareaExistente == null) {
+            return false;
+        }
+
+        return tareaRepository.actualizarEstado(id, "completada") > 0;
+    }
 }
