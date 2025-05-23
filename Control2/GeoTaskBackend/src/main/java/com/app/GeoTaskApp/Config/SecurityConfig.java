@@ -70,7 +70,7 @@
             CorsConfiguration configuration = new CorsConfiguration(); // Crea una nueva configuración de CORS
 
             configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Permite solicitudes desde el origen especificado
-            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Permite los métodos HTTP especificados
+            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Permite los métodos HTTP especificados
             configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Permite los encabezados HTTP especificados
             configuration.setAllowCredentials(true); // Permite el uso de credenciales (cookies, autenticación HTTP básica, etc.)
 

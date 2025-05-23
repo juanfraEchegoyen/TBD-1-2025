@@ -4,6 +4,8 @@
       'font-semibold py-2 px-6 rounded-lg transition',
       color === 'green' ? 'bg-green-500 hover:bg-green-600 text-white' : '',
       color === 'yellow' ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : '',
+      color === 'blue' ? 'bg-blue-500 hover:bg-blue-600 text-white' : '',
+      color === 'red' ? 'bg-red-500 hover:bg-red-600 text-white' : '',
       color === 'gray' ? 'bg-gray-500 hover:bg-gray-600 text-white' : '',
       customClass
     ]"

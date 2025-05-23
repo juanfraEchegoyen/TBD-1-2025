@@ -1,5 +1,6 @@
 package com.app.GeoTaskApp.controllers;
 
+import com.app.GeoTaskApp.Dto.SectorDTO;
 import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.services.SectorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,25 @@ public class SectorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Sector> getSectorById(@PathVariable Long id) {
+    public ResponseEntity<?> getSectorById(@PathVariable Long id) {
         Sector sector = sectorService.getSectorById(id);
         if (sector == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(sector);
+
+        SectorDTO sectorDTO = new SectorDTO();
+        sectorDTO.setIdSector(sector.getIdSector());
+        sectorDTO.setAsignacion(sector.getAsignacion());
+        sectorDTO.setCalle(sector.getCalle());
+        sectorDTO.setComuna(sector.getComuna());
+
+        // Extraer longitud y latitud del punto
+        if (sector.getUbicacion() != null) {
+            sectorDTO.setLongitud(sector.getUbicacion().getX());
+            sectorDTO.setLatitud(sector.getUbicacion().getY());
+        }
+
+        return ResponseEntity.ok(sectorDTO);
     }
 
     @PostMapping
