@@ -23,7 +23,6 @@ Este documento describe el procedimiento para crear e inicializar la base de dat
 - Haz clic derecho sobre **Databases** > **Create** > **Database…**
 - Nombra la base como `geotaskapp` y guarda.
 
----
 
 ### 2. Crear las tablas y estructuras
 
@@ -31,7 +30,7 @@ Este documento describe el procedimiento para crear e inicializar la base de dat
 ```sql
 dbCreate.sql
 ```
----
+
 
 ### 3. Cargar los datos de ejemplo
 
@@ -43,7 +42,7 @@ Ubicacion.sql
 ```bash
 dbPoblate.sql
 ```
----
+
 
 ### 4. Consultas de prueba
 
@@ -59,9 +58,9 @@ runStatements.sql
 
 Abre una terminal y ejecuta:
 
-    ```bash
-    psql -h localhost -p 5432 -U postgres
-    ```
+```bash
+psql -h localhost -p 5432 -U postgres
+```
 
 Dentro de la consola de `psql`, crea la base de datos:
 
