@@ -39,7 +39,7 @@ public class RepartidorServiceImpl implements RepartidorService {
     @Override
     public Optional<Repartidor> actualizarRepartidor(String rut, Repartidor repartidorActualizado) {
         return repartidorRepository.findByRut(rut).map(repartidorExistente -> {
-            repartidorExistente.setNombreRepartidor(repartidorActualizado.getNombreRepartidor());
+            repartidorExistente.setNombre(repartidorActualizado.getNombre());
             repartidorExistente.setTelefono(repartidorActualizado.getTelefono());
             // puntuacion y cantidad se calculan por otros procesos, no se pueden actualizar
             repartidorRepository.update(repartidorExistente);

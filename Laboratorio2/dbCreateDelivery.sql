@@ -1,19 +1,21 @@
 -- Repartidor
 CREATE TABLE IF NOT EXISTS Repartidor (
-	rut_repartidor VARCHAR(15) PRIMARY KEY,
-	nombre_repartidor VARCHAR(100) NOT NULL,
-	telefono VARCHAR(12),
-	puntuacion_promedio INT,
-	cantidad_entregas INT
+    rut_repartidor VARCHAR(15) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL,
+    nombre_repartidor VARCHAR(100) NOT NULL,
+    telefono VARCHAR(12),
+    puntuacion_promedio INT,
+    cantidad_entregas INT
 );
 
 -- Cliente
 CREATE TABLE IF NOT EXISTS Cliente (
-	rut_cliente VARCHAR(15) PRIMARY KEY,
-	nombre_cliente VARCHAR(100) NOT NULL,
-	telefono VARCHAR(12),
-	direccion VARCHAR(255),
-	comuna VARCHAR(100) NOT NULL
+    rut_cliente VARCHAR(15) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL,
+    nombre_cliente VARCHAR(100) NOT NULL,
+    telefono VARCHAR(12),
+    direccion VARCHAR(255),
+    comuna VARCHAR(100) NOT NULL
 );
 
 -- Empresa asociada
@@ -78,14 +80,6 @@ CREATE TABLE IF NOT EXISTS MedioDePago (
 	id_pedido INT,
 	FOREIGN KEY (rut_cliente) REFERENCES Cliente(rut_cliente),
 	FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
-);
-
--- Usuario
-CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
 );
 
 -- Notificacion

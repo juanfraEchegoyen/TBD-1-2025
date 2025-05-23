@@ -17,20 +17,21 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
     private JdbcTemplate jdbcTemplate;
 
     private static final String INSERT_REPARTIDOR_SQL =
-            "INSERT INTO Repartidor (rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO Repartidor (rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SELECT_REPARTIDOR_BY_RUT_SQL =
-            "SELECT rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas FROM Repartidor WHERE rut_repartidor = ?";
+            "SELECT rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas FROM Repartidor WHERE rut_repartidor = ?";
     private static final String SELECT_ALL_REPARTIDORES_SQL =
-            "SELECT rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas FROM Repartidor";
+            "SELECT rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas FROM Repartidor";
     private static final String UPDATE_REPARTIDOR_SQL =
-            "UPDATE Repartidor SET nombre_repartidor = ?, telefono = ?, puntuacion_promedio = ?, cantidad_entregas = ? WHERE rut_repartidor = ?";
+            "UPDATE Repartidor SET password = ?, nombre_repartidor = ?, telefono = ?, puntuacion_promedio = ?, cantidad_entregas = ? WHERE rut_repartidor = ?";
     private static final String DELETE_REPARTIDOR_BY_RUT_SQL =
             "DELETE FROM Repartidor WHERE rut_repartidor = ?";
 
     private final RowMapper<Repartidor> repartidorRowMapper = (rs, rowNum) -> {
         Repartidor repartidor = new Repartidor();
         repartidor.setRut(rs.getString("rut_repartidor"));
-        repartidor.setNombreRepartidor(rs.getString("nombre_repartidor"));
+        repartidor.setPassword(rs.getString("password"));
+        repartidor.setNombre(rs.getString("nombre_repartidor"));
         repartidor.setTelefono(rs.getString("telefono"));
 
         int puntuacion = rs.getInt("puntuacion_promedio");
@@ -53,7 +54,8 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
     public Repartidor save(Repartidor repartidor) {
         jdbcTemplate.update(INSERT_REPARTIDOR_SQL,
                 repartidor.getRut(),
-                repartidor.getNombreRepartidor(),
+                repartidor.getPassword(),
+                repartidor.getNombre(),
                 repartidor.getTelefono(),
                 repartidor.getPuntuacionPromedio(),
                 repartidor.getCantidadEntregas());
@@ -78,10 +80,11 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
     @Override
     public int update(Repartidor repartidor) {
         if (repartidor == null || repartidor.getRut() == null) {
-            throw new IllegalArgumentException("Repartido o rut  no pueden ser nulos para update");
+            throw new IllegalArgumentException("Repartidor o rut no pueden ser nulos para update");
         }
         return jdbcTemplate.update(UPDATE_REPARTIDOR_SQL,
-                repartidor.getNombreRepartidor(),
+                repartidor.getPassword(),
+                repartidor.getNombre(),
                 repartidor.getTelefono(),
                 repartidor.getPuntuacionPromedio(),
                 repartidor.getCantidadEntregas(),

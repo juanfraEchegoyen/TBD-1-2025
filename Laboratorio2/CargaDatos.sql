@@ -1,15 +1,23 @@
--- Clientes
-INSERT INTO Cliente (rut_cliente, nombre_cliente, telefono, direccion, comuna) VALUES 
-('11111111-1', 'Ana López', '912345678', 'Calle 1', 'Santiago'),
-('22222222-2', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia'),
-('33333333-3', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú'),
-('44444444-4', 'Elena Torres', '912345681', 'Calle 4', 'Ñuñoa'),
-('55555555-5', 'Felipe Gutiérrez', '912345682', 'Calle 5', 'Las Condes'),
-('66666666-6', 'Gabriela Silva', '912345683', 'Calle 6', 'La Florida'),
-('77777777-7', 'Hugo Martínez', '912345684', 'Calle 7', 'Peñalolén'),
-('88888888-8', 'Ignacia Castro', '912345685', 'Calle 8', 'San Miguel'),
-('99999999-9', 'Joaquín Vega', '912345686', 'Calle 9', 'Lo Barnechea'),
-('10101010-0', 'Karen Herrera', '912345687', 'Calle 10', 'Puente Alto');
+-- Clientes 
+INSERT INTO Cliente (rut_cliente, password, nombre_cliente, telefono, direccion, comuna) VALUES 
+('11111111-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ana López', '912345678', 'Calle 1', 'Santiago'),
+('22222222-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia'),
+('33333333-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú'),
+('44444444-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Elena Torres', '912345681', 'Calle 4', 'Ñuñoa'),
+('55555555-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Felipe Gutiérrez', '912345682', 'Calle 5', 'Las Condes'),
+('66666666-6', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Gabriela Silva', '912345683', 'Calle 6', 'La Florida'),
+('77777777-7', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Hugo Martínez', '912345684', 'Calle 7', 'Peñalolén'),
+('88888888-8', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ignacia Castro', '912345685', 'Calle 8', 'San Miguel'),
+('99999999-9', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Joaquín Vega', '912345686', 'Calle 9', 'Lo Barnechea'),
+('10101010-0', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Karen Herrera', '912345687', 'Calle 10', 'Puente Alto');
+
+-- Repartidores
+INSERT INTO Repartidor (rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES 
+('12121212-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Luis Soto', '913000001', 4, 4),
+('13131313-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'María Díaz', '913000002', 3, 3),
+('14141414-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Pedro Ramírez', '913000003', 3, 4),
+('15151515-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Claudia Fuentes', '913000004', 5, 3),
+('16161616-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'José Navarro', '913000005', 3, 7);
 
 -- Empresas asociadas
 INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES 
@@ -42,14 +50,6 @@ INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock, 
 ('Té Verde Importado', 3500, 'Bebidas', 'Té', 50, '80000000-5'),
 ('Batido Proteico', 4000, 'Bebidas', 'Batido', 25, '80000000-5');
 
-
--- Repartidores
-INSERT INTO Repartidor (rut_repartidor, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES 
-('12121212-1', 'Luis Soto', '913000001', 4, 4),
-('13131313-2', 'María Díaz', '913000002', 3, 3),
-('14141414-3', 'Pedro Ramírez', '913000003', 3, 4),
-('15151515-4', 'Claudia Fuentes', '913000004', 5, 3),
-('16161616-5', 'José Navarro', '913000005', 3, 7);
 
 -- Puntuaciones
 INSERT INTO Puntuacion (puntaje, comentario, rut_repartidor) VALUES 

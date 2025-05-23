@@ -46,15 +46,13 @@ public class JdbcPedidoRepository implements PedidoRepository {
         try {
             Long generatedId = jdbcTemplate.queryForObject(
                     INSERT_PEDIDO_SQL_RETURNING_ID,
-                    new Object[]{
-                            pedido.getEstadoEntrega(),
-                            pedido.getPrioridadPedido(),
-                            pedido.isProblemaCritico(),
-                            pedido.getRutCliente(),
-                            pedido.getRutEmpresa(),
-                            pedido.getRutRepartidor()
-                    },
-                    Long.class
+                    Long.class,
+                    pedido.getEstadoEntrega(),
+                    pedido.getPrioridadPedido(),
+                    pedido.isProblemaCritico(),
+                    pedido.getRutCliente(),
+                    pedido.getRutEmpresa(),
+                    pedido.getRutRepartidor()
             );
 
             if (generatedId != null) {
@@ -119,7 +117,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
     public Optional<Pedido> findById(Long id) {
         if (id == null) return Optional.empty();
         try {
-            Pedido pedido = jdbcTemplate.queryForObject(SELECT_PEDIDO_BY_ID_SQL, new Object[]{id}, pedidoRowMapper);
+            Pedido pedido = jdbcTemplate.queryForObject(SELECT_PEDIDO_BY_ID_SQL, pedidoRowMapper, id);
             return Optional.of(pedido);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

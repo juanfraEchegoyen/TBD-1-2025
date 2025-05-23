@@ -53,7 +53,8 @@
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configura la gestión de sesiones para que sea sin estado
                     .authorizeHttpRequests(auth -> auth // Configura las solicitudes HTTP autorizadas
                             .requestMatchers(
-                                "/auth/registro",
+                                "/auth/registro/cliente",
+                                "/auth/registro/repartidor",
                                 "/auth/login/**",
                                 "/auth/refresh"
                             ).permitAll()

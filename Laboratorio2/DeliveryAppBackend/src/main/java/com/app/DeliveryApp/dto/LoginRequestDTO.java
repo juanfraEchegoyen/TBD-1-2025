@@ -1,22 +1,19 @@
 package com.app.DeliveryApp.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequestDTO {
-    private String nombre;
+    private String rut;
     private String password;
+    private TipoUsuario tipoUsuario;
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public enum TipoUsuario {
+        CLIENTE,
+        REPARTIDOR
     }
 }
