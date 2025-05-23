@@ -2,7 +2,8 @@ package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.dto.LoginRequestDTO;
 import com.app.DeliveryApp.dto.RefreshTokenRequestDTO;
-import com.app.DeliveryApp.models.Usuario;
+import com.app.DeliveryApp.models.Cliente;
+import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,54 +26,22 @@ public class AuthController {
         this.servicioAutenticacion = servicioAutenticacion;
     }
 
-    /**
-     * Endpoint para registrar un nuevo usuario en el sistema
-     *
-     * Recibe los datos del usuario en formato JSON y los guarda en la base de datos
-     * La contraseña se guarda encriptada para mayor seguridad
-     */
-    @PostMapping("/registro")
-    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
-        try {
-            // Intenta registrar el usuario usando el servicio de autenticación
-            servicioAutenticacion.registro(usuario);
-
-            // Si todo sale bien, devuelve un mensaje de éxito
-            Map<String, String> respuesta = new HashMap<>();
-            respuesta.put("mensaje", "Usuario registrado exitosamente");
-            return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            // Si el usuario ya existe, devuelve un error de conflicto
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            // Para cualquier otro error, devuelve un error interno del servidor
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Error al registrar usuario: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO loginRequest) {
+        Map<String, String> respuesta = servicioAutenticacion.login(loginRequest);
+        return ResponseEntity.ok(respuesta);
     }
 
-    /**
-     * Endpoint para iniciar sesión en el sistema
-     *
-     * Recibe credenciales y devuelve tokens JWT para autenticación
-     */
-    @PostMapping("/login")
-    public ResponseEntity<?> iniciarSesion(@RequestBody LoginRequestDTO solicitudLogin) {
-        try {
-            // Intenta iniciar sesión y obtener los tokens
-            Map<String, String> tokens = servicioAutenticacion.login(solicitudLogin.getNombre(), solicitudLogin.getPassword());
+    @PostMapping("/registro/cliente")
+    public ResponseEntity<String> registroCliente(@RequestBody Cliente cliente) {
+        servicioAutenticacion.registroCliente(cliente);
+        return ResponseEntity.ok("Cliente registrado exitosamente");
+    }
 
-            // Devuelve los tokens de acceso y refresco
-            return new ResponseEntity<>(tokens, HttpStatus.OK);
-        } catch (Exception e) {
-            // Si las credenciales son incorrectas, devuelve un error de no autorizado
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Credenciales inválidas");
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        }
+    @PostMapping("/registro/repartidor")
+    public ResponseEntity<String> registroRepartidor(@RequestBody Repartidor repartidor) {
+        servicioAutenticacion.registroRepartidor(repartidor);
+        return ResponseEntity.ok("Repartidor registrado exitosamente");
     }
 
     /**

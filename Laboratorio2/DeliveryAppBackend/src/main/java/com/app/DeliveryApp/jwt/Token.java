@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
 
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -34,9 +33,9 @@ public class Token {
      * Este token permite acceder a recursos protegidos
      */
     public String generarToken(Authentication autenticacion){
-        UserDetails usuarioPrincipal = (UserDetails) autenticacion.getPrincipal();
+        String rut = autenticacion.getName().split(":")[0]; // Extraer el RUT del principal
         SecretKey llave = Keys.hmacShaKeyFor(secreto.getBytes(StandardCharsets.UTF_8));
-        return Jwts.builder().setSubject(usuarioPrincipal.getUsername())
+        return Jwts.builder().setSubject(autenticacion.getName()) // Mantenemos el formato "rut:tipoUsuario"
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + tiempoExpiracion * 1000L))
                 .signWith(llave, SignatureAlgorithm.HS256)
@@ -47,7 +46,7 @@ public class Token {
      * Genera un token de refresco que permite obtener un nuevo token de acceso
      * sin necesidad de iniciar sesión nuevamente
      */
-    public String generarTokenDeRefresco(String nombreUsuario) {
+    public String generarTokenDeRefresco(String identificador) { // identificador = "rut:tipoUsuario"
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "refresh");
         claims.put("id", UUID.randomUUID().toString());
@@ -55,7 +54,7 @@ public class Token {
         SecretKey llave = Keys.hmacShaKeyFor(secreto.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(nombreUsuario)
+                .setSubject(identificador)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + tiempoExpiracionRefresco * 1000L))
                 .signWith(llave, SignatureAlgorithm.HS256)
@@ -67,8 +66,8 @@ public class Token {
      * Verifica que pertenezca al usuario correcto y que no haya expirado
      */
     public Boolean validarToken(String token, UserDetails detallesUsuario){
-        final String nombreUsuario = extraerNombreDeUsuario(token);
-        return (nombreUsuario.equals(detallesUsuario.getUsername()) && !estaTokenExpirado(token));
+        final String identificador = extraerNombreDeUsuario(token);
+        return (identificador.equals(detallesUsuario.getUsername()) && !estaTokenExpirado(token));
     }
 
     /**
