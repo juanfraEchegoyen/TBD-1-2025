@@ -55,4 +55,9 @@ public class JdbcTareaRepository {
         String sql = "DELETE FROM tarea WHERE id_tarea = ?";
         return jdbcTemplate.update(sql, id);
     }
+
+    public int actualizarEstado(Long id, String estado) {
+        String sql = "UPDATE tarea SET estado = ? WHERE id_tarea = ?";
+        return jdbcTemplate.update(sql, estado, id);
+    }
 }

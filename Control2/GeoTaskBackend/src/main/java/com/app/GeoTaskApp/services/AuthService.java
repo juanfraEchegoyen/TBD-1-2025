@@ -5,7 +5,7 @@ import com.app.GeoTaskApp.Models.Sector;
 import com.app.GeoTaskApp.jwt.Token;
 import com.app.GeoTaskApp.Models.Usuario;
 import com.app.GeoTaskApp.respositories.JdbcSectorRepository;
-import com.app.GeoTaskApp.respositories.UsuarioRepository;
+import com.app.GeoTaskApp.respositories.JdbcUsuarioRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
-    private final UsuarioRepository repositorioUsuarios;
+    private final JdbcUsuarioRepository repositorioUsuarios;
     private final PasswordEncoder codificadorContraseñas;
     private final AuthenticationManager gestorAutenticacion;
     private final Token utilidadToken;
@@ -34,7 +34,7 @@ public class AuthService implements UserDetailsService {
      * Constructor que inicializa todos los componentes necesarios para la autenticación
      * La anotación @Lazy es necesaria para evitar dependencias circulares
      */
-    public AuthService(UsuarioRepository repositorioUsuarios,
+    public AuthService(JdbcUsuarioRepository repositorioUsuarios,
                        JdbcSectorRepository sectorRepository,
                        PasswordEncoder codificadorContraseñas,
                        @Lazy AuthenticationManager gestorAutenticacion,
@@ -102,6 +102,7 @@ public class AuthService implements UserDetailsService {
             Map<String, String> tokens = new HashMap<>();
             tokens.put("accessToken", tokenAcceso);
             tokens.put("refreshToken", tokenRefresco);
+            tokens.put("userId", String.valueOf(repositorioUsuarios.findByNombre(nombre).get().getIdUsuario()));
 
             System.out.println("Autenticación exitosa para el usuario: " + nombre);
             return tokens;

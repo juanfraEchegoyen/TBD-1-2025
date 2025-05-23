@@ -41,7 +41,10 @@ const login = async () => {
   error.value = ''
   try {
     const res = await axios.post('http://localhost:8080/auth/login', { nombre: nombre.value, password: password.value })
-    localStorage.setItem('token', res.data.accessToken)
+    localStorage.setItem('accessToken', res.data.accessToken)
+    localStorage.setItem('refreshToken', res.data.refreshToken)
+    localStorage.setItem('userId', res.data.userId)
+    
     router.push('/tareas')
   } catch (e) {
     error.value = 'Credenciales invalidas'

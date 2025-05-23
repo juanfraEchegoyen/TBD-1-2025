@@ -45,8 +45,8 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTarea(@PathVariable Long id, @RequestBody Tarea tarea) {
-        boolean result = tareaService.updateTarea(id, tarea);
+    public ResponseEntity<String> updateTarea(@PathVariable Long id, @RequestBody TareaRequestDTO tareaRequestDTO) {
+        boolean result = tareaService.updateTarea(id, tareaRequestDTO);
         if (result) {
             return ResponseEntity.ok("Tarea actualizada correctamente");
         } else {
@@ -61,6 +61,16 @@ public class TareaController {
             return ResponseEntity.ok("Tarea eliminada correctamente");
         } else {
             return ResponseEntity.badRequest().body("No se pudo eliminar la tarea");
+        }
+    }
+
+    @PatchMapping("/{id}/completar")
+    public ResponseEntity<String> completarTarea(@PathVariable Long id) {
+        boolean result = tareaService.completarTarea(id);
+        if (result) {
+            return ResponseEntity.ok("Tarea completada correctamente");
+        } else {
+            return ResponseEntity.badRequest().body("No se pudo completar la tarea");
         }
     }
 }
