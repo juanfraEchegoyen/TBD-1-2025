@@ -170,8 +170,8 @@ const cargarSector = async (idSector) => {
 
 const tareasFiltradas = computed(() => {
   let lista = tareas.value
-  if (filtroActual.value === 'pendientes') lista = lista.filter(t => t.estado !== 'Completada')
-  if (filtroActual.value === 'completadas') lista = lista.filter(t => t.estado === 'Completada')
+  if (filtroActual.value === 'pendientes') lista = lista.filter(t => (t.estado || '').toLowerCase() !== 'completada' && (t.estado || '').toLowerCase() !== 'completado')
+  if (filtroActual.value === 'completadas') lista = lista.filter(t => (t.estado || '').toLowerCase() === 'completada' || (t.estado || '').toLowerCase() === 'completado')
   if (busqueda.value.trim() !== '') {
     const texto = busqueda.value.trim().toLowerCase()
     lista = lista.filter(t =>
