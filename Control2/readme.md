@@ -8,9 +8,9 @@ Este documento describe el procedimiento para crear e inicializar la base de dat
 - Tener instalado PostgreSQL
 - Tener la extensión PostGIS (se debe habilitar al instalar PostgreSQL, en el stack geoespacial)
 - Scripts SQL provistos:
-  - `dbCreate.sql`
+  - `BdCreate.sql`
   - `Ubicacion.sql`
-  - `dbPoblate.sql`
+  - `BdPoblate.sql`
   - `runStatements.sql`
 
 ---
@@ -28,7 +28,7 @@ Este documento describe el procedimiento para crear e inicializar la base de dat
 
 - En el **Query Tool**, abre y ejecuta el archivo:
 ```sql
-dbCreate.sql
+BdCreate.sql
 ```
 
 
@@ -40,7 +40,7 @@ dbCreate.sql
 Ubicacion.sql
 ```
 ```bash
-dbPoblate.sql
+BdPoblate.sql
 ```
 
 
@@ -74,14 +74,14 @@ CREATE DATABASE geotaskapp;
 Ejecuta el script para crear todas las tablas y relaciones:
 
 ```bash
-psql -h localhost -p 5432 -U postgres -d geotaskapp -f dbCreate.sql
+psql -h localhost -p 5432 -U postgres -d geotaskapp -f BdCreate.sql
 ```
 
 ### 3. Cargar los datos de ejemplo
 
 ```bash
 psql -h localhost -p 5432 -U postgres -d geotaskapp -f Ubicacion.sql
-psql -h localhost -p 5432 -U postgres -d geotaskapp -f dbPoblate.sql
+psql -h localhost -p 5432 -U postgres -d geotaskapp -f BdPoblate.sql
 ```
 
 ### 4. Consultas de prueba
