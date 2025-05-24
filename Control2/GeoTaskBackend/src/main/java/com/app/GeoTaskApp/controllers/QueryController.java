@@ -29,7 +29,7 @@ public class QueryController {
 
     // 3. ¿Cuál es el sector con más tareas completadas en un radio de 2 km?
     @GetMapping("/sector-mas-completadas-2km/{idUsuario}")
-    public ResponseEntity<SectorDTO> getSectorConMasTareasCompletadasEn2Km(@PathVariable Long idUsuario) {
+    public ResponseEntity<TareaPorSectorDTO> getSectorConMasTareasCompletadasEn2Km(@PathVariable Long idUsuario) {
         return ResponseEntity.ok(queryService.getSectorConMasTareasCompletadasEn2Km(idUsuario));
     }
 
@@ -59,7 +59,7 @@ public class QueryController {
 
     // 8. ¿Cuál es el sector con más tareas completadas dentro de 5 km del usuario?
     @GetMapping("/sector-mas-completadas-5km/{idUsuario}")
-    public ResponseEntity<SectorDTO> getSectorConMasTareasCompletadasEn5Km(@PathVariable Long idUsuario) {
+    public ResponseEntity<TareaPorSectorDTO> getSectorConMasTareasCompletadasEn5Km(@PathVariable Long idUsuario) {
         return ResponseEntity.ok(queryService.getSectorConMasTareasCompletadasEn5Km(idUsuario));
     }
 }

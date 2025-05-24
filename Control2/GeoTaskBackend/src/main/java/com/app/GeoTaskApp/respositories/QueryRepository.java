@@ -11,7 +11,7 @@ public interface QueryRepository {
     TareaCercanaDTO getTareaPendienteMasCercana(Long idUsuario);
 
     // 3. ¿Cuál es el sector con más tareas completadas en un radio de 2 kilómetros del usuario?
-    SectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario);
+    TareaPorSectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario);
 
     // 4. ¿Cuál es el promedio de distancia de las tareas completadas respecto a la ubicación del usuario?
     DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long idUsuario);
@@ -26,5 +26,5 @@ public interface QueryRepository {
     List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector();
 
     // 8. ¿Cuál es el sector con más tareas completadas dentro de un radio de 5 km desde la ubicación del usuario?
-    SectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario);
+    TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario);
 }

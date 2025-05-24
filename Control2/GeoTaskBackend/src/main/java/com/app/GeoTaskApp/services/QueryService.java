@@ -19,7 +19,7 @@ public class QueryService {
         return queryRepository.getTareaPendienteMasCercana(idUsuario);
     }
 
-    public SectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
         return queryRepository.getSectorConMasTareasCompletadasEn2Km(idUsuario);
     }
 
@@ -39,7 +39,7 @@ public class QueryService {
         return queryRepository.getCantidadTareasPorUsuarioPorSector();
     }
 
-    public SectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
         return queryRepository.getSectorConMasTareasCompletadasEn5Km(idUsuario);
     }
 }

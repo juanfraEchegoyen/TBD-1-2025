@@ -39,6 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = extraerTokenJwt(peticion);
+            if (jwt != null) {
+                System.out.println("Token recibido: " + jwt);
+            } else {
+                System.out.println("No se recibió un token en la petición.");
+            }
 
             if (jwt != null) {
                 String nombreUsuario = null;

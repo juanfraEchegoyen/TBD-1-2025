@@ -19,42 +19,21 @@ public class JdbcQuerysRepository implements QueryRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public List<TareaPorSectorDTO> getTareasPorSector(Long idUsuario) {
+    public List<TareaPorSectorDTO> getTareasPorSector(Long id_usuario) {
         String sql = """
-            SELECT idSector, COUNT(*) AS cantidad_tareas
-            FROM Tarea
-            WHERE idUsuario = ?
-            GROUP BY idSector
+            SELECT u.nombre, t.id_sector, COUNT(*) AS cantidad_tareas
+            FROM Tarea t
+            JOIN Usuario u ON t.id_usuario = u.id_usuario
+            WHERE u.id_usuario = ?
+            GROUP BY t.id_sector, u.nombre
         """;
 
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new TareaPorSectorDTO(
-                        rs.getLong("idSector"),
+                        rs.getString("nombre"),
+                        rs.getLong("id_sector"),
                         rs.getInt("cantidad_tareas")
-                ), idUsuario);
-    }
-    @Override
-    public List<SectorDTO> getSectoresConMasTareasPendientes() {
-        String sql = """
-            SELECT s.idSector, s.asignacion, s.comuna, s.calle,
-                   ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
-                   ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud
-            FROM Tarea t
-            JOIN Sector s ON t.idSector = s.idSector
-            WHERE t.estado = 'pendiente'
-            GROUP BY s.idSector, s.asignacion, s.comuna, s.calle, s.ubicacion
-            ORDER BY COUNT(*) DESC
-        """;
-
-        return jdbcTemplate.query(sql,
-                (rs, rowNum) -> new SectorDTO(
-                        rs.getLong("idSector"),
-                        rs.getString("asignacion"),
-                        rs.getString("comuna"),
-                        rs.getString("calle"),
-                        rs.getDouble("longitud"),
-                        rs.getDouble("latitud")
-                ));
+                ), id_usuario);
     }
 
     @Override
@@ -63,96 +42,135 @@ public class JdbcQuerysRepository implements QueryRepository {
     }
 
     @Override
-    public TareaCercanaDTO getTareaPendienteMasCercana(Long idUsuario) {
+    public TareaCercanaDTO getTareaPendienteMasCercana(Long id_usuario) {
         String sql = """
-            SELECT t.idTarea, t.titulo,
+            SELECT u.nombre, t.id_tarea, t.titulo, 
                    ST_Distance(s.ubicacion, sector_usuario.ubicacion) AS distancia
             FROM Tarea t
-            JOIN Sector s ON t.idSector = s.idSector
-            JOIN Usuario u ON t.idUsuario = u.idUsuario
-            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
-            WHERE t.estado = 'pendiente'
+            JOIN Sector s ON t.id_sector = s.id_sector
+            JOIN Usuario u ON t.id_usuario = u.id_usuario
+            JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
+            WHERE t.estado = 'pendiente' AND u.id_usuario = ?
             ORDER BY distancia ASC
             LIMIT 1
         """;
 
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new TareaCercanaDTO(
-                        rs.getLong("idTarea"),
+                        rs.getString("nombre"),
+                        rs.getLong("id_tarea"),
                         rs.getString("titulo"),
                         rs.getDouble("distancia")
-                ));
+                ), id_usuario);
     }
 
     @Override
-    public SectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
         return getSectorConMasTareasCompletadasEnRadio(idUsuario, 2000);
     }
-
-    public List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector() {
-        String sql = """
-            SELECT t.idUsuario, s.idSector, COUNT(*) AS cantidad_tareas
-            FROM Tarea t
-            JOIN Sector s ON t.idSector = s.idSector
-            WHERE t.estado = 'completado'
-            GROUP BY t.idUsuario, s.idSector
-            ORDER BY t.idUsuario, cantidad_tareas DESC
-        """;
-
-        return jdbcTemplate.query(sql,
-                (rs, rowNum) -> new UsuarioSectorDTO(
-                        rs.getLong("idUsuario"),
-                        rs.getLong("idSector"),
-                        rs.getInt("cantidad_tareas")
-                ));
-    }
-
     @Override
-    public SectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
         return getSectorConMasTareasCompletadasEnRadio(idUsuario, 5000);
     }
 
-    public SectorDTO getSectorConMasTareasCompletadasEnRadio(Long idUsuario, int radioMetros) {
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEnRadio(Long id_usuario, int radioMetros) {
         String sql = """
-            SELECT s.idSector, s.asignacion, s.comuna, s.calle,
-                   ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
-                   ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud,
-                   COUNT(*) AS tareas_completadas
+            SELECT u.nombre, s.id_sector, COUNT(*) AS tareas_completadas
             FROM Tarea t
-            JOIN Sector s ON t.idSector = s.idSector
-            JOIN Usuario u ON t.idUsuario = u.idUsuario
-            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
+            JOIN Sector s ON t.id_sector = s.id_sector
+            JOIN Usuario u ON t.id_usuario = u.id_usuario
+            JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
             WHERE t.estado = 'completado'
-              AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, ?)
-            GROUP BY s.idSector, s.asignacion, s.comuna, s.calle, s.ubicacion
+              AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, ?) 
+              AND u.id_usuario = ?
+            GROUP BY s.id_sector, u.nombre
             ORDER BY tareas_completadas DESC
             LIMIT 1
         """;
 
         return jdbcTemplate.queryForObject(sql,
-                (rs, rowNum) -> new SectorDTO(
-                        rs.getLong("idSector"),
-                        rs.getString("asignacion"),
-                        rs.getString("comuna"),
-                        rs.getString("calle"),
-                        rs.getDouble("longitud"),
-                        rs.getDouble("latitud")
-                ), radioMetros);
+                (rs, rowNum) -> new TareaPorSectorDTO(
+                        rs.getString("nombre"),
+                        rs.getLong("id_sector"),
+                        rs.getInt("tareas_completadas")
+                ), radioMetros, id_usuario);
     }
 
-    public DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long idUsuario) {
+    public DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long id_usuario) {
         String sql = """
-            SELECT AVG(ST_Distance(s.ubicacion, sector_usuario.ubicacion)) AS promedio_distancia
+            SELECT u.nombre, AVG(ST_Distance(s.ubicacion, sector_usuario.ubicacion)) AS promedio_distancia
             FROM Tarea t
-            JOIN Sector s ON t.idSector = s.idSector
-            JOIN Usuario u ON t.idUsuario = u.idUsuario
-            JOIN Sector sector_usuario ON u.idSector = sector_usuario.idSector
-            WHERE t.estado = 'completado'
+            JOIN Sector s ON t.id_sector = s.id_sector
+            JOIN Usuario u ON t.id_usuario = u.id_usuario
+            JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
+            WHERE t.estado = 'completado' AND u.id_usuario = ?
+            GROUP BY u.nombre
         """;
 
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new DistanciaPromedioDTO(
+                        rs.getString("nombre"),
                         rs.getDouble("promedio_distancia")
+                ), id_usuario);
+    }
+
+
+    public List<SectorDTO> getSectoresConMasTareasPendientes(Long id_usuario) {
+        String sql = """
+        SELECT u.nombre, s.id_sector, s.asignacion, s.comuna, s.calle,
+               ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
+               ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud,
+               COUNT(*) AS cantidad_tareas_pendientes
+        FROM Tarea t
+        JOIN Sector s ON t.id_sector = s.id_sector
+        JOIN Usuario u ON t.id_usuario = u.id_usuario
+        WHERE t.estado = 'pendiente' AND u.id_usuario = ?
+        GROUP BY u.nombre, s.id_sector, s.asignacion, s.comuna, s.calle, s.ubicacion
+        ORDER BY cantidad_tareas_pendientes DESC
+    """;
+
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new SectorDTO(
+                        rs.getString("nombre"),
+                        rs.getLong("id_sector"),
+                        rs.getString("asignacion"),
+                        rs.getString("comuna"),
+                        rs.getString("calle"),
+                        rs.getDouble("longitud"),
+                        rs.getDouble("latitud"),
+                        rs.getInt("cantidad_tareas_pendientes")
+                ), id_usuario);
+    }
+
+
+
+
+
+    public List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector() {
+        String sql = """
+        SELECT u.nombre, t.id_usuario, s.id_sector, COUNT(*) AS cantidad_tareas
+        FROM Tarea t
+        JOIN Sector s ON t.id_sector = s.id_sector
+        JOIN Usuario u ON t.id_usuario = u.id_usuario
+        WHERE t.estado = 'completado'
+        GROUP BY t.id_usuario, s.id_sector, u.nombre
+        ORDER BY t.id_usuario, cantidad_tareas DESC
+    """;
+
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new UsuarioSectorDTO(
+                        rs.getString("nombre"),
+                        rs.getLong("id_usuario"),
+                        rs.getLong("id_sector"),
+                        rs.getInt("cantidad_tareas")
                 ));
+    }
+
+
+
+
+    @Override
+    public List<SectorDTO> getSectoresConMasTareasPendientes() {
+        return List.of();
     }
 }

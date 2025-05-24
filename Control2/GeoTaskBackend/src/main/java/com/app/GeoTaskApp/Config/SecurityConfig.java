@@ -52,6 +52,7 @@
                     .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint)) // Configura el punto de entrada de excepciones
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configura la gestión de sesiones para que sea sin estado
                     .authorizeHttpRequests(auth -> auth // Configura las solicitudes HTTP autorizadas
+                            .requestMatchers("/**").permitAll()
                             .requestMatchers(
                                 "/auth/registro",
                                 "/auth/login/**",
