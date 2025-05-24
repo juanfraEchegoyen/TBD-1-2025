@@ -14,6 +14,7 @@ public interface QueryRepository {
     TareaPorSectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario);
 
     // 4. ¿Cuál es el promedio de distancia de las tareas completadas respecto a la ubicación del usuario?
+    //9.¿Cuál es el promedio de distancia entre las tareas completadas y el punto registrado del usuario?
     DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long idUsuario);
 
     // 5. ¿En qué sectores geográficos se concentran la mayoría de las tareas pendientes?
@@ -27,4 +28,7 @@ public interface QueryRepository {
 
     // 8. ¿Cuál es el sector con más tareas completadas dentro de un radio de 5 km desde la ubicación del usuario?
     TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario);
+
+
+
 }

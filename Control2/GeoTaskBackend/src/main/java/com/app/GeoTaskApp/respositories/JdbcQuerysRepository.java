@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import com.app.GeoTaskApp.Dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -28,12 +29,16 @@ public class JdbcQuerysRepository implements QueryRepository {
             GROUP BY t.id_sector, u.nombre
         """;
 
-        return jdbcTemplate.query(sql,
-                (rs, rowNum) -> new TareaPorSectorDTO(
-                        rs.getString("nombre"),
-                        rs.getLong("id_sector"),
-                        rs.getInt("cantidad_tareas")
-                ), id_usuario);
+        try {
+            return jdbcTemplate.query(sql,
+                    (rs, rowNum) -> new TareaPorSectorDTO(
+                            rs.getString("nombre"),
+                            rs.getLong("id_sector"),
+                            rs.getInt("cantidad_tareas")
+                    ), id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -54,6 +59,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             ORDER BY distancia ASC
             LIMIT 1
         """;
+        try {
 
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new TareaCercanaDTO(
@@ -62,6 +68,9 @@ public class JdbcQuerysRepository implements QueryRepository {
                         rs.getString("titulo"),
                         rs.getDouble("distancia")
                 ), id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -87,6 +96,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             ORDER BY tareas_completadas DESC
             LIMIT 1
         """;
+        try {
 
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new TareaPorSectorDTO(
@@ -94,6 +104,9 @@ public class JdbcQuerysRepository implements QueryRepository {
                         rs.getLong("id_sector"),
                         rs.getInt("tareas_completadas")
                 ), radioMetros, id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public DistanciaPromedioDTO getPromedioDistanciaTareasCompletadas(Long id_usuario) {
@@ -107,11 +120,16 @@ public class JdbcQuerysRepository implements QueryRepository {
             GROUP BY u.nombre
         """;
 
+        try {
+
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new DistanciaPromedioDTO(
                         rs.getString("nombre"),
                         rs.getDouble("promedio_distancia")
                 ), id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
 
@@ -129,6 +147,8 @@ public class JdbcQuerysRepository implements QueryRepository {
         ORDER BY cantidad_tareas_pendientes DESC
     """;
 
+        try {
+
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new SectorDTO(
                         rs.getString("nombre"),
@@ -140,10 +160,16 @@ public class JdbcQuerysRepository implements QueryRepository {
                         rs.getDouble("latitud"),
                         rs.getInt("cantidad_tareas_pendientes")
                 ), id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
 
 
+    public List<SectorDTO> getSectoresPendientes(Long id_usuario) {
+        return getSectoresConMasTareasPendientes(id_usuario);
+    }
 
 
     public List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector() {
@@ -156,6 +182,7 @@ public class JdbcQuerysRepository implements QueryRepository {
         GROUP BY t.id_usuario, s.id_sector, u.nombre
         ORDER BY t.id_usuario, cantidad_tareas DESC
     """;
+        try {
 
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new UsuarioSectorDTO(
@@ -164,6 +191,10 @@ public class JdbcQuerysRepository implements QueryRepository {
                         rs.getLong("id_sector"),
                         rs.getInt("cantidad_tareas")
                 ));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+
     }
 
 
