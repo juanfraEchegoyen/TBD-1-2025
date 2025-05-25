@@ -5,6 +5,7 @@
         <div class="flex items-center mb-8">
           <GeoTaskLogo />
           <h1 class="text-3xl font-bold text-green-700 tracking-tight ml-3">Consultas de Tareas</h1>
+          <GeoTaskButton color="gray" class="ml-auto" @click="router.push('/tareas')">Volver</GeoTaskButton>
         </div>
 
         <!-- Seleccionar usuario -->
@@ -55,10 +56,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import GeoTaskLogo from '~/components/GeoTaskLogo.vue';
 import GeoTaskButton from '~/components/GeoTaskButton.vue';
 import GeoTaskBackground from '~/components/GeoTaskBackground.vue';
+
+const router = useRouter();
 
 // Variables de estado
 const API_BASE_URL = "http://localhost:8080/api/querys";
@@ -127,7 +131,7 @@ const ejecutarConsultas = async () => {
         resultado: Array.isArray(response.data) && response.data.length > 0 ? JSON.stringify(response.data, null, 2) : (typeof response.data === 'object' && Object.keys(response.data).length > 0 ? JSON.stringify(response.data, null, 2) : "No hay datos disponibles")
       });
     }
-   
+    const mapUnicos = new Map();
     for (const item of resultadosTemp) {
       mapUnicos.set(item.consulta, item);
     }

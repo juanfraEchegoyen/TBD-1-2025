@@ -5,6 +5,7 @@
         <div class="flex items-center mb-8">
           <GeoTaskLogo />
           <h1 class="text-3xl font-bold text-green-700 tracking-tight ml-3">Editar Tarea</h1>
+          <GeoTaskButton color="gray" class="ml-auto" @click="router.push('/tareas')">Volver</GeoTaskButton>
         </div>
         
         <form @submit.prevent="actualizarTarea">
