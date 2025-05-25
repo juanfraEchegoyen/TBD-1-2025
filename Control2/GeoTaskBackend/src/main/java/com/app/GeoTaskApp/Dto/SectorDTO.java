@@ -1,27 +1,37 @@
 package com.app.GeoTaskApp.Dto;
 
 public class SectorDTO {
+    private String nombre;
     private Long idSector;
     private String asignacion;
     private String comuna;
     private String calle;
     private double longitud;
     private double latitud;
+    private int Cantidadtareas;
 
     // Constructores
     public SectorDTO() {}
 
-    public SectorDTO(Long idSector, String asignacion, String comuna, String calle,
-                     double longitud, double latitud) {
+    public SectorDTO(String nombre,Long idSector, String asignacion, String comuna, String calle,
+                     double longitud, double latitud,int Cantidadtareas) {
+        this.nombre = nombre;
         this.idSector = idSector;
         this.asignacion = asignacion;
         this.comuna = comuna;
         this.calle = calle;
         this.longitud = longitud;
         this.latitud = latitud;
+        this.Cantidadtareas = Cantidadtareas;
     }
 
     // Getters y setters
+    public String getNombre() {
+        return nombre;
+    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
     public Long getIdSector() {
         return idSector;
     }
@@ -68,5 +78,12 @@ public class SectorDTO {
 
     public void setLatitud(double latitud) {
         this.latitud = latitud;
+    }
+
+    public int getCantidadtareas() {
+        return Cantidadtareas;
+    }
+    public void setCantidadtareas(int Cantidadtareas) {
+        this.Cantidadtareas = Cantidadtareas;
     }
 }

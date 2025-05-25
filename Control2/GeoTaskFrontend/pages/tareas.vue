@@ -10,6 +10,11 @@
           <GeoTaskButton color="green" @click="$router.push('/registroTareas')">
             Nueva Tarea
           </GeoTaskButton>
+          <div class="flex space-x-3">
+            <GeoTaskButton color="blue" @click="$router.push('/querys')">
+              Ver Consultas
+            </GeoTaskButton>
+          </div>
         </div>
         
         <!-- AVISOS DE TAREAS POR EXPIRAR -->

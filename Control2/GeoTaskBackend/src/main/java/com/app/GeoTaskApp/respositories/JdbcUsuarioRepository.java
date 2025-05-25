@@ -1,5 +1,6 @@
 package com.app.GeoTaskApp.respositories;
 
+import com.app.GeoTaskApp.Dto.UsuarioDTO;
 import com.app.GeoTaskApp.Models.Usuario;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -110,5 +112,13 @@ public class JdbcUsuarioRepository {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public List<UsuarioDTO> obtenerTodosLosUsuarios() {
+        String sql = "SELECT id_usuario, nombre FROM Usuario";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new UsuarioDTO(rs.getLong("id_usuario"), rs.getString("nombre"))
+        );
     }
 }
