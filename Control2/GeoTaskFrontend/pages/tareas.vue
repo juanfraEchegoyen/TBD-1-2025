@@ -7,12 +7,15 @@
             <GeoTaskLogo />
             <h1 class="text-3xl font-bold text-green-700 tracking-tight ml-3">Mis Tareas</h1>
           </div>
-          <GeoTaskButton color="green" @click="$router.push('/registroTareas')">
+          <GeoTaskButton color="green" custom-class="px-3 py-1 text-sm" @click="$router.push('/registroTareas')">
             Nueva Tarea
           </GeoTaskButton>
           <div class="flex space-x-3">
-            <GeoTaskButton color="blue" @click="$router.push('/querys')">
+            <GeoTaskButton color="blue" custom-class="px-3 py-1 text-sm" @click="$router.push('/querys')">
               Ver Consultas
+            </GeoTaskButton>
+            <GeoTaskButton color="red" custom-class="px-3 py-1 text-sm ml-2" @click="logout">
+              Cerrar sesión
             </GeoTaskButton>
           </div>
         </div>
@@ -299,6 +302,23 @@ const formatearFecha = (fecha) => {
   } catch (e) {
     console.error('Error al formatear fecha:', e, fecha)
     return 'Error de formato'
+  }
+}
+
+const logout = async () => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      await axios.post('http://localhost:8080/auth/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+  } catch (e) {
+    console.error('Error en logout backend:', e);
+  } finally {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userId');
+    router.push('/login');
   }
 }
 </script>
