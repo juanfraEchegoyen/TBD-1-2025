@@ -105,10 +105,10 @@ const ejecutarConsultas = async () => {
     }
 
     resultados.value = [];
+    const consultasAgregadas = new Set();
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     axios.defaults.headers.common["Accept"] = "application/json";
 
- 
     const consultas = [
       { consulta: 'Tareas por sector', endpoint: `${API_BASE_URL}/tareas-por-sector/${idUsuarioSeleccionado.value}` },
       { consulta: 'Tarea pendiente más cercana', endpoint: `${API_BASE_URL}/tarea-pendiente-mas-cercana/${idUsuarioSeleccionado.value}` },
@@ -119,13 +119,19 @@ const ejecutarConsultas = async () => {
       { consulta: 'Sector con más completadas en 5km', endpoint: `${API_BASE_URL}/sector-mas-completadas-5km/${idUsuarioSeleccionado.value}` },
     ];
 
+    const resultadosTemp = [];
     for (const consulta of consultas) {
       const response = await axios.get(consulta.endpoint);
-      resultados.value.push({
+      resultadosTemp.push({
         consulta: consulta.consulta,
-        resultado: response.data.length > 0 ? JSON.stringify(response.data, null, 2) : "No hay datos disponibles"
+        resultado: Array.isArray(response.data) && response.data.length > 0 ? JSON.stringify(response.data, null, 2) : (typeof response.data === 'object' && Object.keys(response.data).length > 0 ? JSON.stringify(response.data, null, 2) : "No hay datos disponibles")
       });
     }
+   
+    for (const item of resultadosTemp) {
+      mapUnicos.set(item.consulta, item);
+    }
+    resultados.value = Array.from(mapUnicos.values());
   } catch (err) {
     error.value = "Error al ejecutar consultas: " + err.message;
     console.error("Error en API:", err);
