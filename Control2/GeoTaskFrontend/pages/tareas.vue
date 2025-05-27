@@ -197,6 +197,8 @@ const avisosExpiracion = computed(() => {
     if (tarea.estado !== 'Completada') {
       const fechaVenc = new Date(tarea.fechaVencimiento || tarea.fecha_vencimiento)
       if (!isNaN(fechaVenc.getTime())) {
+        // Sumar un día para que coincida con la visualización
+        fechaVenc.setDate(fechaVenc.getDate() + 1)
         const diffMs = fechaVenc - ahora
         const diffHoras = diffMs / (1000 * 60 * 60)
         if (diffHoras <= 48 && diffHoras > 0) {
@@ -299,7 +301,10 @@ const formatearFecha = (fecha) => {
       console.log('Fecha inválida:', fecha)
       return 'Fecha inválida'
     }
-    
+
+    // Sumar un día para corregir desfase de zona horaria
+    date.setDate(date.getDate() + 1)
+
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
