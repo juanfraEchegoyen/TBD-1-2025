@@ -156,10 +156,10 @@ function renderResultado(consulta, resultado) {
     }
   }
 
-  // Tareas por sector (array de TareaPorSectorDTO)
+  // Tareas por sector (array)
   if (consulta === 'Tareas por sector' && Array.isArray(data)) {
     return `
-      <table class="min-w-full text-xs">
+      <table class="min-w-full text-xs border">
         <thead><tr><th>Usuario</th><th>ID Sector</th><th>Cantidad</th></tr></thead>
         <tbody>
           ${data.map(item => `<tr>
@@ -172,43 +172,61 @@ function renderResultado(consulta, resultado) {
     `;
   }
 
-  // Tarea pendiente más cercana (TareaCercanaDTO)
+  // Tarea pendiente más cercana (objeto)
   if (consulta.includes('más cercana') && data && typeof data === 'object' && data.idTarea !== undefined) {
     return `
-      <ul>
-        <li><b>Usuario:</b> ${data.nombre}</li>
-        <li><b>ID Tarea:</b> ${data.idTarea}</li>
-        <li><b>Título:</b> ${data.titulo}</li>
-        <li><b>Distancia:</b> ${data.distancia?.toFixed(2) ?? ''} m</li>
-      </ul>
+      <table class="min-w-full text-xs border">
+        <thead><tr><th>Usuario</th><th>ID Tarea</th><th>Título</th><th>Distancia (m)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${data.nombre}</td>
+            <td>${data.idTarea}</td>
+            <td>${data.titulo}</td>
+            <td>${data.distancia?.toFixed(2) ?? ''}</td>
+          </tr>
+        </tbody>
+      </table>
     `;
   }
 
-  // Sector con más completadas (TareaPorSectorDTO)
+  // Sector con más completadas (objeto)
   if (consulta.includes('Sector con más completadas') && data && typeof data === 'object' && data.idSector !== undefined) {
     return `
-      <ul>
-        <li><b>Usuario:</b> ${data.nombre}</li>
-        <li><b>ID Sector:</b> ${data.idSector}</li>
-        <li><b>Cantidad tareas:</b> ${data.cantidadTareas}</li>
-      </ul>
+      <table class="min-w-full text-xs border">
+        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Cantidad tareas</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${data.nombre}</td>
+            <td>${data.idSector}</td>
+            <td>${data.cantidadTareas}</td>
+          </tr>
+        </tbody>
+      </table>
     `;
   }
 
-  // Distancia promedio de completadas (DistanciaPromedioDTO)
+  // Distancia promedio de completadas (objeto)
   if (consulta.includes('Distancia promedio') && data && typeof data === 'object' && data.promedioDistancia !== undefined) {
     return `
-      <ul>
-        <li><b>Usuario:</b> ${data.nombre}</li>
-        <li><b>Promedio distancia:</b> ${data.promedioDistancia?.toFixed(2) ?? ''} m</li>
-      </ul>
+      <table class="min-w-full text-xs border">
+        <thead><tr><th>Usuario</th><th>Promedio distancia (m)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${data.nombre}</td>
+            <td>${data.promedioDistancia?.toFixed(2) ?? ''}</td>
+          </tr>
+        </tbody>
+      </table>
     `;
   }
 
-  // Sectores con más tareas pendientes (array de SectorDTO)
+  // Sectores con más tareas pendientes (array)
   if (consulta.includes('Sectores con más tareas pendientes') && Array.isArray(data)) {
+    if (data.length === 0) {
+      return `<span class="text-gray-500 italic">No hay datos disponibles</span>`;
+    }
     return `
-      <table class="min-w-full text-xs">
+      <table class="min-w-full text-xs border">
         <thead><tr><th>Usuario</th><th>ID Sector</th><th>Asignación</th><th>Comuna</th><th>Calle</th><th>Longitud</th><th>Latitud</th><th>Cantidad</th></tr></thead>
         <tbody>
           ${data.map(item => `<tr>
@@ -226,10 +244,10 @@ function renderResultado(consulta, resultado) {
     `;
   }
 
-  // Tareas usuario por sector (array de UsuarioSectorDTO)
+  // Tareas usuario por sector (array)
   if (consulta.includes('Tareas usuario por sector') && Array.isArray(data)) {
     return `
-      <table class="min-w-full text-xs">
+      <table class="min-w-full text-xs border">
         <thead><tr><th>Usuario</th><th>ID Usuario</th><th>ID Sector</th><th>Cantidad</th></tr></thead>
         <tbody>
           ${data.map(item => `<tr>

@@ -55,7 +55,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'pendiente' AND u.id_usuario = ?
+            WHERE t.estado = 'Pendiente' AND u.id_usuario = ?
             ORDER BY distancia ASC
             LIMIT 1
         """;
@@ -89,7 +89,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'completado'
+            WHERE t.estado = 'completada'
               AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, ?) 
               AND u.id_usuario = ?
             GROUP BY s.id_sector, u.nombre
@@ -116,7 +116,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'completado' AND u.id_usuario = ?
+            WHERE t.estado = 'completada' AND u.id_usuario = ?
             GROUP BY u.nombre
         """;
 
@@ -142,7 +142,7 @@ public class JdbcQuerysRepository implements QueryRepository {
         FROM Tarea t
         JOIN Sector s ON t.id_sector = s.id_sector
         JOIN Usuario u ON t.id_usuario = u.id_usuario
-        WHERE t.estado = 'pendiente' AND u.id_usuario = ?
+        WHERE t.estado = 'Pendiente' AND u.id_usuario = ?
         GROUP BY u.nombre, s.id_sector, s.asignacion, s.comuna, s.calle, s.ubicacion
         ORDER BY cantidad_tareas_pendientes DESC
     """;
@@ -178,7 +178,7 @@ public class JdbcQuerysRepository implements QueryRepository {
         FROM Tarea t
         JOIN Sector s ON t.id_sector = s.id_sector
         JOIN Usuario u ON t.id_usuario = u.id_usuario
-        WHERE t.estado = 'completado'
+        WHERE t.estado = 'completada'
         GROUP BY t.id_usuario, s.id_sector, u.nombre
         ORDER BY t.id_usuario, cantidad_tareas DESC
     """;
