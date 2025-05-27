@@ -36,12 +36,7 @@
               <tr v-for="(item, index) in resultados" :key="index" class="border-t border-gray-200">
                 <td class="px-3 py-2 font-bold text-green-700">{{ item.consulta }}</td>
                 <td class="px-3 py-2">
-                  <template v-if="item.resultado && item.resultado.length > 2">
-                    <pre class="text-gray-800 bg-gray-100 p-2 rounded-lg">{{ item.resultado }}</pre>
-                  </template>
-                  <template v-else>
-                    <span class="text-gray-500 italic">No hay datos disponibles</span>
-                  </template>
+                  <span v-html="renderResultado(item.consulta, item.resultado)"></span>
                 </td>
               </tr>
             </tbody>
@@ -146,6 +141,111 @@ const ejecutarConsultas = async () => {
 onMounted(() => {
   cargarUsuarios();
 });
+
+function renderResultado(consulta, resultado) {
+  if (!resultado || resultado === "No hay datos disponibles") {
+    return `<span class="text-gray-500 italic">No hay datos disponibles</span>`;
+  }
+
+  let data = resultado;
+  if (typeof resultado === "string") {
+    try {
+      data = JSON.parse(resultado);
+    } catch {
+      // Si no es JSON, lo dejamos como está
+    }
+  }
+
+  // Tareas por sector (array de TareaPorSectorDTO)
+  if (consulta === 'Tareas por sector' && Array.isArray(data)) {
+    return `
+      <table class="min-w-full text-xs">
+        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Cantidad</th></tr></thead>
+        <tbody>
+          ${data.map(item => `<tr>
+            <td>${item.nombre}</td>
+            <td>${item.idSector}</td>
+            <td>${item.cantidadTareas}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Tarea pendiente más cercana (TareaCercanaDTO)
+  if (consulta.includes('más cercana') && data && typeof data === 'object' && data.idTarea !== undefined) {
+    return `
+      <ul>
+        <li><b>Usuario:</b> ${data.nombre}</li>
+        <li><b>ID Tarea:</b> ${data.idTarea}</li>
+        <li><b>Título:</b> ${data.titulo}</li>
+        <li><b>Distancia:</b> ${data.distancia?.toFixed(2) ?? ''} m</li>
+      </ul>
+    `;
+  }
+
+  // Sector con más completadas (TareaPorSectorDTO)
+  if (consulta.includes('Sector con más completadas') && data && typeof data === 'object' && data.idSector !== undefined) {
+    return `
+      <ul>
+        <li><b>Usuario:</b> ${data.nombre}</li>
+        <li><b>ID Sector:</b> ${data.idSector}</li>
+        <li><b>Cantidad tareas:</b> ${data.cantidadTareas}</li>
+      </ul>
+    `;
+  }
+
+  // Distancia promedio de completadas (DistanciaPromedioDTO)
+  if (consulta.includes('Distancia promedio') && data && typeof data === 'object' && data.promedioDistancia !== undefined) {
+    return `
+      <ul>
+        <li><b>Usuario:</b> ${data.nombre}</li>
+        <li><b>Promedio distancia:</b> ${data.promedioDistancia?.toFixed(2) ?? ''} m</li>
+      </ul>
+    `;
+  }
+
+  // Sectores con más tareas pendientes (array de SectorDTO)
+  if (consulta.includes('Sectores con más tareas pendientes') && Array.isArray(data)) {
+    return `
+      <table class="min-w-full text-xs">
+        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Asignación</th><th>Comuna</th><th>Calle</th><th>Longitud</th><th>Latitud</th><th>Cantidad</th></tr></thead>
+        <tbody>
+          ${data.map(item => `<tr>
+            <td>${item.nombre}</td>
+            <td>${item.idSector}</td>
+            <td>${item.asignacion}</td>
+            <td>${item.comuna}</td>
+            <td>${item.calle}</td>
+            <td>${item.longitud}</td>
+            <td>${item.latitud}</td>
+            <td>${item.cantidadTareasPendientes}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Tareas usuario por sector (array de UsuarioSectorDTO)
+  if (consulta.includes('Tareas usuario por sector') && Array.isArray(data)) {
+    return `
+      <table class="min-w-full text-xs">
+        <thead><tr><th>Usuario</th><th>ID Usuario</th><th>ID Sector</th><th>Cantidad</th></tr></thead>
+        <tbody>
+          ${data.map(item => `<tr>
+            <td>${item.nombre}</td>
+            <td>${item.idUsuario}</td>
+            <td>${item.idSector}</td>
+            <td>${item.cantidadTareas}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Por defecto, muestra como JSON
+  return `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+}
 </script>
 
 <style scoped>

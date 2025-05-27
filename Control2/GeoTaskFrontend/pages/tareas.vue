@@ -224,12 +224,18 @@ const cargarTareas = async () => {
   try {
     const headers = getAuthHeaders()
     if (!headers) return
-    
+
     const { data } = await axios.get('http://localhost:8080/api/tareas', { headers })
-    
+
+    // Obtener el ID del usuario autenticado
+    const userId = localStorage.getItem('userId')
+
+    // Filtrar tareas por usuario
+    const tareasUsuario = data.filter(t => String(t.idUsuario) === String(userId))
+
     // Cargar datos del sector para cada tarea que tenga idSector
     const tareasConSector = await Promise.all(
-      data.map(async (tarea) => {
+      tareasUsuario.map(async (tarea) => {
         if (tarea.idSector) {
           const sectorInfo = await cargarSector(tarea.idSector)
           return { ...tarea, sectorInfo }
@@ -237,7 +243,7 @@ const cargarTareas = async () => {
         return tarea
       })
     )
-    
+
     tareas.value = tareasConSector
   } catch (e) {
     error.value = 'Error al cargar las tareas'
