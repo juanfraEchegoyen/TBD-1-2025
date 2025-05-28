@@ -16,7 +16,7 @@ public class TareaService {
     @Autowired
     private JdbcTareaRepository tareaRepository;
     @Autowired
-    JdbcSectorRepository sectorRepository;
+    private JdbcSectorRepository sectorRepository;
 
     public List<Tarea> getAllTareas() {
         return tareaRepository.findAll();
@@ -32,6 +32,8 @@ public class TareaService {
 
         if(sectorRepository.save(sector) != 0) {
             tarea.setIdSector(sector.getIdSector());
+            tarea.setDescripcion(tareaRequestDTO.getDescripcion());
+            tarea.setCategoria(tareaRequestDTO.getCategoria());
             return tareaRepository.save(tarea) > 0;
         }
         return false; // Sector not found
@@ -51,6 +53,11 @@ public class TareaService {
             if (!tarea.getTitulo().isEmpty()) {
                 tareaExistente.setTitulo(tarea.getTitulo());
             }
+
+            if (tarea.getCategoria() != null && !tarea.getCategoria().isEmpty()) {
+                tareaExistente.setCategoria(tarea.getCategoria());
+            }
+
             if (!tarea.getDescripcion().isEmpty()) {
                 tareaExistente.setDescripcion(tarea.getDescripcion());
             }

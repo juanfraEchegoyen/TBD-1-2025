@@ -14,6 +14,7 @@ public class TareaRequestDTO {
     private String comuna;
     private String calle;
     private String ubicacion;
+    private String categoria;
     private Long idUsuario;
 
     public String getTitulo() {
@@ -64,6 +65,14 @@ public class TareaRequestDTO {
         this.comuna = comuna;
     }
 
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
     public String getCalle() {
         return calle;
     }
@@ -99,6 +108,7 @@ public class TareaRequestDTO {
         Tarea tarea = new Tarea();
         tarea.setTitulo(this.titulo);
         tarea.setDescripcion(this.descripcion);
+        tarea.setCategoria(this.categoria);
         tarea.setFechaVencimiento(this.fechaVencimiento);
         tarea.setEstado(this.estado);
         tarea.setIdUsuario(this.idUsuario);

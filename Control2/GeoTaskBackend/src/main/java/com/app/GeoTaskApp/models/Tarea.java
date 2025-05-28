@@ -8,8 +8,17 @@ public class Tarea {
     private String descripcion;
     private Date fechaVencimiento;
     private String estado;
+    private String Categoria;
     private Long idUsuario;
     private Long idSector;
+
+    public String getCategoria() {
+        return Categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        Categoria = categoria;
+    }
 
     public Long getIdTarea() {
         return idTarea;

@@ -22,6 +22,7 @@ public class JdbcTareaRepository {
             Tarea tarea = new Tarea();
             tarea.setIdTarea(rs.getLong("id_tarea"));
             tarea.setTitulo(rs.getString("titulo"));
+            tarea.setCategoria(rs.getString("categoria"));
             tarea.setDescripcion(rs.getString("descripcion"));
             tarea.setFechaVencimiento(rs.getDate("fecha_vencimiento"));
             tarea.setEstado(rs.getString("estado"));
@@ -42,13 +43,19 @@ public class JdbcTareaRepository {
     }
 
     public int save(Tarea tarea) {
-        String sql = "INSERT INTO tarea (titulo, descripcion, fecha_vencimiento, estado, id_usuario, id_sector) VALUES (?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, tarea.getTitulo(), tarea.getDescripcion(), tarea.getFechaVencimiento(), tarea.getEstado(), tarea.getIdUsuario(), tarea.getIdSector());
+        String sql = "INSERT INTO tarea (titulo, descripcion, fecha_vencimiento, estado, categoria ,id_usuario, id_sector) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, tarea.getTitulo(), tarea.getDescripcion(), tarea.getFechaVencimiento(), tarea.getEstado(), tarea.getCategoria() ,tarea.getIdUsuario(), tarea.getIdSector());
     }
 
     public int update(Tarea tarea) {
-        String sql = "UPDATE tarea SET titulo = ?, descripcion = ?, fecha_vencimiento = ?, estado = ?, id_usuario = ?, id_sector = ? WHERE id_tarea = ?";
-        return jdbcTemplate.update(sql, tarea.getTitulo(), tarea.getDescripcion(), tarea.getFechaVencimiento(), tarea.getEstado(), tarea.getIdUsuario(), tarea.getIdSector(), tarea.getIdTarea());
+        String sql = """
+            UPDATE tarea SET titulo = ?, descripcion = ?, fecha_vencimiento = ?, estado = ?, categoria = ?, id_usuario = ?, id_sector = ?
+            WHERE id_tarea = ?
+        """;
+
+        return jdbcTemplate.update(sql, tarea.getTitulo(), tarea.getDescripcion(), tarea.getFechaVencimiento(),
+                tarea.getEstado().substring(0, 1).toUpperCase() + tarea.getEstado().substring(1), 
+                tarea.getCategoria(), tarea.getIdUsuario(), tarea.getIdSector(), tarea.getIdTarea());
     }
 
     public int delete(Long id) {

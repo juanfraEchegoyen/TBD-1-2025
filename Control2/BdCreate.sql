@@ -27,14 +27,14 @@ CREATE TABLE usuario (
     id_sector INTEGER,
     FOREIGN KEY (id_sector) REFERENCES sector(id_sector)
 );
-
--- Tabla de tareas
+-- Tabla de tareas con categoría
 CREATE TABLE tarea (
     id_tarea SERIAL PRIMARY KEY,
     titulo VARCHAR(30) NOT NULL,
     descripcion VARCHAR(255),
     fecha_vencimiento DATE NOT NULL, -- YYYY-MM-DD
     estado VARCHAR(30) NOT NULL,
+    categoria VARCHAR(100),
     id_usuario INTEGER NOT NULL,
     id_sector INTEGER,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),

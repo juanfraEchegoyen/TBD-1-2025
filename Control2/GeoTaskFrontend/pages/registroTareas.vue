@@ -28,6 +28,20 @@
               required
             ></textarea>
           </div>
+
+           <!-- Selección de categoría -->
+          <div class="mb-4">
+            <label class="block mb-1 font-semibold text-gray-700">Categoría</label>
+            <select v-model="categoria" class="w-full border rounded px-3 py-2 focus:ring-green-400" required>
+              <option value="" disabled>Seleccione una categoría</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Inspección">Inspección</option>
+              <option value="Infraestructura">Infraestructura</option>
+              <option value="Calidad">Control de Calidad</option>
+              <option value="Capacitación">Capacitación</option>
+            </select>
+          </div>
           
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Fecha de vencimiento</label>
@@ -105,6 +119,7 @@ const titulo = ref('');
 const descripcion = ref('');
 const fechaVencimiento = ref('');
 const estado = ref('Pendiente');
+const categoria = ref('');
 const latitud = ref(defaultLat);
 const longitud = ref(defaultLng);
 const address = ref('');
@@ -194,11 +209,12 @@ const guardarTarea = async () => {
       titulo: titulo.value,
       descripcion: descripcion.value,
       fechaVencimiento: fechaFormateada,
-      estado: 'Pendiente',
+      estado: 'pendiente',
       asignacion: 'tarea', // Valor por defecto para tareas
       comuna: comuna.value,
       calle: calle.value,
       ubicacion: wkt,
+      categoria: categoria.value, 
       idUsuario: userId
     };
     
