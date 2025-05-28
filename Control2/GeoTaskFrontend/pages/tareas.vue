@@ -22,18 +22,41 @@
 
         <!-- Filtros por categoría -->
         <div class="mb-6 flex space-x-4">
-          <label class="block font-semibold text-gray-700">Filtrar por categoría</label>
-          <select v-model="categoriaFiltro" class="w-full border rounded px-3 py-2 focus:ring-green-400">
-            <option value="">Todas</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-            <option value="Seguridad">Seguridad</option>
-            <option value="Inspección">Inspección</option>
-            <option value="Infraestructura">Infraestructura</option>
-            <option value="Calidad">Control de Calidad</option>
-            <option value="Capacitación">Capacitación</option>
-          </select>
+          <GeoTaskButton 
+            :color="filtroActual === 'todas' ? 'green' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'todas'"
+          >
+            Todas
+          </GeoTaskButton>
+          
+          <GeoTaskButton 
+            :color="filtroActual === 'pendientes' ? 'yellow' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'pendientes'"
+          >
+            Pendientes
+          </GeoTaskButton>
+          
+          <GeoTaskButton 
+            :color="filtroActual === 'completadas' ? 'blue' : 'gray'"
+            custom-class="px-4 py-2 rounded-full text-sm"
+            @click="filtroActual = 'completadas'"
+          >
+            Completadas
+          </GeoTaskButton>
         </div>
 
+        <!-- Buscador por palabra clave -->
+        <div class="mb-6">
+          <input
+            v-model="busqueda"
+            type="text"
+            placeholder="Buscar por título o descripción..."
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+        </div>
+        
         <!-- Lista de tareas -->
         <ul>
           <li 
@@ -47,6 +70,16 @@
               <div class="text-xs text-gray-400 mb-1">Categoría: {{ tarea.categoria || 'Sin categoría' }}</div>
               <div class="text-xs text-gray-400 mb-1">Vence: {{ formatearFecha(tarea.fechaVencimiento || tarea.fecha_vencimiento) }}</div>
 
+              <!-- Ubicación mejorada mostrando sector si existe -->
+              <div class="text-xs text-gray-500 mb-1">
+                <span v-if="tarea.sectorInfo" class="text-blue-600 font-semibold">
+                  📍 Sector: {{ tarea.sectorInfo.calle }}, {{ tarea.sectorInfo.comuna }}
+                </span>
+                <span v-else>
+                  📍 {{ tarea.calle }}, {{ tarea.comuna }}
+                </span>
+              </div>
+              
               <span 
                 :class="tarea.estado === 'Completada' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" 
                 class="px-2 py-1 rounded text-xs font-semibold"
@@ -54,8 +87,41 @@
                 {{ tarea.estado }}
               </span>
             </div>
+             <div class="flex flex-col space-y-2 ml-4">
+              <!-- Botones de acción -->
+              <GeoTaskButton 
+                color="blue"
+                custom-class="px-3 py-1 text-sm"
+                @click="editarTarea(tarea.idTarea)"
+              >
+                Editar
+              </GeoTaskButton>
+              
+              <GeoTaskButton 
+                v-if="tarea.estado !== 'Completada'"
+                color="green"
+                custom-class="px-3 py-1 text-sm"
+                @click="marcarComoCompletada(tarea.idTarea)"
+              >
+                Completada
+              </GeoTaskButton>
+              
+              <GeoTaskButton 
+                color="red"
+                custom-class="px-3 py-1 text-sm"
+                @click="eliminarTarea(tarea.idTarea)"
+              >
+                Eliminar
+              </GeoTaskButton>
+            </div>
           </li>
         </ul>
+        
+        <div v-if="tareasFiltradas.length === 0" class="text-center text-gray-500 mt-8">
+          No hay tareas {{ filtroActual !== 'todas' ? filtroActual : '' }} para mostrar.
+        </div>
+        
+        <div v-if="error" class="text-red-500 mt-4 text-center">{{ error }}</div>
       </div>
     </div>
   </GeoTaskBackground>
@@ -107,7 +173,7 @@ const tareasFiltradas = computed(() => {
   if (categoriaFiltro.value) {
     lista = lista.filter(t => t.categoria === categoriaFiltro.value);
   }
-  
+
   if (filtroActual.value === 'pendientes') lista = lista.filter(t => (t.estado || '').toLowerCase() !== 'completada' && (t.estado || '').toLowerCase() !== 'completado')
   if (filtroActual.value === 'completadas') lista = lista.filter(t => (t.estado || '').toLowerCase() === 'completada' || (t.estado || '').toLowerCase() === 'completado')
   if (busqueda.value.trim() !== '') {
