@@ -27,8 +27,8 @@
           <div class="mb-4">
             <label class="block mb-1 font-semibold text-gray-700">Estado</label>
             <select v-model="estado" class="input-style">
-              <option value="Pendiente">Pendiente</option>
-              <option value="Completada">Completada</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="completado">Completada</option>
             </select>
           </div>
           
@@ -84,7 +84,7 @@ const defaultLng = -70.6693;
 const titulo = ref('');
 const descripcion = ref('');
 const fechaVencimiento = ref('');
-const estado = ref('Pendiente');
+const estado = ref('pendiente');
 const latitud = ref(defaultLat);
 const longitud = ref(defaultLng);
 const address = ref('');
@@ -176,10 +176,10 @@ const cargarTarea = async (id) => {
     
     // Asegurar que el estado se establezca correctamente desde el servidor
     // Normalizar el estado para que coincida con las opciones del select
-    if (tarea.estado === 'Completada' || tarea.estado === 'completada') {
-      estado.value = 'Completada';
+    if (tarea.estado === 'completado' || tarea.estado === 'completado') {
+      estado.value = 'completado';
     } else {
-      estado.value = 'Pendiente';
+      estado.value = 'pendiente';
     }
     
     console.log('Estado asignado:', estado.value);

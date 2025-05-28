@@ -32,8 +32,6 @@ public class TareaService {
 
         if(sectorRepository.save(sector) != 0) {
             tarea.setIdSector(sector.getIdSector());
-            tarea.setDescripcion(tareaRequestDTO.getDescripcion());
-            tarea.setCategoria(tareaRequestDTO.getCategoria());
             return tareaRepository.save(tarea) > 0;
         }
         return false; // Sector not found
@@ -100,6 +98,6 @@ public class TareaService {
             return false;
         }
 
-        return tareaRepository.actualizarEstado(id, "completada") > 0;
+        return tareaRepository.actualizarEstado(id, "completado") > 0;
     }
 }

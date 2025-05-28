@@ -22,10 +22,10 @@ public class JdbcQuerysRepository implements QueryRepository {
 
     public List<TareaPorSectorDTO> getTareasPorSector(Long id_usuario) {
         String sql = """
-            SELECT u.nombre, t.id_sector, COUNT(*) AS cantidad_tareas
+            SELECT u.nombre, t.id_sector
             FROM Tarea t
             JOIN Usuario u ON t.id_usuario = u.id_usuario
-            WHERE u.id_usuario = ?
+            WHERE u.id_usuario = ? AND t.estado = 'completado'
             GROUP BY t.id_sector, u.nombre
         """;
 
@@ -33,8 +33,8 @@ public class JdbcQuerysRepository implements QueryRepository {
             return jdbcTemplate.query(sql,
                     (rs, rowNum) -> new TareaPorSectorDTO(
                             rs.getString("nombre"),
-                            rs.getLong("id_sector"),
-                            rs.getInt("cantidad_tareas")
+                            rs.getLong("id_sector")
+
                     ), id_usuario);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -55,7 +55,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'Pendiente' AND u.id_usuario = ?
+            WHERE t.estado = 'pendiente' AND u.id_usuario = ?
             ORDER BY distancia ASC
             LIMIT 1
         """;
@@ -77,23 +77,19 @@ public class JdbcQuerysRepository implements QueryRepository {
     public TareaPorSectorDTO getSectorConMasTareasCompletadasEn2Km(Long idUsuario) {
         return getSectorConMasTareasCompletadasEnRadio(idUsuario, 2000);
     }
-    @Override
-    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
-        return getSectorConMasTareasCompletadasEnRadio(idUsuario, 5000);
-    }
+
 
     public TareaPorSectorDTO getSectorConMasTareasCompletadasEnRadio(Long id_usuario, int radioMetros) {
         String sql = """
-            SELECT u.nombre, s.id_sector, COUNT(*) AS tareas_completadas
+            SELECT u.nombre, s.id_sector
             FROM Tarea t
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'completada'
-              AND ST_DWithin(s.ubicacion, sector_usuario.ubicacion, ?) 
+            WHERE t.estado = 'completado'
+              AND ST_DWithin(ST_Transform(s.ubicacion,32719), ST_Transform(sector_usuario.ubicacion,32719), ?) 
               AND u.id_usuario = ?
-            GROUP BY s.id_sector, u.nombre
-            ORDER BY tareas_completadas DESC
+            ORDER BY ST_Distance(s.ubicacion, sector_usuario.ubicacion) ASC
             LIMIT 1
         """;
         try {
@@ -101,8 +97,7 @@ public class JdbcQuerysRepository implements QueryRepository {
         return jdbcTemplate.queryForObject(sql,
                 (rs, rowNum) -> new TareaPorSectorDTO(
                         rs.getString("nombre"),
-                        rs.getLong("id_sector"),
-                        rs.getInt("tareas_completadas")
+                        rs.getLong("id_sector")
                 ), radioMetros, id_usuario);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -116,7 +111,7 @@ public class JdbcQuerysRepository implements QueryRepository {
             JOIN Sector s ON t.id_sector = s.id_sector
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             JOIN Sector sector_usuario ON u.id_sector = sector_usuario.id_sector
-            WHERE t.estado = 'completada' AND u.id_usuario = ?
+            WHERE t.estado = 'completado' AND u.id_usuario = ?
             GROUP BY u.nombre
         """;
 
@@ -133,43 +128,27 @@ public class JdbcQuerysRepository implements QueryRepository {
     }
 
 
-    public List<SectorDTO> getSectoresConMasTareasPendientes(Long id_usuario) {
+    @Override
+    public List<SectorDTO> getSectoresConMasTareasPendientes() {
         String sql = """
-        SELECT u.nombre, s.id_sector, s.asignacion, s.comuna, s.calle,
-               ST_X(ST_Centroid(s.ubicacion::geometry)) AS longitud,
-               ST_Y(ST_Centroid(s.ubicacion::geometry)) AS latitud,
-               COUNT(*) AS cantidad_tareas_pendientes
+        SELECT s.comuna, COUNT(*) AS cantidad_tareas_pendientes
         FROM Tarea t
         JOIN Sector s ON t.id_sector = s.id_sector
-        JOIN Usuario u ON t.id_usuario = u.id_usuario
-        WHERE t.estado = 'Pendiente' AND u.id_usuario = ?
-        GROUP BY u.nombre, s.id_sector, s.asignacion, s.comuna, s.calle, s.ubicacion
+        WHERE t.estado = 'pendiente' 
+        GROUP BY s.comuna
         ORDER BY cantidad_tareas_pendientes DESC
     """;
 
         try {
-
-        return jdbcTemplate.query(sql,
-                (rs, rowNum) -> new SectorDTO(
-                        rs.getString("nombre"),
-                        rs.getLong("id_sector"),
-                        rs.getString("asignacion"),
-                        rs.getString("comuna"),
-                        rs.getString("calle"),
-                        rs.getDouble("longitud"),
-                        rs.getDouble("latitud"),
-                        rs.getInt("cantidad_tareas_pendientes")
-                ), id_usuario);
+            return jdbcTemplate.query(sql, (rs, rowNum) -> new SectorDTO(
+                    rs.getString("comuna"),
+                    rs.getInt("cantidad_tareas_pendientes")
+            ));
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return List.of();
         }
     }
 
-
-
-    public List<SectorDTO> getSectoresPendientes(Long id_usuario) {
-        return getSectoresConMasTareasPendientes(id_usuario);
-    }
 
 
     public List<UsuarioSectorDTO> getCantidadTareasPorUsuarioPorSector() {
@@ -178,7 +157,7 @@ public class JdbcQuerysRepository implements QueryRepository {
         FROM Tarea t
         JOIN Sector s ON t.id_sector = s.id_sector
         JOIN Usuario u ON t.id_usuario = u.id_usuario
-        WHERE t.estado = 'completada'
+        WHERE t.estado = 'completado'
         GROUP BY t.id_usuario, s.id_sector, u.nombre
         ORDER BY t.id_usuario, cantidad_tareas DESC
     """;
@@ -190,6 +169,7 @@ public class JdbcQuerysRepository implements QueryRepository {
                         rs.getLong("id_usuario"),
                         rs.getLong("id_sector"),
                         rs.getInt("cantidad_tareas")
+
                 ));
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -200,8 +180,40 @@ public class JdbcQuerysRepository implements QueryRepository {
 
 
 
+
+
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEnRadio5000(Long id_usuario) {
+        String sql = """
+            WITH ubicacion_usuario AS (
+                        SELECT s.ubicacion
+                        FROM Usuario u
+                        JOIN Sector s ON u.id_sector = s.id_sector
+                        WHERE u.id_usuario = ?
+                    )
+                    SELECT s.comuna ,s.id_sector, COUNT(*) AS tareas_completadas
+                    FROM Tarea t
+                    JOIN Sector s ON t.id_sector = s.id_sector
+                    JOIN ubicacion_usuario uu ON TRUE
+                    WHERE t.estado = 'completado'
+                      AND ST_DWithin(ST_Transform(s.ubicacion, 32719), ST_Transform(uu.ubicacion, 32719), 5000)
+                    GROUP BY s.id_sector
+                    ORDER BY tareas_completadas DESC
+                    LIMIT 1;
+        """;
+        try {
+
+            return jdbcTemplate.queryForObject(sql,
+                    (rs, rowNum) -> new TareaPorSectorDTO(
+                            rs.getString("comuna"),
+                            rs.getLong("id_sector"),
+                            rs.getInt("tareas_completadas")
+                    ), id_usuario);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
     @Override
-    public List<SectorDTO> getSectoresConMasTareasPendientes() {
-        return List.of();
+    public TareaPorSectorDTO getSectorConMasTareasCompletadasEn5Km(Long idUsuario) {
+        return getSectorConMasTareasCompletadasEnRadio5000(idUsuario);
     }
 }

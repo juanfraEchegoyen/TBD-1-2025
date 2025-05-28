@@ -13,8 +13,13 @@ public class SectorDTO {
     // Constructores
     public SectorDTO() {}
 
-    public SectorDTO(String nombre,Long idSector, String asignacion, String comuna, String calle,
-                     double longitud, double latitud,int Cantidadtareas) {
+    public SectorDTO(String nombre, int cantidadtareas) {
+        this.nombre = nombre;
+        Cantidadtareas = cantidadtareas;
+    }
+
+    public SectorDTO(String nombre, Long idSector, String asignacion, String comuna, String calle,
+                     double longitud, double latitud, int Cantidadtareas) {
         this.nombre = nombre;
         this.idSector = idSector;
         this.asignacion = asignacion;

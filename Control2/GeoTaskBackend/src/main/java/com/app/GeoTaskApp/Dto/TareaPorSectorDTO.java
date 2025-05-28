@@ -10,6 +10,12 @@ public class TareaPorSectorDTO {
         this.cantidadTareas = cantidadTareas;
     }
 
+    public TareaPorSectorDTO(String nombre,Long idSector) {
+        this.nombre = nombre;
+        this.idSector = idSector;
+
+    }
+
     public TareaPorSectorDTO(String nombre, Long idSector, int cantidadTareas) {
         this.nombre = nombre;
         this.idSector = idSector;

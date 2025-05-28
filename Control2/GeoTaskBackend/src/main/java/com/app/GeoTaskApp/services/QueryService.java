@@ -1,7 +1,7 @@
 package com.app.GeoTaskApp.services;
 
 import com.app.GeoTaskApp.Dto.*;
-import com.app.GeoTaskApp.respositories.QueryRepository;
+import com.app.GeoTaskApp.respositories.JdbcQuerysRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public class QueryService {
     @Autowired
-    private QueryRepository queryRepository;
+    private JdbcQuerysRepository queryRepository;
 
     public List<TareaPorSectorDTO> getTareasPorSector(Long idUsuario) {
         return queryRepository.getTareasPorSector(idUsuario);

@@ -54,7 +54,7 @@ public class JdbcTareaRepository {
         """;
 
         return jdbcTemplate.update(sql, tarea.getTitulo(), tarea.getDescripcion(), tarea.getFechaVencimiento(),
-                tarea.getEstado().substring(0, 1).toUpperCase() + tarea.getEstado().substring(1), 
+                tarea.getEstado().substring(0, 1).toUpperCase() + tarea.getEstado().substring(1),
                 tarea.getCategoria(), tarea.getIdUsuario(), tarea.getIdSector(), tarea.getIdTarea());
     }
 

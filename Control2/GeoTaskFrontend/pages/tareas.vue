@@ -33,15 +33,15 @@
           <GeoTaskButton 
             :color="filtroActual === 'pendientes' ? 'yellow' : 'gray'"
             custom-class="px-4 py-2 rounded-full text-sm"
-            @click="filtroActual = 'pendientes'"
+            @click="filtroActual = 'pendiente'"
           >
             Pendientes
           </GeoTaskButton>
           
           <GeoTaskButton 
-            :color="filtroActual === 'completadas' ? 'blue' : 'gray'"
+            :color="filtroActual === 'completado' ? 'blue' : 'gray'"
             custom-class="px-4 py-2 rounded-full text-sm"
-            @click="filtroActual = 'completadas'"
+            @click="filtroActual = 'completado'"
           >
             Completadas
           </GeoTaskButton>
@@ -81,7 +81,7 @@
               </div>
               
               <span 
-                :class="tarea.estado === 'Completada' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" 
+                :class="tarea.estado === 'completado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" 
                 class="px-2 py-1 rounded text-xs font-semibold"
               >
                 {{ tarea.estado }}
@@ -98,7 +98,7 @@
               </GeoTaskButton>
               
               <GeoTaskButton 
-                v-if="tarea.estado !== 'Completada'"
+                v-if="tarea.estado !== 'completado'"
                 color="green"
                 custom-class="px-3 py-1 text-sm"
                 @click="marcarComoCompletada(tarea.idTarea)"
@@ -174,8 +174,8 @@ const tareasFiltradas = computed(() => {
     lista = lista.filter(t => t.categoria === categoriaFiltro.value);
   }
 
-  if (filtroActual.value === 'pendientes') lista = lista.filter(t => (t.estado || '').toLowerCase() !== 'completada' && (t.estado || '').toLowerCase() !== 'completado')
-  if (filtroActual.value === 'completadas') lista = lista.filter(t => (t.estado || '').toLowerCase() === 'completada' || (t.estado || '').toLowerCase() === 'completado')
+  if (filtroActual.value === 'pendiente') lista = lista.filter(t => (t.estado || '').toLowerCase() !== 'completado' && (t.estado || '').toLowerCase() !== 'completado')
+  if (filtroActual.value === 'completado') lista = lista.filter(t => (t.estado || '').toLowerCase() === 'completado' || (t.estado || '').toLowerCase() === 'completado')
   if (busqueda.value.trim() !== '') {
     const texto = busqueda.value.trim().toLowerCase()
     lista = lista.filter(t =>
@@ -190,7 +190,7 @@ const avisosExpiracion = computed(() => {
   const avisos = []
   const ahora = new Date()
   tareas.value.forEach(tarea => {
-    if (tarea.estado !== 'Completada') {
+    if (tarea.estado !== 'completado') {
       const fechaVenc = new Date(tarea.fechaVencimiento || tarea.fecha_vencimiento)
       if (!isNaN(fechaVenc.getTime())) {
         // Sumar un día para que coincida con la visualización

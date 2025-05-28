@@ -42,7 +42,8 @@ public class QueryController {
     // 5. ¿En qué sectores se concentran más tareas pendientes?
     @GetMapping("/sectores-mas-pendientes")
     public ResponseEntity<List<SectorDTO>> getSectoresConMasTareasPendientes() {
-        return ResponseEntity.ok(queryService.getSectoresConMasTareasPendientes());
+        List<SectorDTO> sectores = queryService.getSectoresConMasTareasPendientes();
+        return ResponseEntity.ok(sectores);
     }
 
     // 6. ¿Cuál es la tarea pendiente más cercana a la ubicación del usuario?
