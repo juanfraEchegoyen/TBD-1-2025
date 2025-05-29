@@ -57,7 +57,21 @@
           />
         </div>
         
-        <!-- Lista de tareas -->
+        <!-- Avisos de tareas por expirar -->
+        <div v-if="avisosExpiracion.length > 0" class="mb-4">
+          <div 
+            v-for="aviso in avisosExpiracion" 
+            :key="aviso.idTarea"
+            class="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-2 text-sm font-semibold flex items-center justify-between"
+          >
+            <span>
+               La tarea <span class="mx-1 font-bold">"{{ aviso.titulo }}"</span>
+              vencerá en 24 horas o menos.
+            </span>
+          </div>
+        </div>
+
+        <!-- Lista de tareas filtradas -->
         <ul>
           <li 
             v-for="tarea in tareasFiltradas" 
