@@ -22,7 +22,7 @@ public class JdbcQuerysRepository implements QueryRepository {
 
     public List<TareaPorSectorDTO> getTareasPorSector(Long id_usuario) {
         String sql = """
-            SELECT u.nombre, t.id_sector
+            SELECT u.nombre, t.id_sector, COUNT(t.id_tarea) AS cantidadTareas
             FROM Tarea t
             JOIN Usuario u ON t.id_usuario = u.id_usuario
             WHERE u.id_usuario = ? AND t.estado = 'completado'
@@ -33,7 +33,9 @@ public class JdbcQuerysRepository implements QueryRepository {
             return jdbcTemplate.query(sql,
                     (rs, rowNum) -> new TareaPorSectorDTO(
                             rs.getString("nombre"),
-                            rs.getLong("id_sector")
+                            rs.getLong("id_sector"),
+                            rs.getInt("cantidadTareas")
+
 
                     ), id_usuario);
         } catch (EmptyResultDataAccessException e) {

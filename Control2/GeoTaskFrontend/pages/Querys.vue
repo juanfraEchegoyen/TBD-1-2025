@@ -160,7 +160,7 @@ function renderResultado(consulta, resultado) {
   if (consulta === 'Tareas por sector' && Array.isArray(data)) {
     return `
       <table class="min-w-full text-xs border">
-        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Cantidad</th></tr></thead>
+        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Tareas Completadas</th></tr></thead>
         <tbody>
           ${data.map(item => `<tr>
             <td>${item.nombre}</td>
@@ -190,15 +190,14 @@ function renderResultado(consulta, resultado) {
   }
 
   // Sector con más completadas (objeto)
-  if (consulta.includes('Sector con más completadas') && data && typeof data === 'object' && data.idSector !== undefined) {
+  if (consulta.includes('Sector con más completadas en 2km') && data && typeof data === 'object' && data.idSector !== undefined) {
     return `
       <table class="min-w-full text-xs border">
-        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Cantidad tareas</th></tr></thead>
+        <thead><tr><th>Usuario</th><th>ID Sector</th></tr></thead>
         <tbody>
           <tr>
             <td>${data.nombre}</td>
             <td>${data.idSector}</td>
-            <td>${data.cantidadTareas}</td>
           </tr>
         </tbody>
       </table>
@@ -227,17 +226,11 @@ function renderResultado(consulta, resultado) {
     }
     return `
       <table class="min-w-full text-xs border">
-        <thead><tr><th>Usuario</th><th>ID Sector</th><th>Asignación</th><th>Comuna</th><th>Calle</th><th>Longitud</th><th>Latitud</th><th>Cantidad</th></tr></thead>
+        <thead><tr><th>Comuna</th><th>Cantidad</th></tr></thead>
         <tbody>
           ${data.map(item => `<tr>
             <td>${item.nombre}</td>
-            <td>${item.idSector}</td>
-            <td>${item.asignacion}</td>
-            <td>${item.comuna}</td>
-            <td>${item.calle}</td>
-            <td>${item.longitud}</td>
-            <td>${item.latitud}</td>
-            <td>${item.cantidadTareasPendientes}</td>
+            <td>${item.cantidadtareas}</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -260,6 +253,24 @@ function renderResultado(consulta, resultado) {
       </table>
     `;
   }
+
+  // Sector con más completadas en 5km (objeto)
+  if (consulta === 'Sector con más completadas en 5km' && data && typeof data === 'object' && data.idSector !== undefined) {
+    return `
+      <table class="min-w-full text-xs border">
+        <thead><tr><th>Comuna</th><th>ID Sector</th><th>Cantidad tareas</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${data.nombre}</td>
+            <td>${data.idSector}</td>
+            <td>${data.cantidadTareas}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+  }
+
+
 
   // Por defecto, muestra como JSON
   return `<pre>${JSON.stringify(data, null, 2)}</pre>`;

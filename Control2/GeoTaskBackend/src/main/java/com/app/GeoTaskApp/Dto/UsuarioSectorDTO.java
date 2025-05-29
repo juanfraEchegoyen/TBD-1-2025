@@ -7,6 +7,7 @@ public class UsuarioSectorDTO {
     private int cantidadTareas;
 
     public UsuarioSectorDTO(String nombre,Long idUsuario, Long idSector, int cantidadTareas) {
+        this.nombre = nombre;
         this.idUsuario = idUsuario;
         this.idSector = idSector;
         this.cantidadTareas = cantidadTareas;
