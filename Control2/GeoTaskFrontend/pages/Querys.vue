@@ -114,6 +114,7 @@ const ejecutarConsultas = async () => {
       { consulta: 'Sector con más completadas en 2km', endpoint: `${API_BASE_URL}/sector-mas-completadas-2km/${idUsuarioSeleccionado.value}` },
       { consulta: 'Distancia promedio de completadas', endpoint: `${API_BASE_URL}/distancia-promedio-completadas/${idUsuarioSeleccionado.value}` },
       { consulta: 'Sectores con más tareas pendientes', endpoint: `${API_BASE_URL}/sectores-mas-pendientes`},
+      { consulta: 'Tarea pendiente más cercana al usuario', endpoint: `${API_BASE_URL}/tarea-pendiente-mas-cercana-v2/${idUsuarioSeleccionado.value}` },
       { consulta: 'Tareas usuario por sector', endpoint: `${API_BASE_URL}/tareas-usuario-por-sector` },
       { consulta: 'Sector con más completadas en 5km', endpoint: `${API_BASE_URL}/sector-mas-completadas-5km/${idUsuarioSeleccionado.value}` },
     ];
