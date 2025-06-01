@@ -3,8 +3,7 @@ package com.app.DeliveryApp.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.awt.*;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +15,5 @@ public class Cliente {
     private String telefono;
     private String direccion;
     private String comuna;
+    private Point ubicacion; 
 }
