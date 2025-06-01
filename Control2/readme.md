@@ -69,7 +69,7 @@ El frontend está desarrollada en Vue.js, permitiendo una experiencia interactiv
 
 ## Inicialización y uso
 
-Consulta el procedimiento detallado de inicialización de la base de datos en la sección siguiente, ya sea usando pgAdmin o la línea de comandos (psql).
+La inicialización de la base de datos se explica en la sección siguiente, ya sea usando pgAdmin o la línea de comandos (psql).
 
 Para levantar la aplicación:
 
@@ -162,5 +162,6 @@ psql -h localhost -p 5432 -U postgres -d geotaskapp -f BdPoblate.sql
 psql -h localhost -p 5432 -U postgres -d geotaskapp -f runStatements.sql
 ```
 
+---
 ---
 
