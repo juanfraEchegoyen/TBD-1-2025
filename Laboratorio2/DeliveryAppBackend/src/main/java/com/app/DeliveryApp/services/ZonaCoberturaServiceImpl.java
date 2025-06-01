@@ -54,9 +54,7 @@ public class ZonaCoberturaServiceImpl implements ZonaCoberturaService {
         } else {
             return Optional.empty();
         }
-    }
-
-    @Override
+    }    @Override
     public boolean eliminarZonaCobertura(Long id) {
         if (zonaCoberturaRepository.findById(id).isPresent()) {
             int filasAfectadas = zonaCoberturaRepository.deleteById(id);
@@ -64,5 +62,15 @@ public class ZonaCoberturaServiceImpl implements ZonaCoberturaService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public List<ZonaCobertura> obtenerZonasQueContienenPunto(Point punto) {
+        return zonaCoberturaRepository.findZonasQueContienenPunto(punto);
+    }
+
+    @Override
+    public boolean estaEnZonaCobertura(String rutEmpresa, Point puntoEntrega) {
+        return zonaCoberturaRepository.verificarCobertura(rutEmpresa, puntoEntrega);
     }
 }

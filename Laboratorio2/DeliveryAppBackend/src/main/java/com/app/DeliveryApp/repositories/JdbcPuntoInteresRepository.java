@@ -33,12 +33,10 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
     private static final String DELETE_PUNTO_BY_ID_SQL =
             "DELETE FROM PuntoInteres WHERE id_punto = ?";
     private static final String SELECT_PUNTOS_BY_TIPO_SQL =
-            "SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE tipo = ?";
-
-    private final RowMapper<PuntoInteres> puntoInteresRowMapper = (rs, rowNum) -> {
+            "SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE tipo = ?";    private final RowMapper<PuntoInteres> puntoInteresRowMapper = (rs, rowNum) -> {
         PuntoInteres punto = new PuntoInteres();
         punto.setIdPunto(rs.getLong("id_punto"));
-        punto.setNombrePunto(rs.getString("nombre_punto"));
+        punto.setNombre(rs.getString("nombre_punto"));
         punto.setTipo(rs.getString("tipo"));
         punto.setDescripcion(rs.getString("descripcion"));
         
@@ -65,11 +63,10 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
             if (puntoInteres.getUbicacion() != null) {
                 ubicacionWkt = wktWriter.write(puntoInteres.getUbicacion());
             }
-            
-            Long generatedId = jdbcTemplate.queryForObject(
+              Long generatedId = jdbcTemplate.queryForObject(
                     INSERT_PUNTO_SQL_RETURNING_ID,
                     Long.class,
-                    puntoInteres.getNombrePunto(),
+                    puntoInteres.getNombre(),
                     puntoInteres.getTipo(),
                     puntoInteres.getDescripcion(),
                     ubicacionWkt
@@ -114,9 +111,8 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
         if (puntoInteres.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(puntoInteres.getUbicacion());
         }
-        
-        return jdbcTemplate.update(UPDATE_PUNTO_SQL,
-                puntoInteres.getNombrePunto(),
+          return jdbcTemplate.update(UPDATE_PUNTO_SQL,
+                puntoInteres.getNombre(),
                 puntoInteres.getTipo(),
                 puntoInteres.getDescripcion(),
                 ubicacionWkt,
@@ -137,5 +133,90 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
             throw new IllegalArgumentException("Tipo no puede ser nulo");
         }
         return jdbcTemplate.query(SELECT_PUNTOS_BY_TIPO_SQL, puntoInteresRowMapper, tipo);
+    }
+
+    @Override
+    public List<PuntoInteres> findPuntosInteresEnRadio(Point centro, double radioMetros) {
+        if (centro == null) {
+            throw new IllegalArgumentException("Centro no puede ser nulo");
+        }
+        
+        String centroWkt = wktWriter.write(centro);
+        String sql = """
+            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            FROM PuntoInteres
+            WHERE ST_DWithin(
+                ST_Transform(ubicacion, 32719),
+                ST_Transform(ST_GeomFromText(?, 4326), 32719),
+                ?
+            )
+            ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))
+        """;
+        
+        return jdbcTemplate.query(sql, puntoInteresRowMapper, centroWkt, radioMetros, centroWkt);
+    }    @Override
+    public PuntoInteres findPuntoInteresmasCercano(Point ubicacion, String tipo) {
+        if (ubicacion == null) {
+            throw new IllegalArgumentException("Ubicación no puede ser nula");
+        }
+        
+        String ubicacionWkt = wktWriter.write(ubicacion);
+        String sql = """
+            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            FROM PuntoInteres
+            WHERE tipo = ?
+            ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))
+            LIMIT 1
+        """;
+        
+        try {
+            return jdbcTemplate.queryForObject(sql, puntoInteresRowMapper, tipo, ubicacionWkt);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<PuntoInteres> findByDistanceWithin(Point punto, double distanciaMaxima) {
+        if (punto == null) {
+            throw new IllegalArgumentException("Punto no puede ser nulo");
+        }
+        
+        String puntoWkt = wktWriter.write(punto);
+        String sql = """
+            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            FROM PuntoInteres
+            WHERE ST_DWithin(
+                ST_Transform(ubicacion, 32719),
+                ST_Transform(ST_GeomFromText(?, 4326), 32719),
+                ?
+            )
+            ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))
+        """;
+        
+        return jdbcTemplate.query(sql, puntoInteresRowMapper, puntoWkt, distanciaMaxima, puntoWkt);
+    }
+
+    @Override
+    public Optional<PuntoInteres> findNearestByType(Point punto, String tipo) {
+        if (punto == null) {
+            throw new IllegalArgumentException("Punto no puede ser nulo");
+        }
+        
+        String puntoWkt = wktWriter.write(punto);
+        String sql = """
+            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            FROM PuntoInteres
+            WHERE tipo = ?
+            ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))
+            LIMIT 1
+        """;
+        
+        try {
+            PuntoInteres punto_cercano = jdbcTemplate.queryForObject(sql, puntoInteresRowMapper, tipo, puntoWkt);
+            return Optional.of(punto_cercano);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 }

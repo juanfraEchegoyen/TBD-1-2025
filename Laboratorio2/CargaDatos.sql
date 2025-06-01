@@ -1,23 +1,23 @@
--- Clientes 
-INSERT INTO Cliente (rut_cliente, password, nombre_cliente, telefono, direccion, comuna) VALUES 
-('11111111-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ana López', '912345678', 'Calle 1', 'Santiago'),
-('22222222-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia'),
-('33333333-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú'),
-('44444444-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Elena Torres', '912345681', 'Calle 4', 'Ñuñoa'),
-('55555555-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Felipe Gutiérrez', '912345682', 'Calle 5', 'Las Condes'),
-('66666666-6', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Gabriela Silva', '912345683', 'Calle 6', 'La Florida'),
-('77777777-7', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Hugo Martínez', '912345684', 'Calle 7', 'Peñalolén'),
-('88888888-8', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ignacia Castro', '912345685', 'Calle 8', 'San Miguel'),
-('99999999-9', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Joaquín Vega', '912345686', 'Calle 9', 'Lo Barnechea'),
-('10101010-0', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Karen Herrera', '912345687', 'Calle 10', 'Puente Alto');
+-- Clientes con coord
+INSERT INTO Cliente (rut_cliente, password, nombre_cliente, telefono, direccion, comuna, ubicacion) VALUES 
+('11111111-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ana López', '912345678', 'Calle 1', 'Santiago', ST_GeomFromText('POINT(-70.6506 -33.4372)', 4326)),
+('22222222-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Carlos Pérez', '912345679', 'Calle 2', 'Providencia', ST_GeomFromText('POINT(-70.6118 -33.4260)', 4326)),
+('33333333-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Daniela Rojas', '912345680', 'Calle 3', 'Maipú', ST_GeomFromText('POINT(-70.7569 -33.5110)', 4326)),
+('44444444-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Elena Torres', '912345681', 'Calle 4', 'Ñuñoa', ST_GeomFromText('POINT(-70.5952 -33.4569)', 4326)),
+('55555555-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Felipe Gutiérrez', '912345682', 'Calle 5', 'Las Condes', ST_GeomFromText('POINT(-70.5200 -33.4000)', 4326)),
+('66666666-6', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Gabriela Silva', '912345683', 'Calle 6', 'La Florida', ST_GeomFromText('POINT(-70.5892 -33.5203)', 4326)),
+('77777777-7', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Hugo Martínez', '912345684', 'Calle 7', 'Peñalolén', ST_GeomFromText('POINT(-70.5400 -33.4800)', 4326)),
+('88888888-8', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Ignacia Castro', '912345685', 'Calle 8', 'San Miguel', ST_GeomFromText('POINT(-70.6500 -33.4950)', 4326)),
+('99999999-9', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Joaquín Vega', '912345686', 'Calle 9', 'Lo Barnechea', ST_GeomFromText('POINT(-70.4850 -33.3500)', 4326)),
+('10101010-0', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Karen Herrera', '912345687', 'Calle 10', 'Puente Alto', ST_GeomFromText('POINT(-70.5750 -33.6100)', 4326));
 
--- Repartidores
-INSERT INTO Repartidor (rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas) VALUES 
-('12121212-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Luis Soto', '913000001', 4, 4),
-('13131313-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'María Díaz', '913000002', 3, 3),
-('14141414-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Pedro Ramírez', '913000003', 3, 4),
-('15151515-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Claudia Fuentes', '913000004', 5, 3),
-('16161616-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'José Navarro', '913000005', 3, 7);
+-- Repartidores con coordenadas geoespaciales y distancia recorrida
+INSERT INTO Repartidor (rut_repartidor, password, nombre_repartidor, telefono, puntuacion_promedio, cantidad_entregas, distancia_recorrida, ubicacion) VALUES 
+('12121212-1', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Luis Soto', '913000001', 4, 4, 125.5, ST_GeomFromText('POINT(-70.6300 -33.4450)', 4326)),
+('13131313-2', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'María Díaz', '913000002', 3, 3, 98.2, ST_GeomFromText('POINT(-70.6100 -33.4200)', 4326)),
+('14141414-3', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Pedro Ramírez', '913000003', 3, 4, 156.8, ST_GeomFromText('POINT(-70.5800 -33.4600)', 4326)),
+('15151515-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Claudia Fuentes', '913000004', 5, 3, 87.3, ST_GeomFromText('POINT(-70.5500 -33.4100)', 4326)),
+('16161616-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'José Navarro', '913000005', 3, 7, 234.7, ST_GeomFromText('POINT(-70.6800 -33.4800)', 4326));
 
 -- Empresas asociadas
 INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES 

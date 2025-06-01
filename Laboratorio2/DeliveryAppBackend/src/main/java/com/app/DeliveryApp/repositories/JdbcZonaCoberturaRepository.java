@@ -1,6 +1,7 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.models.ZonaCobertura;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
@@ -31,9 +32,19 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
     private static final String UPDATE_ZONA_SQL =
             "UPDATE ZonaCobertura SET nombre_zona = ?, descripcion = ?, rut_empresa = ?, area_cobertura = ST_GeomFromText(?, 4326) WHERE id_zona = ?";
     private static final String DELETE_ZONA_BY_ID_SQL =
-            "DELETE FROM ZonaCobertura WHERE id_zona = ?";
-    private static final String SELECT_ZONAS_BY_EMPRESA_SQL =
+            "DELETE FROM ZonaCobertura WHERE id_zona = ?";    private static final String SELECT_ZONAS_BY_EMPRESA_SQL =
             "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE rut_empresa = ?";
+    
+    // Consultas espaciales
+    private static final String SELECT_ZONAS_QUE_CONTIENEN_PUNTO_SQL =
+            "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt " +
+            "FROM ZonaCobertura " +
+            "WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+    
+    private static final String VERIFICAR_COBERTURA_SQL =
+            "SELECT COUNT(*) > 0 " +
+            "FROM ZonaCobertura " +
+            "WHERE rut_empresa = ? AND ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
 
     private final RowMapper<ZonaCobertura> zonaCoberturaRowMapper = (rs, rowNum) -> {
         ZonaCobertura zona = new ZonaCobertura();
@@ -129,13 +140,42 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
             throw new IllegalArgumentException("ID zona no puede ser nulo para eliminar");
         }
         return jdbcTemplate.update(DELETE_ZONA_BY_ID_SQL, id);
-    }
-
-    @Override
+    }    @Override
     public List<ZonaCobertura> findByEmpresaRut(String rutEmpresa) {
         if (rutEmpresa == null) {
             throw new IllegalArgumentException("RUT empresa no puede ser nulo");
         }
         return jdbcTemplate.query(SELECT_ZONAS_BY_EMPRESA_SQL, zonaCoberturaRowMapper, rutEmpresa);
+    }
+
+    @Override
+    public List<ZonaCobertura> findZonasQueContienenPunto(Point punto) {
+        if (punto == null) {
+            throw new IllegalArgumentException("El punto no puede ser nulo");
+        }
+        
+        try {
+            String puntoWkt = wktWriter.write(punto);
+            return jdbcTemplate.query(SELECT_ZONAS_QUE_CONTIENEN_PUNTO_SQL, zonaCoberturaRowMapper, puntoWkt);
+        } catch (Exception e) {
+            System.err.println("Error al buscar zonas que contienen punto: " + e.getMessage());
+            throw new RuntimeException("Error en consulta espacial para zonas que contienen punto", e);
+        }
+    }
+
+    @Override
+    public boolean verificarCobertura(String rutEmpresa, Point puntoEntrega) {
+        if (rutEmpresa == null || puntoEntrega == null) {
+            throw new IllegalArgumentException("RUT empresa y punto de entrega no pueden ser nulos");
+        }
+        
+        try {
+            String puntoWkt = wktWriter.write(puntoEntrega);
+            Boolean resultado = jdbcTemplate.queryForObject(VERIFICAR_COBERTURA_SQL, Boolean.class, rutEmpresa, puntoWkt);
+            return resultado != null && resultado;
+        } catch (Exception e) {
+            System.err.println("Error al verificar cobertura: " + e.getMessage());
+            return false;
+        }
     }
 }

@@ -13,7 +13,15 @@ public class ZonaCobertura {
     private Long idZona;
     private String nombreZona;
     private String descripcion;
+    private String rutEmpresa;
     private Polygon areaCobertura; 
     private Boolean activa;
     private LocalDateTime fechaCreacion;
+    
+    public String getNombre() {
+        return this.nombreZona;
+    }
+    public void setNombre(String nombre) {
+        this.nombreZona = nombre;
+    }
 }

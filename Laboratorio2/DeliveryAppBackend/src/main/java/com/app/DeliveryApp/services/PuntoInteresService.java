@@ -10,10 +10,9 @@ public interface PuntoInteresService {
     Optional<PuntoInteres> obtenerPuntoInteresPorId(Long id);
     List<PuntoInteres> obtenerTodosLosPuntosInteres();
     List<PuntoInteres> obtenerPuntosInteresPorTipo(String tipo);
-    Optional<PuntoInteres> actualizarPuntoInteres(Long id, PuntoInteres puntoActualizado);
-    boolean eliminarPuntoInteres(Long id);
-    
-    // Métodos geoespaciales
+    Optional<PuntoInteres> actualizarPuntoInteres(Long id, PuntoInteres puntoActualizado);    boolean eliminarPuntoInteres(Long id);
     List<PuntoInteres> obtenerPuntosInteresEnRadio(Point centro, double radioMetros);
     PuntoInteres obtenerPuntoInteresmasCercano(Point ubicacion, String tipo);
+    List<PuntoInteres> obtenerPuntosPorDistancia(Point punto, double distanciaMaxima);
+    Optional<PuntoInteres> obtenerMasCercanoPorTipo(Point punto, String tipo);
 }
