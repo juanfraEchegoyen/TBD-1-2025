@@ -65,19 +65,21 @@ public class PuntoInteresServiceImpl implements PuntoInteresService {
         } else {
             return false;
         }
-    }
-
-    @Override
+    }    @Override
     public List<PuntoInteres> obtenerPuntosInteresEnRadio(Point centro, double radioMetros) {
-        // Este método requerirá una implementación específica en el repositorio con consultas espaciales
-        // Por ahora retornamos una lista vacía, se implementará cuando se añadan las consultas espaciales
-        return List.of();
+        return puntoInteresRepository.findPuntosInteresEnRadio(centro, radioMetros);
+    }    @Override
+    public PuntoInteres obtenerPuntoInteresmasCercano(Point ubicacion, String tipo) {
+        return puntoInteresRepository.findPuntoInteresmasCercano(ubicacion, tipo);
     }
 
     @Override
-    public PuntoInteres obtenerPuntoInteresmasCercano(Point ubicacion, String tipo) {
-        // Este método requerirá una implementación específica en el repositorio con consultas espaciales
-        // Por ahora retornamos null, se implementará cuando se añadan las consultas espaciales
-        return null;
+    public List<PuntoInteres> obtenerPuntosPorDistancia(Point punto, double distanciaMaxima) {
+        return puntoInteresRepository.findByDistanceWithin(punto, distanciaMaxima);
+    }
+
+    @Override
+    public Optional<PuntoInteres> obtenerMasCercanoPorTipo(Point punto, String tipo) {
+        return puntoInteresRepository.findNearestByType(punto, tipo);
     }
 }

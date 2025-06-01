@@ -11,10 +11,9 @@ import org.locationtech.jts.geom.Point;
 
 // para la consulta " Crear una tabla de puntos de interés cercanos"
 
-public class PuntoInteres {
-    private Long idPunto;
-    private String nombrePunto;
-    private String tipoPunto;  
+public class PuntoInteres {    private Long idPunto;
+    private String nombre;  
+    private String tipo;  
     private Point ubicacion;  
     private String descripcion;
     private Boolean activo;
