@@ -1,6 +1,9 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.models.Cliente;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,19 +18,18 @@ public class JdbcClienteRepository implements ClienteRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private static final String INSERT_CLIENTE_SQL =
-            "INSERT INTO Cliente (rut_cliente, password, nombre_cliente, telefono, direccion, comuna) VALUES (?, ?, ?, ?, ?, ?)";
+    
+    private final WKTReader wktReader = new WKTReader();
+    private final WKTWriter wktWriter = new WKTWriter();private static final String INSERT_CLIENTE_SQL =
+            "INSERT INTO Cliente (rut_cliente, password, nombre_cliente, telefono, direccion, comuna, ubicacion) VALUES (?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))";
     private static final String SELECT_CLIENTE_BY_RUT_SQL =
-            "SELECT rut_cliente, password, nombre_cliente, telefono, direccion, comuna FROM Cliente WHERE rut_cliente = ?";
+            "SELECT rut_cliente, password, nombre_cliente, telefono, direccion, comuna, ST_AsText(ubicacion) as ubicacion_wkt FROM Cliente WHERE rut_cliente = ?";
     private static final String SELECT_ALL_CLIENTES_SQL =
-            "SELECT rut_cliente, password, nombre_cliente, telefono, direccion, comuna FROM Cliente";
+            "SELECT rut_cliente, password, nombre_cliente, telefono, direccion, comuna, ST_AsText(ubicacion) as ubicacion_wkt FROM Cliente";
     private static final String UPDATE_CLIENTE_SQL =
-            "UPDATE Cliente SET password = ?, nombre_cliente = ?, telefono = ?, direccion = ?, comuna = ? WHERE rut_cliente = ?";
+            "UPDATE Cliente SET password = ?, nombre_cliente = ?, telefono = ?, direccion = ?, comuna = ?, ubicacion = ST_GeomFromText(?, 4326) WHERE rut_cliente = ?";
     private static final String DELETE_CLIENTE_BY_RUT_SQL =
-            "DELETE FROM Cliente WHERE rut_cliente = ?";
-
-    private final RowMapper<Cliente> clienteRowMapper = (rs, rowNum) -> {
+            "DELETE FROM Cliente WHERE rut_cliente = ?";    private final RowMapper<Cliente> clienteRowMapper = (rs, rowNum) -> {
         Cliente cliente = new Cliente();
         cliente.setRut(rs.getString("rut_cliente"));
         cliente.setPassword(rs.getString("password"));
@@ -35,18 +37,36 @@ public class JdbcClienteRepository implements ClienteRepository {
         cliente.setTelefono(rs.getString("telefono"));
         cliente.setDireccion(rs.getString("direccion"));
         cliente.setComuna(rs.getString("comuna"));
+        
+        // Conversión de WKT a Point
+        String ubicacionWkt = rs.getString("ubicacion_wkt");
+        if (ubicacionWkt != null) {
+            try {
+                cliente.setUbicacion((Point) wktReader.read(ubicacionWkt));
+            } catch (Exception e) {
+                System.err.println("Error al convertir WKT a Point: " + e.getMessage());
+                cliente.setUbicacion(null);
+            }
+        } else {
+            cliente.setUbicacion(null);
+        }
+        
         return cliente;
-    };
-
-    @Override
+    };    @Override
     public Cliente save(Cliente cliente) {
+        String ubicacionWkt = null;
+        if (cliente.getUbicacion() != null) {
+            ubicacionWkt = wktWriter.write(cliente.getUbicacion());
+        }
+        
         jdbcTemplate.update(INSERT_CLIENTE_SQL,
                 cliente.getRut(),
                 cliente.getPassword(),
                 cliente.getNombre(),
                 cliente.getTelefono(),
                 cliente.getDireccion(),
-                cliente.getComuna());
+                cliente.getComuna(),
+                ubicacionWkt);
         return cliente;
     }
 
@@ -63,19 +83,24 @@ public class JdbcClienteRepository implements ClienteRepository {
     @Override
     public List<Cliente> findAll() {
         return jdbcTemplate.query(SELECT_ALL_CLIENTES_SQL, clienteRowMapper);
-    }
-
-    @Override
+    }    @Override
     public int update(Cliente cliente) {
         if (cliente == null || cliente.getRut() == null) {
             throw new IllegalArgumentException("RUT o cliente no pueden ser nulos para el update");
         }
+        
+        String ubicacionWkt = null;
+        if (cliente.getUbicacion() != null) {
+            ubicacionWkt = wktWriter.write(cliente.getUbicacion());
+        }
+        
         return jdbcTemplate.update(UPDATE_CLIENTE_SQL,
                 cliente.getPassword(),
                 cliente.getNombre(),
                 cliente.getTelefono(),
                 cliente.getDireccion(),
                 cliente.getComuna(),
+                ubicacionWkt,
                 cliente.getRut());
     }
 

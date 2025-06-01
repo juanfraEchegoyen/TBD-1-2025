@@ -3,6 +3,7 @@ package com.app.DeliveryApp.services;
 import com.app.DeliveryApp.models.Cliente;
 import com.app.DeliveryApp.repositories.ClienteRepository;
 import com.app.DeliveryApp.repositories.PedidoRepository;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,10 +49,10 @@ public class ClienteServiceImpl implements ClienteService {
         if (clienteExistenteOpt.isPresent()) {
             Cliente clienteParaActualizar = clienteExistenteOpt.get();
             clienteParaActualizar.setRut(rut);
-            clienteParaActualizar.setNombre(clienteActualizado.getNombre());
-            clienteParaActualizar.setTelefono(clienteActualizado.getTelefono());
+            clienteParaActualizar.setNombre(clienteActualizado.getNombre());            clienteParaActualizar.setTelefono(clienteActualizado.getTelefono());
             clienteParaActualizar.setDireccion(clienteActualizado.getDireccion());
             clienteParaActualizar.setComuna(clienteActualizado.getComuna());
+            clienteParaActualizar.setUbicacion(clienteActualizado.getUbicacion());
 
             clienteRepository.update(clienteParaActualizar);
             return Optional.of(clienteParaActualizar);
@@ -78,8 +79,20 @@ public class ClienteServiceImpl implements ClienteService {
 
         if (totalPedidos == 0) return 0.0;
         
-        double riesgo = ((double) pedidosFallidos / totalPedidos) * 100;
-
-        return Math.round(riesgo);
+        double riesgo = ((double) pedidosFallidos / totalPedidos) * 100;        return Math.round(riesgo);
+    }
+    
+    @Override
+    public Optional<Cliente> actualizarUbicacionCliente(String rut, Point nuevaUbicacion) {
+        Optional<Cliente> clienteOpt = clienteRepository.findByRut(rut);
+        
+        if (clienteOpt.isPresent()) {
+            Cliente cliente = clienteOpt.get();
+            cliente.setUbicacion(nuevaUbicacion);
+            clienteRepository.update(cliente);
+            return Optional.of(cliente);
+        }
+        
+        return Optional.empty();
     }
 }

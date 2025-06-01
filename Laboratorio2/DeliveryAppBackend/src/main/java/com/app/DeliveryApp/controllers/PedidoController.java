@@ -7,12 +7,16 @@ import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.dto.PedidoRequestDTO;
 import com.app.DeliveryApp.repositories.JdbcPedidoRepository;
 import com.app.DeliveryApp.services.PedidoService;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -24,6 +28,7 @@ public class PedidoController {
     private final PedidoService pedidoService;
     @Autowired
     private final JdbcPedidoRepository jdbcPedidoRepository;
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Autowired
     public PedidoController(PedidoService pedidoService) {
@@ -120,9 +125,60 @@ public class PedidoController {
     public ResponseEntity<Void> eliminarPedido(@PathVariable Long id) {
         try {
             boolean eliminado = pedidoService.eliminarPedido(id);
-            return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-        } catch (Exception e) {
+            return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();        } catch (Exception e) {
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);         }
+    }
+
+    // actualizar ruta estimada de un pedido
+    @PutMapping("/{id}/ruta")
+    public ResponseEntity<Pedido> actualizarRutaEstimada(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> datos) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Double>> coordenadas = (List<Map<String, Double>>) datos.get("coordenadas");
+            
+            if (coordenadas == null || coordenadas.size() < 2) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            Coordinate[] coordinates = new Coordinate[coordenadas.size()];
+            for (int i = 0; i < coordenadas.size(); i++) {
+                Map<String, Double> coord = coordenadas.get(i);
+                coordinates[i] = new Coordinate(coord.get("longitud"), coord.get("latitud"));
+            }
+            
+            LineString rutaEstimada = geometryFactory.createLineString(coordinates);
+            rutaEstimada.setSRID(4326);
+            
+            return pedidoService.actualizarRutaEstimada(id, rutaEstimada)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // obtener pedidos que tienen rutas estimadas
+    @GetMapping("/con-rutas")
+    public ResponseEntity<List<Pedido>> obtenerPedidosConRutas() {
+        try {
+            List<Pedido> pedidos = pedidoService.obtenerPedidosConRutas();
+            return ResponseEntity.ok(pedidos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // calcular distancia de la ruta de un pedido
+    @GetMapping("/{id}/distancia-ruta")
+    public ResponseEntity<Map<String, Double>> calcularDistanciaRuta(@PathVariable Long id) {
+        try {
+            double distancia = pedidoService.calcularDistanciaRuta(id);
+            return ResponseEntity.ok(Map.of("distancia", distancia));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

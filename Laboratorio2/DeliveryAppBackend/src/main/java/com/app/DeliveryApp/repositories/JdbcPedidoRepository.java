@@ -3,6 +3,9 @@ package com.app.DeliveryApp.repositories;
 import com.app.DeliveryApp.models.DetallePedido;
 import com.app.DeliveryApp.models.MedioPago;
 import com.app.DeliveryApp.models.Pedido;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,18 +21,20 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    private final WKTReader wktReader = new WKTReader();
+    private final WKTWriter wktWriter = new WKTWriter();
+    
     private static final String INSERT_PEDIDO_SQL_RETURNING_ID =
-            "INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor) VALUES (?, ?, ?, ?, ?, ?) RETURNING id_pedido";
+            "INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor, rutas_estimadas) VALUES (?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_pedido";
     private static final String SELECT_PEDIDO_BY_ID_SQL =
-            "SELECT id_pedido, estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor FROM Pedido WHERE id_pedido = ?";
+            "SELECT id_pedido, estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor, ST_AsText(rutas_estimadas) as rutas_wkt FROM Pedido WHERE id_pedido = ?";
     private static final String SELECT_ALL_PEDIDOS_SQL =
-            "SELECT id_pedido, estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor FROM Pedido";
+            "SELECT id_pedido, estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor, ST_AsText(rutas_estimadas) as rutas_wkt FROM Pedido";
     private static final String UPDATE_PEDIDO_SQL =
-            "UPDATE Pedido SET estado_entrega = ?, prioridad_pedido = ?, problema_critico = ?, rut_cliente = ?, rut_empresa = ?, rut_repartidor = ? WHERE id_pedido = ?";
+            "UPDATE Pedido SET estado_entrega = ?, prioridad_pedido = ?, problema_critico = ?, rut_cliente = ?, rut_empresa = ?, rut_repartidor = ?, rutas_estimadas = ST_GeomFromText(?, 4326) WHERE id_pedido = ?";
     private static final String DELETE_PEDIDO_BY_ID_SQL =
-            "DELETE FROM Pedido WHERE id_pedido = ?";
-
-    private final RowMapper<Pedido> pedidoRowMapper = (rs, rowNum) -> {
+            "DELETE FROM Pedido WHERE id_pedido = ?";    private final RowMapper<Pedido> pedidoRowMapper = (rs, rowNum) -> {
         Pedido pedido = new Pedido();
         pedido.setIdPedido(rs.getLong("id_pedido"));
         pedido.setEstadoEntrega(rs.getString("estado_entrega"));
@@ -38,12 +43,29 @@ public class JdbcPedidoRepository implements PedidoRepository {
         pedido.setRutCliente(rs.getString("rut_cliente"));
         pedido.setRutEmpresa(rs.getString("rut_empresa"));
         pedido.setRutRepartidor(rs.getString("rut_repartidor"));
+        
+        // Conversión de WKT a LineString para rutas estimadas
+        String rutasWkt = rs.getString("rutas_wkt");
+        if (rutasWkt != null) {
+            try {
+                pedido.setRutasEstimadas((LineString) wktReader.read(rutasWkt));
+            } catch (Exception e) {
+                System.err.println("Error al convertir WKT a LineString: " + e.getMessage());
+                pedido.setRutasEstimadas(null);
+            }
+        } else {
+            pedido.setRutasEstimadas(null);
+        }
+        
         return pedido;
-    };
-
-    @Override
+    };    @Override
     public Pedido save(Pedido pedido) {
         try {
+            String rutasWkt = null;
+            if (pedido.getRutasEstimadas() != null) {
+                rutasWkt = wktWriter.write(pedido.getRutasEstimadas());
+            }
+            
             Long generatedId = jdbcTemplate.queryForObject(
                     INSERT_PEDIDO_SQL_RETURNING_ID,
                     Long.class,
@@ -52,7 +74,8 @@ public class JdbcPedidoRepository implements PedidoRepository {
                     pedido.isProblemaCritico(),
                     pedido.getRutCliente(),
                     pedido.getRutEmpresa(),
-                    pedido.getRutRepartidor()
+                    pedido.getRutRepartidor(),
+                    rutasWkt
             );
 
             if (generatedId != null) {
@@ -127,13 +150,17 @@ public class JdbcPedidoRepository implements PedidoRepository {
     @Override
     public List<Pedido> findAll() {
         return jdbcTemplate.query(SELECT_ALL_PEDIDOS_SQL, pedidoRowMapper);
-    }
-
-    @Override
+    }    @Override
     public int update(Pedido pedido) {
         if (pedido == null || pedido.getIdPedido() == null) {
             throw new IllegalArgumentException("Pedido o Id pedido no pueden ser nulos para el update");
         }
+        
+        String rutasWkt = null;
+        if (pedido.getRutasEstimadas() != null) {
+            rutasWkt = wktWriter.write(pedido.getRutasEstimadas());
+        }
+        
         return jdbcTemplate.update(UPDATE_PEDIDO_SQL,
                 pedido.getEstadoEntrega(),
                 pedido.getPrioridadPedido(),
@@ -141,6 +168,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
                 pedido.getRutCliente(),
                 pedido.getRutEmpresa(),
                 pedido.getRutRepartidor(),
+                rutasWkt,
                 pedido.getIdPedido());
     }
 
