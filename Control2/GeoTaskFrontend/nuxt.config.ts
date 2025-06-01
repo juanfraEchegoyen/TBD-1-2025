@@ -1,6 +1,8 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false,
+  nitro: {
+    preset: 'static' // Cambia a 'static' para servir archivos estáticos
+  },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
@@ -18,4 +20,4 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt']
-})
+});

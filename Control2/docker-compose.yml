@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./GeoTaskBackend
+      dockerfile: Dockerfile
+    container_name: backend-container
+    ports:
+      - "8080:8080"
+    environment:
+      - ADDRESS=db
+      - PORT=5432
+      - PASS=mipasswordsegura
+    depends_on:
+      - db
+    networks:
+      - my_network
+
+  frontend:
+    build:
+      context: ./GeoTaskFrontend
+      dockerfile: Dockerfile
+    container_name: frontend-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - my_network
+
+  db:
+    image: postgres:latest
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mipasswordsegura
+      POSTGRES_DB: geotaskapp
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+networks:
+  my_network:
+
+volumes:
+  db_data:
