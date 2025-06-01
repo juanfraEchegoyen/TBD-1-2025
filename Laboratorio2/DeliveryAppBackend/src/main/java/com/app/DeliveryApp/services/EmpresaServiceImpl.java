@@ -2,6 +2,7 @@ package com.app.DeliveryApp.services;
 
 import com.app.DeliveryApp.models.Empresa;
 import com.app.DeliveryApp.repositories.EmpresaRepository;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +35,11 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public List<Empresa> obtenerTodasLasEmpresas() {
         return empresaRepository.findAll();
-    }
-
-    @Override
+    }    @Override
     public Optional<Empresa> actualizarEmpresa(String rut, Empresa empresaActualizada) {
         return empresaRepository.findByRut(rut).map(empresaExistente -> {
             empresaExistente.setNombre(empresaActualizada.getNombre());
+            empresaExistente.setUbicacion(empresaActualizada.getUbicacion());
             empresaRepository.update(empresaExistente);
             return empresaExistente;
         });
@@ -49,8 +49,21 @@ public class EmpresaServiceImpl implements EmpresaService {
     public boolean eliminarEmpresa(String rut) {
         if (empresaRepository.findByRut(rut).isPresent()) {
             int filasAfectadas = empresaRepository.deleteByRut(rut);
-            return filasAfectadas > 0;
-        }
+            return filasAfectadas > 0;        }
         return false;
+    }
+    
+    @Override
+    public Optional<Empresa> actualizarUbicacionEmpresa(String rut, Point nuevaUbicacion) {
+        Optional<Empresa> empresaOpt = empresaRepository.findByRut(rut);
+        
+        if (empresaOpt.isPresent()) {
+            Empresa empresa = empresaOpt.get();
+            empresa.setUbicacion(nuevaUbicacion);
+            empresaRepository.update(empresa);
+            return Optional.of(empresa);
+        }
+        
+        return Optional.empty();
     }
 }
