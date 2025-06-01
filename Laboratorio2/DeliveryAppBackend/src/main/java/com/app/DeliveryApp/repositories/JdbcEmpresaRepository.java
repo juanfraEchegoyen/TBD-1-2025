@@ -1,6 +1,9 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.models.Empresa;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,30 +18,51 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    private final WKTReader wktReader = new WKTReader();
+    private final WKTWriter wktWriter = new WKTWriter();
 
     private static final String INSERT_EMPRESA_SQL =
-            "INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES (?, ?)";
+            "INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa, ubicacion) VALUES (?, ?, ST_GeomFromText(?, 4326))";
     private static final String SELECT_EMPRESA_BY_RUT_SQL =
-            "SELECT rut_empresa, nombre_empresa FROM EmpresaAsociada WHERE rut_empresa = ?";
+            "SELECT rut_empresa, nombre_empresa, ST_AsText(ubicacion) as ubicacion_wkt FROM EmpresaAsociada WHERE rut_empresa = ?";
     private static final String SELECT_ALL_EMPRESAS_SQL =
-            "SELECT rut_empresa, nombre_empresa FROM EmpresaAsociada";
+            "SELECT rut_empresa, nombre_empresa, ST_AsText(ubicacion) as ubicacion_wkt FROM EmpresaAsociada";
     private static final String UPDATE_EMPRESA_SQL =
-            "UPDATE EmpresaAsociada SET nombre_empresa = ? WHERE rut_empresa = ?";
-    private static final String DELETE_EMPRESA_BY_RUT_SQL =
+            "UPDATE EmpresaAsociada SET nombre_empresa = ?, ubicacion = ST_GeomFromText(?, 4326) WHERE rut_empresa = ?";    private static final String DELETE_EMPRESA_BY_RUT_SQL =
             "DELETE FROM EmpresaAsociada WHERE rut_empresa = ?";
 
     private final RowMapper<Empresa> empresaRowMapper = (rs, rowNum) -> {
         Empresa empresa = new Empresa();
         empresa.setRut(rs.getString("rut_empresa"));
         empresa.setNombre(rs.getString("nombre_empresa"));
-        return empresa;
+        
+        // Conversión de WKT a Point
+        String ubicacionWkt = rs.getString("ubicacion_wkt");
+        if (ubicacionWkt != null) {
+            try {
+                empresa.setUbicacion((Point) wktReader.read(ubicacionWkt));
+            } catch (Exception e) {
+                System.err.println("Error al convertir WKT a Point: " + e.getMessage());
+                empresa.setUbicacion(null);
+            }
+        } else {
+            empresa.setUbicacion(null);
+        }
+          return empresa;
     };
 
     @Override
     public Empresa save(Empresa empresa) {
+        String ubicacionWkt = null;
+        if (empresa.getUbicacion() != null) {
+            ubicacionWkt = wktWriter.write(empresa.getUbicacion());
+        }
+        
         jdbcTemplate.update(INSERT_EMPRESA_SQL,
                 empresa.getRut(),
-                empresa.getNombre());
+                empresa.getNombre(),
+                ubicacionWkt);
         return empresa;
     }
 
@@ -55,17 +79,21 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
     @Override
     public List<Empresa> findAll() {
         return jdbcTemplate.query(SELECT_ALL_EMPRESAS_SQL, empresaRowMapper);
-    }
-
-    @Override
+    }    @Override
     public int update(Empresa empresa) {
         if (empresa == null || empresa.getRut() == null) { 
             throw new IllegalArgumentException("Empresa o RUT empresa no pueden ser nulos para el update");
         }
+        
+        String ubicacionWkt = null;
+        if (empresa.getUbicacion() != null) {
+            ubicacionWkt = wktWriter.write(empresa.getUbicacion());
+        }
+        
         return jdbcTemplate.update(UPDATE_EMPRESA_SQL,
                 empresa.getNombre(),
+                ubicacionWkt,
                 empresa.getRut());
-
     }
 
     @Override
