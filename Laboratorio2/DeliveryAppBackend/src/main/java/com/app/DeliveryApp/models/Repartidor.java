@@ -3,8 +3,7 @@ package com.app.DeliveryApp.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.awt.*;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +15,6 @@ public class Repartidor {
     private String telefono;
     private Double puntuacionPromedio;
     private Integer cantidadEntregas;
+    private Point ubicacion; 
+    private Double distanciaRecorrida;
 }

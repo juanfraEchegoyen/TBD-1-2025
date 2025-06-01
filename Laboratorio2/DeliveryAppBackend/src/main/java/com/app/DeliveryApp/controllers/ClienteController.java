@@ -2,12 +2,16 @@ package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.models.Cliente;
 import com.app.DeliveryApp.services.ClienteService;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -16,6 +20,7 @@ import java.util.Optional;
 public class ClienteController {
 
     private final ClienteService clienteService;
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Autowired
     public ClienteController(ClienteService clienteService) {
@@ -74,9 +79,50 @@ public class ClienteController {
         boolean eliminado = clienteService.eliminarCliente(rut);
 
         if (eliminado) {
-            return ResponseEntity.noContent().build();
-        } else {
+            return ResponseEntity.noContent().build();        } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+    
+    // actualizar ubicación de un cliente
+    @PutMapping("/{rut}/ubicacion")
+    public ResponseEntity<Cliente> actualizarUbicacionCliente(
+            @PathVariable String rut, 
+            @RequestBody Map<String, Double> coordenadas) {
+        try {
+            Double longitud = coordenadas.get("longitud");
+            Double latitud = coordenadas.get("latitud");
+            
+            if (longitud == null || latitud == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            Point nuevaUbicacion = geometryFactory.createPoint(new Coordinate(longitud, latitud));
+            nuevaUbicacion.setSRID(4326);
+            
+            Optional<Cliente> clienteOpt = clienteService.actualizarUbicacionCliente(rut, nuevaUbicacion);
+            
+            return clienteOpt.map(cliente -> ResponseEntity.ok(cliente))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // obtener clientes en un radio específico
+    @GetMapping("/radio")
+    public ResponseEntity<List<Cliente>> obtenerClientesEnRadio(
+            @RequestParam Double longitud,
+            @RequestParam Double latitud,
+            @RequestParam Double radioMetros) {
+        try {
+            Point centro = geometryFactory.createPoint(new Coordinate(longitud, latitud));
+            centro.setSRID(4326);
+            
+            List<Cliente> clientes = clienteService.obtenerClientesEnRadio(centro, radioMetros);
+            return ResponseEntity.ok(clientes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
