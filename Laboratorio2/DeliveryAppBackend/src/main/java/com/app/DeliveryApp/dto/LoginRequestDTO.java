@@ -10,10 +10,4 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDTO {
     private String rut;
     private String password;
-    private TipoUsuario tipoUsuario;
-
-    public enum TipoUsuario {
-        CLIENTE,
-        REPARTIDOR
-    }
 }

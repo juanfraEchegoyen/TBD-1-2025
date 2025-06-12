@@ -3,7 +3,6 @@ package com.app.DeliveryApp.controllers;
 import com.app.DeliveryApp.dto.LoginRequestDTO;
 import com.app.DeliveryApp.dto.RefreshTokenRequestDTO;
 import com.app.DeliveryApp.dto.RegistroClienteDTO;
-import com.app.DeliveryApp.dto.RegistroRepartidorDTO;
 import com.app.DeliveryApp.models.Cliente;
 import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.services.AuthService;

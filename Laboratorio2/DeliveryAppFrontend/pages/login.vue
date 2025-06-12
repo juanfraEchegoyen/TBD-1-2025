@@ -4,8 +4,14 @@
     <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-80 text-center">
       {{ errorMessage }}
     </div>
-    <div>Nombre de usuario</div>
-    <input v-model="formData.nombre" type="text" placeholder="Nombre de usuario" class="mb-3 px-4 py-2 border rounded-lg w-80" />
+    
+    <div>RUT</div>
+    <input 
+      v-model="formData.rut" 
+      type="text" 
+      placeholder="12345678-9" 
+      class="mb-3 px-4 py-2 border rounded-lg w-80" 
+    />
     
     <div>Contraseña</div>
     <input
@@ -23,6 +29,11 @@
     >
       {{ isLoading ? 'Cargando...' : 'Acceder' }}
     </BaseButtonGreen>
+    
+    <div class="text-center text-sm mt-4">
+      ¿No tienes una cuenta? 
+      <NuxtLink to="/registro" class="text-green-600 hover:text-green-800">Registrarse</NuxtLink>
+    </div>
   </div>
 </template>
 
@@ -38,7 +49,7 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 
 const formData = reactive({
-  nombre: '',
+  rut: '',
   password: ''
 })
 
@@ -47,7 +58,7 @@ const login = async () => {
   errorMessage.value = ''
   
   // Form validation
-  if (!formData.nombre || !formData.password) {
+  if (!formData.rut || !formData.password) {
     errorMessage.value = 'Por favor, complete todos los campos'
     return
   }
@@ -55,9 +66,9 @@ const login = async () => {
   try {
     isLoading.value = true
     
-    // Send login request to backend
+    // Send login request to backend with only RUT and password
     const response = await apiClient.post('/auth/login', {
-      nombre: formData.nombre,
+      rut: formData.rut,
       password: formData.password
     })
     

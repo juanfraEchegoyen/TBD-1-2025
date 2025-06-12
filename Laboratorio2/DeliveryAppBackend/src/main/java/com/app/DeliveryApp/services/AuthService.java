@@ -116,11 +116,7 @@ public class AuthService implements UserDetailsService {
     
     /**
      * Autentica al usuario (cliente o repartidor) usando LoginRequestDTO
-     *
-     * 1. Verifica las credenciales del usuario según su tipo (CLIENTE o REPARTIDOR)
-     * 2. Busca en el repositorio correspondiente
-     * 3. Valida la contraseña
-     * 4. Genera los tokens de acceso y refresco
+     * Busca automáticamente si el usuario es cliente o repartidor
      */
     public Map<String, String> login(LoginRequestDTO loginRequest) {
         // Validar que el LoginRequest no sea nulo
@@ -135,38 +131,28 @@ public class AuthService implements UserDetailsService {
         if (loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("La contraseña es requerida");
         }
-        if (loginRequest.getTipoUsuario() == null) {
-            throw new IllegalArgumentException("El tipo de usuario es requerido");
-        }
 
-        // Buscar el usuario según el tipo especificado
+        String rutUsuario = loginRequest.getRut();
         String nombreUsuario = null;
         String contraseñaAlmacenada = null;
-        String rutUsuario = loginRequest.getRut();
+        String tipoUsuario = null;
 
-        switch (loginRequest.getTipoUsuario()) {
-            case CLIENTE:
-                Optional<Cliente> cliente = repositorioClientes.findByRut(rutUsuario);
-                if (cliente.isPresent()) {
-                    nombreUsuario = cliente.get().getNombre();
-                    contraseñaAlmacenada = cliente.get().getPassword();
-                } else {
-                    throw new UsernameNotFoundException("Cliente no encontrado con RUT: " + rutUsuario);
-                }
-                break;
-
-            case REPARTIDOR:
-                Optional<Repartidor> repartidor = repositorioRepartidores.findByRut(rutUsuario);
-                if (repartidor.isPresent()) {
-                    nombreUsuario = repartidor.get().getNombre();
-                    contraseñaAlmacenada = repartidor.get().getPassword();
-                } else {
-                    throw new UsernameNotFoundException("Repartidor no encontrado con RUT: " + rutUsuario);
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Tipo de usuario no válido");
+        // Buscar primero en clientes
+        Optional<Cliente> cliente = repositorioClientes.findByRut(rutUsuario);
+        if (cliente.isPresent()) {
+            nombreUsuario = cliente.get().getNombre();
+            contraseñaAlmacenada = cliente.get().getPassword();
+            tipoUsuario = "CLIENTE";
+        } else {
+            // Si no se encuentra como cliente, buscar en repartidores
+            Optional<Repartidor> repartidor = repositorioRepartidores.findByRut(rutUsuario);
+            if (repartidor.isPresent()) {
+                nombreUsuario = repartidor.get().getNombre();
+                contraseñaAlmacenada = repartidor.get().getPassword();
+                tipoUsuario = "REPARTIDOR";
+            } else {
+                throw new UsernameNotFoundException("Usuario no encontrado con RUT: " + rutUsuario);
+            }
         }
 
         // Verificar la contraseña
@@ -175,9 +161,9 @@ public class AuthService implements UserDetailsService {
         }
 
         // El identificador completo para la autenticación y el token
-        String identificadorCompleto = rutUsuario + ":" + loginRequest.getTipoUsuario().toString();
+        String identificadorCompleto = rutUsuario + ":" + tipoUsuario;
 
-        // Autenticar al usuario basándose en el RUT y contraseña
+        // Autenticar al usuario
         Authentication autenticacion = new UsernamePasswordAuthenticationToken(
                 identificadorCompleto,
                 null,
@@ -195,7 +181,7 @@ public class AuthService implements UserDetailsService {
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("accessToken", tokenAcceso);
         respuesta.put("refreshToken", tokenRefresco);
-        respuesta.put("tipoUsuario", loginRequest.getTipoUsuario().toString());
+        respuesta.put("tipoUsuario", tipoUsuario);
         respuesta.put("rut", rutUsuario);
         respuesta.put("nombre", nombreUsuario);
 
