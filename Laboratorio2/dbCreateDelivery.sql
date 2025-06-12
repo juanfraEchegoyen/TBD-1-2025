@@ -112,10 +112,11 @@ CREATE TABLE IF NOT EXISTS PuntoInteres (
 -- zona de cobertura
 CREATE TABLE IF NOT EXISTS ZonaCobertura (
     id_zona_cobertura SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    comuna VARCHAR(100) NOT NULL,
+    zona VARCHAR(100),
     descripcion TEXT,
-    area_cobertura geometry(Polygon, 4326),
     rut_empresa VARCHAR(15),
+    area_cobertura geometry(Multipolygon, 4326),
     FOREIGN KEY (rut_empresa) REFERENCES EmpresaAsociada(rut_empresa)
 );
 

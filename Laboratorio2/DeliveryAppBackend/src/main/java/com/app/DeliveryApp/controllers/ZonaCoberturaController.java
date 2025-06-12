@@ -5,7 +5,7 @@ import com.app.DeliveryApp.services.ZonaCoberturaService;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.LinearRing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,7 +84,6 @@ public class ZonaCoberturaController {
             if (coordenadas == null || coordenadas.size() < 3) {
                 return ResponseEntity.badRequest().body("Se requieren al menos 3 coordenadas para formar un polígono");
             }
-            
 
             if (!coordenadas.get(0).equals(coordenadas.get(coordenadas.size() - 1))) {
                 coordenadas.add(coordenadas.get(0));
@@ -97,7 +96,8 @@ public class ZonaCoberturaController {
             }
             
             LinearRing shell = geometryFactory.createLinearRing(coordinates);
-            Polygon areaCobertura = geometryFactory.createPolygon(shell);
+            org.locationtech.jts.geom.Polygon polygon = geometryFactory.createPolygon(shell);
+            MultiPolygon areaCobertura = geometryFactory.createMultiPolygon(new org.locationtech.jts.geom.Polygon[] { polygon });
             areaCobertura.setSRID(4326);
             
             ZonaCobertura zonaCobertura = new ZonaCobertura();

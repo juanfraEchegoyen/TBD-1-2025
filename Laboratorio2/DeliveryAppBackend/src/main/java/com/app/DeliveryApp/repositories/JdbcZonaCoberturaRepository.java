@@ -2,7 +2,7 @@ package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.models.ZonaCobertura;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,13 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
     private final WKTWriter wktWriter = new WKTWriter();
 
     private static final String INSERT_ZONA_SQL_RETURNING_ID =
-            "INSERT INTO ZonaCobertura (nombre_zona, descripcion, rut_empresa, area_cobertura) VALUES (?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_zona";
+            "INSERT INTO ZonaCobertura (nombre_comuna, nombre_zona, descripcion, rut_empresa, area_cobertura, activa, fecha_creacion) VALUES (?, ?, ?, ?, ST_GeomFromText(?, 4326), ?, ?) RETURNING id_zona";
     private static final String SELECT_ZONA_BY_ID_SQL =
-            "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE id_zona = ?";
+            "SELECT id_zona, nombre_comuna, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt, activa, fecha_creacion FROM ZonaCobertura WHERE id_zona = ?";
     private static final String SELECT_ALL_ZONAS_SQL =
             "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura";
     private static final String UPDATE_ZONA_SQL =
-            "UPDATE ZonaCobertura SET nombre_zona = ?, descripcion = ?, rut_empresa = ?, area_cobertura = ST_GeomFromText(?, 4326) WHERE id_zona = ?";
+            "UPDATE ZonaCobertura SET nombre_comuna = ?, nombre_zona = ?, descripcion = ?, rut_empresa = ?, area_cobertura = ST_GeomFromText(?, 4326), activa = ?, fecha_creacion = ? WHERE id_zona = ?";
     private static final String DELETE_ZONA_BY_ID_SQL =
             "DELETE FROM ZonaCobertura WHERE id_zona = ?";    private static final String SELECT_ZONAS_BY_EMPRESA_SQL =
             "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE rut_empresa = ?";
@@ -49,17 +49,18 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
     private final RowMapper<ZonaCobertura> zonaCoberturaRowMapper = (rs, rowNum) -> {
         ZonaCobertura zona = new ZonaCobertura();
         zona.setIdZona(rs.getLong("id_zona"));
+        zona.setNombreComuna(rs.getString("nombre_comuna"));
         zona.setNombreZona(rs.getString("nombre_zona"));
         zona.setDescripcion(rs.getString("descripcion"));
         zona.setRutEmpresa(rs.getString("rut_empresa"));
         
-        // Conversión de WKT a Polygon
+        // Conversión de WKT a MultiPolygon
         String areaWkt = rs.getString("area_wkt");
         if (areaWkt != null) {
             try {
-                zona.setAreaCobertura((Polygon) wktReader.read(areaWkt));
+                zona.setAreaCobertura((MultiPolygon) wktReader.read(areaWkt));
             } catch (Exception e) {
-                System.err.println("Error al convertir WKT a Polygon: " + e.getMessage());
+                System.err.println("Error al convertir WKT a MultiPolygon: " + e.getMessage());
                 zona.setAreaCobertura(null);
             }
         } else {
@@ -80,6 +81,7 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
             Long generatedId = jdbcTemplate.queryForObject(
                     INSERT_ZONA_SQL_RETURNING_ID,
                     Long.class,
+                    zonaCobertura.getNombreComuna(),
                     zonaCobertura.getNombreZona(),
                     zonaCobertura.getDescripcion(),
                     zonaCobertura.getRutEmpresa(),
@@ -127,6 +129,7 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
         }
         
         return jdbcTemplate.update(UPDATE_ZONA_SQL,
+                zonaCobertura.getNombreComuna(),
                 zonaCobertura.getNombreZona(),
                 zonaCobertura.getDescripcion(),
                 zonaCobertura.getRutEmpresa(),

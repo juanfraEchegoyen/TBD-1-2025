@@ -45,8 +45,9 @@ public class ZonaCoberturaServiceImpl implements ZonaCoberturaService {
 
         if (zonaExistenteOpt.isPresent()) {
             ZonaCobertura zonaParaActualizar = zonaExistenteOpt.get();
-            zonaParaActualizar.setNombre(zonaActualizada.getNombre());
-            zonaParaActualizar.setAreaCobertura(zonaActualizada.getAreaCobertura());
+            zonaParaActualizar.setNombreComuna(zonaActualizada.getNombreComuna());
+            zonaParaActualizar.setNombreZona(zonaActualizada.getNombreZona());
+            zonaParaActualizar.setDescripcion(zonaActualizada.getDescripcion());
             zonaParaActualizar.setRutEmpresa(zonaActualizada.getRutEmpresa());
 
             zonaCoberturaRepository.update(zonaParaActualizar);
@@ -54,7 +55,9 @@ public class ZonaCoberturaServiceImpl implements ZonaCoberturaService {
         } else {
             return Optional.empty();
         }
-    }    @Override
+    }
+
+    @Override
     public boolean eliminarZonaCobertura(Long id) {
         if (zonaCoberturaRepository.findById(id).isPresent()) {
             int filasAfectadas = zonaCoberturaRepository.deleteById(id);
