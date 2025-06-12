@@ -2,6 +2,8 @@ package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.dto.LoginRequestDTO;
 import com.app.DeliveryApp.dto.RefreshTokenRequestDTO;
+import com.app.DeliveryApp.dto.RegistroClienteDTO;
+import com.app.DeliveryApp.dto.RegistroRepartidorDTO;
 import com.app.DeliveryApp.models.Cliente;
 import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.services.AuthService;
@@ -33,15 +35,42 @@ public class AuthController {
     }
 
     @PostMapping("/registro/cliente")
-    public ResponseEntity<String> registroCliente(@RequestBody Cliente cliente) {
-        servicioAutenticacion.registroCliente(cliente);
-        return ResponseEntity.ok("Cliente registrado exitosamente");
+    public ResponseEntity<?> registroCliente(@RequestBody RegistroClienteDTO clienteDto) {
+        try {
+            Cliente cliente = clienteDto.toCliente();
+            servicioAutenticacion.registroCliente(cliente);
+            
+            Map<String, String> respuesta = new HashMap<>();
+            respuesta.put("mensaje", "Cliente registrado exitosamente");
+            return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error interno del servidor: " + e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/registro/repartidor")
-    public ResponseEntity<String> registroRepartidor(@RequestBody Repartidor repartidor) {
-        servicioAutenticacion.registroRepartidor(repartidor);
-        return ResponseEntity.ok("Repartidor registrado exitosamente");
+    public ResponseEntity<?> registroRepartidor(@RequestBody Repartidor repartidor) {
+        try {
+            servicioAutenticacion.registroRepartidor(repartidor);
+            
+            Map<String, String> respuesta = new HashMap<>();
+            respuesta.put("mensaje", "Repartidor registrado exitosamente");
+            return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error interno del servidor: " + e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

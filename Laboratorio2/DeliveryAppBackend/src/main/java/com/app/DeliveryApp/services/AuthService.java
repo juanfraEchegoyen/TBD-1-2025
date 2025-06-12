@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,9 +57,16 @@ public class AuthService implements UserDetailsService {
         if (clienteExistente.isPresent()) {
             throw new IllegalArgumentException("El cliente ya existe con este RUT");
         }
+        
+        // Validar ubicación si está presente
+        if (cliente.getUbicacion() != null) {
+            validarUbicacionChile(cliente.getUbicacion());
+        }
+        
         // Encriptar la contraseña antes de guardarla
         String contraseñaEncriptada = codificadorContraseñas.encode(cliente.getPassword());
         cliente.setPassword(contraseñaEncriptada);
+        
         // Guardar el cliente en la base de datos
         repositorioClientes.save(cliente);
     }
@@ -70,13 +79,41 @@ public class AuthService implements UserDetailsService {
         if (repartidorExistente.isPresent()) {
             throw new IllegalArgumentException("El repartidor ya existe con este RUT");
         }
+        
+        // Validar ubicación si está presente
+        if (repartidor.getUbicacion() != null) {
+            validarUbicacionChile(repartidor.getUbicacion());
+        }
+        
+        // Inicializar valores por defecto para repartidor si no están seteados
+        if (repartidor.getPuntuacionPromedio() == null) {
+            repartidor.setPuntuacionPromedio(0.0);
+        }
+        if (repartidor.getCantidadEntregas() == null) {
+            repartidor.setCantidadEntregas(0);
+        }
+        if (repartidor.getDistanciaRecorrida() == null) {
+            repartidor.setDistanciaRecorrida(0.0);
+        }
+        
         // Encriptar la contraseña antes de guardarla
         String contraseñaEncriptada = codificadorContraseñas.encode(repartidor.getPassword());
         repartidor.setPassword(contraseñaEncriptada);
+        
         // Guardar el repartidor en la base de datos
         repositorioRepartidores.save(repartidor);
     }
-
+    
+    private void validarUbicacionChile(Point ubicacion) {
+        double lat = ubicacion.getY();
+        double lng = ubicacion.getX();
+        
+        // Validar que las coordenadas estén en un rango válido para Chile
+        if (lat < -56 || lat > -17 || lng < -110 || lng > -66) {
+            throw new IllegalArgumentException("Las coordenadas no están dentro del territorio chileno");
+        }
+    }
+    
     /**
      * Autentica al usuario (cliente o repartidor) usando LoginRequestDTO
      *
