@@ -58,6 +58,14 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
         if (empresa.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(empresa.getUbicacion());
         }
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación de la empresa no está dentro de ninguna zona de cobertura válida.");
+        }
         
         jdbcTemplate.update(INSERT_EMPRESA_SQL,
                 empresa.getRut(),
@@ -88,6 +96,14 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
         String ubicacionWkt = null;
         if (empresa.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(empresa.getUbicacion());
+        }
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación de la empresa no está dentro de ninguna zona de cobertura válida.");
         }
         
         return jdbcTemplate.update(UPDATE_EMPRESA_SQL,

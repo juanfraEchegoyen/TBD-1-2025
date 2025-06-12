@@ -35,7 +35,6 @@ public class JdbcClienteRepository implements ClienteRepository {
         cliente.setPassword(rs.getString("password"));
         cliente.setNombre(rs.getString("nombre_cliente"));
         cliente.setTelefono(rs.getString("telefono"));
-        cliente.setDireccion(rs.getString("direccion"));
         cliente.setComuna(rs.getString("comuna"));
         
         // Conversión de WKT a Point
@@ -52,11 +51,21 @@ public class JdbcClienteRepository implements ClienteRepository {
         }
         
         return cliente;
-    };    @Override
+    };
+
+    @Override
     public Cliente save(Cliente cliente) {
         String ubicacionWkt = null;
         if (cliente.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(cliente.getUbicacion());
+        }
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación del cliente no está dentro de ninguna zona de cobertura válida.");
         }
         
         jdbcTemplate.update(INSERT_CLIENTE_SQL,
@@ -83,7 +92,9 @@ public class JdbcClienteRepository implements ClienteRepository {
     @Override
     public List<Cliente> findAll() {
         return jdbcTemplate.query(SELECT_ALL_CLIENTES_SQL, clienteRowMapper);
-    }    @Override
+    }
+
+    @Override
     public int update(Cliente cliente) {
         if (cliente == null || cliente.getRut() == null) {
             throw new IllegalArgumentException("RUT o cliente no pueden ser nulos para el update");
@@ -92,6 +103,14 @@ public class JdbcClienteRepository implements ClienteRepository {
         String ubicacionWkt = null;
         if (cliente.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(cliente.getUbicacion());
+        }
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación del cliente no está dentro de ninguna zona de cobertura válida.");
         }
         
         return jdbcTemplate.update(UPDATE_CLIENTE_SQL,

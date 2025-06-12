@@ -74,13 +74,23 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
         }
         
         return repartidor;
-    };    @Override
+    };
+
+    @Override
     public Repartidor save(Repartidor repartidor) {
         String ubicacionWkt = null;
         if (repartidor.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(repartidor.getUbicacion());
         }
-        
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación del repartidor no está dentro de ninguna zona de cobertura válida.");
+        }
+
         jdbcTemplate.update(INSERT_REPARTIDOR_SQL,
                 repartidor.getRut(),
                 repartidor.getPassword(),
@@ -106,7 +116,9 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
     @Override
     public List<Repartidor> findAll() {
         return jdbcTemplate.query(SELECT_ALL_REPARTIDORES_SQL, repartidorRowMapper);
-    }    @Override
+    }
+
+    @Override
     public int update(Repartidor repartidor) {
         if (repartidor == null || repartidor.getRut() == null) {
             throw new IllegalArgumentException("Repartidor o rut no pueden ser nulos para update");
@@ -115,6 +127,14 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
         String ubicacionWkt = null;
         if (repartidor.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(repartidor.getUbicacion());
+        }
+
+        // Verificar si el punto está dentro de algún polígono
+        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+
+        if (!validate){
+            throw new IllegalArgumentException("La ubicación del repartidor no está dentro de ninguna zona de cobertura válida.");
         }
         
         return jdbcTemplate.update(UPDATE_REPARTIDOR_SQL,
