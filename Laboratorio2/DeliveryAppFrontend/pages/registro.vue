@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen overflow-y-auto py-8 px-4 bg-gray-50">
-    <div class="max-w-md mx-auto rounded-lg shadow-lg p-6">
+  <div class="min-h-screen overflow-y-auto py-8 px-4 flex items-center justify-center">
+    <div class="max-w-md mx-auto p-6">
       <div class="text-2xl font-bold mb-6 text-center">Crear cuenta</div>
       
       <!-- Error message display -->
