@@ -24,20 +24,20 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
     private final WKTWriter wktWriter = new WKTWriter();
 
     private static final String INSERT_ZONA_SQL_RETURNING_ID =
-            "INSERT INTO ZonaCobertura (nombre_comuna, nombre_zona, descripcion, rut_empresa, area_cobertura, activa, fecha_creacion) VALUES (?, ?, ?, ?, ST_GeomFromText(?, 4326), ?, ?) RETURNING id_zona";
+            "INSERT INTO ZonaCobertura (comuna, zona, descripcion, rut_empresa, area_cobertura) VALUES (?, ?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_zona_cobertura";
     private static final String SELECT_ZONA_BY_ID_SQL =
-            "SELECT id_zona, nombre_comuna, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt, activa, fecha_creacion FROM ZonaCobertura WHERE id_zona = ?";
+            "SELECT id_zona_cobertura, comuna, zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE id_zona_cobertura = ?";
     private static final String SELECT_ALL_ZONAS_SQL =
-            "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura";
+            "SELECT id_zona_cobertura, zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura";
     private static final String UPDATE_ZONA_SQL =
-            "UPDATE ZonaCobertura SET nombre_comuna = ?, nombre_zona = ?, descripcion = ?, rut_empresa = ?, area_cobertura = ST_GeomFromText(?, 4326), activa = ?, fecha_creacion = ? WHERE id_zona = ?";
+            "UPDATE ZonaCobertura SET comuna = ?, zona = ?, descripcion = ?, rut_empresa = ?, area_cobertura = ST_GeomFromText(?, 4326) WHERE id_zona_cobertura = ?";
     private static final String DELETE_ZONA_BY_ID_SQL =
-            "DELETE FROM ZonaCobertura WHERE id_zona = ?";    private static final String SELECT_ZONAS_BY_EMPRESA_SQL =
-            "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE rut_empresa = ?";
+            "DELETE FROM ZonaCobertura WHERE id_zona_cobertura = ?";    private static final String SELECT_ZONAS_BY_EMPRESA_SQL =
+            "SELECT id_zona_cobertura, zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt FROM ZonaCobertura WHERE rut_empresa = ?";
     
     // Consultas espaciales
     private static final String SELECT_ZONAS_QUE_CONTIENEN_PUNTO_SQL =
-            "SELECT id_zona, nombre_zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt " +
+            "SELECT id_zona_cobertura, zona, descripcion, rut_empresa, ST_AsText(area_cobertura) as area_wkt " +
             "FROM ZonaCobertura " +
             "WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
     
@@ -48,9 +48,9 @@ public class JdbcZonaCoberturaRepository implements ZonaCoberturaRepository {
 
     private final RowMapper<ZonaCobertura> zonaCoberturaRowMapper = (rs, rowNum) -> {
         ZonaCobertura zona = new ZonaCobertura();
-        zona.setIdZona(rs.getLong("id_zona"));
-        zona.setNombreComuna(rs.getString("nombre_comuna"));
-        zona.setNombreZona(rs.getString("nombre_zona"));
+        zona.setIdZona(rs.getLong("id_zona_cobertura"));
+        zona.setNombreComuna(rs.getString("comuna"));
+        zona.setNombreZona(rs.getString("zona"));
         zona.setDescripcion(rs.getString("descripcion"));
         zona.setRutEmpresa(rs.getString("rut_empresa"));
         

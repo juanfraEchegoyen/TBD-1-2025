@@ -23,20 +23,22 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
     private final WKTWriter wktWriter = new WKTWriter();
 
     private static final String INSERT_PUNTO_SQL_RETURNING_ID =
-            "INSERT INTO PuntoInteres (nombre_punto, tipo, descripcion, ubicacion) VALUES (?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_punto";
+            "INSERT INTO PuntoInteres (nombre, tipo, descripcion, ubicacion) VALUES (?, ?, ?, ST_GeomFromText(?, 4326)) RETURNING id_punto_interes";
     private static final String SELECT_PUNTO_BY_ID_SQL =
-            "SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE id_punto = ?";
+            "SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE id_punto_interes = ?";
     private static final String SELECT_ALL_PUNTOS_SQL =
-            "SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres";
+            "SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres";
     private static final String UPDATE_PUNTO_SQL =
-            "UPDATE PuntoInteres SET nombre_punto = ?, tipo = ?, descripcion = ?, ubicacion = ST_GeomFromText(?, 4326) WHERE id_punto = ?";
+            "UPDATE PuntoInteres SET nombre = ?, tipo = ?, descripcion = ?, ubicacion = ST_GeomFromText(?, 4326) WHERE id_punto_interes = ?";
     private static final String DELETE_PUNTO_BY_ID_SQL =
-            "DELETE FROM PuntoInteres WHERE id_punto = ?";
+            "DELETE FROM PuntoInteres WHERE id_punto_interes = ?";
     private static final String SELECT_PUNTOS_BY_TIPO_SQL =
-            "SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE tipo = ?";    private final RowMapper<PuntoInteres> puntoInteresRowMapper = (rs, rowNum) -> {
+            "SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt FROM PuntoInteres WHERE tipo = ?";
+
+    private final RowMapper<PuntoInteres> puntoInteresRowMapper = (rs, rowNum) -> {
         PuntoInteres punto = new PuntoInteres();
-        punto.setIdPunto(rs.getLong("id_punto"));
-        punto.setNombre(rs.getString("nombre_punto"));
+        punto.setIdPunto(rs.getLong("id_punto_interes"));
+        punto.setNombre(rs.getString("nombre"));
         punto.setTipo(rs.getString("tipo"));
         punto.setDescripcion(rs.getString("descripcion"));
         
@@ -143,7 +145,7 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
         
         String centroWkt = wktWriter.write(centro);
         String sql = """
-            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
             FROM PuntoInteres
             WHERE ST_DWithin(
                 ST_Transform(ubicacion, 32719),
@@ -162,7 +164,7 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
         
         String ubicacionWkt = wktWriter.write(ubicacion);
         String sql = """
-            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
             FROM PuntoInteres
             WHERE tipo = ?
             ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))
@@ -184,7 +186,7 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
         
         String puntoWkt = wktWriter.write(punto);
         String sql = """
-            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
             FROM PuntoInteres
             WHERE ST_DWithin(
                 ST_Transform(ubicacion, 32719),
@@ -205,7 +207,7 @@ public class JdbcPuntoInteresRepository implements PuntoInteresRepository {
         
         String puntoWkt = wktWriter.write(punto);
         String sql = """
-            SELECT id_punto, nombre_punto, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
+            SELECT id_punto_interes, nombre, tipo, descripcion, ST_AsText(ubicacion) as ubicacion_wkt
             FROM PuntoInteres
             WHERE tipo = ?
             ORDER BY ST_Distance(ubicacion, ST_GeomFromText(?, 4326))

@@ -17,8 +17,6 @@ public class ZonaCobertura {
     private String descripcion;
     private String rutEmpresa;
     private MultiPolygon areaCobertura;
-    private Boolean activa;
-    private LocalDateTime fechaCreacion;
     
     public String getNombre() {
         return this.nombreZona;
