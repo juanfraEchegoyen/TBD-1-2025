@@ -196,6 +196,8 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
         }
     }
+
+
     //LAB 2
     // Implementación del metodo para obtener zonas de cobertura por cliente
 

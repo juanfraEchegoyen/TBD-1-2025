@@ -47,4 +47,12 @@ export const menuOptions = [
     isDoble: false,
     submenu: []
   },
+  {
+    title: 'Mapas',
+    icon: 'bx:bar-chart-alt',
+    link: '/AddressSearchMap',
+    active: false,
+    isDoble: false,
+    submenu: []
+  },
 ];
