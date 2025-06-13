@@ -109,11 +109,4 @@ public class ClienteController {
         }
     }
 
-    public ResponseEntity<List<Cliente>> obtenerClientesEnRadio(
-            @RequestParam Double longitud,
-            @RequestParam Double latitud,
-            @RequestParam Double radioMetros) {
-        try {
-            Point centro = geometryFactory.createPoint(new Coordinate(longitud, latitud));
-            centro.setSRID(4326);
 }
