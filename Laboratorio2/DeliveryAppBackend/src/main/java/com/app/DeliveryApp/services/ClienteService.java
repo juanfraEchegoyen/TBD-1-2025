@@ -13,5 +13,4 @@ public interface ClienteService {
     boolean eliminarCliente(String rut);
     double calcularRiesgoCliente(String rutCliente);
     Optional<Cliente> actualizarUbicacionCliente(String rut, Point nuevaUbicacion);
-    List<Cliente> obtenerClientesEnRadio(Point centro, double radioMetros);
 }

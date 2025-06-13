@@ -52,18 +52,5 @@ public class EmpresaServiceImpl implements EmpresaService {
             return filasAfectadas > 0;        }
         return false;
     }
-    
-    @Override
-    public Optional<Empresa> actualizarUbicacionEmpresa(String rut, Point nuevaUbicacion) {
-        Optional<Empresa> empresaOpt = empresaRepository.findByRut(rut);
-        
-        if (empresaOpt.isPresent()) {
-            Empresa empresa = empresaOpt.get();
-            empresa.setUbicacion(nuevaUbicacion);
-            empresaRepository.update(empresa);
-            return Optional.of(empresa);
-        }
-        
-        return Optional.empty();
-    }
+
 }

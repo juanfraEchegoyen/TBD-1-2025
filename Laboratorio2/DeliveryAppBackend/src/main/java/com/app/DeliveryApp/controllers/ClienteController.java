@@ -109,8 +109,6 @@ public class ClienteController {
         }
     }
 
-    // obtener clientes en un radio específico
-    @GetMapping("/radio")
     public ResponseEntity<List<Cliente>> obtenerClientesEnRadio(
             @RequestParam Double longitud,
             @RequestParam Double latitud,
@@ -118,11 +116,4 @@ public class ClienteController {
         try {
             Point centro = geometryFactory.createPoint(new Coordinate(longitud, latitud));
             centro.setSRID(4326);
-            
-            List<Cliente> clientes = clienteService.obtenerClientesEnRadio(centro, radioMetros);
-            return ResponseEntity.ok(clientes);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 }

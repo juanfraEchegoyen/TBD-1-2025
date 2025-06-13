@@ -246,20 +246,6 @@ public class PedidoServiceImpl implements PedidoService {
             throw new IllegalArgumentException("No se pudo cambiar el estado desde '" + estadoActual + "' a '" + estadoNuevo + "'.");
         }
     }
-    
-    @Override
-    public Optional<Pedido> actualizarRutaEstimada(Long id, LineString rutaEstimada) {
-        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
-
-        if (pedidoOpt.isPresent()) {
-            Pedido pedido = pedidoOpt.get();
-            pedido.setRutasEstimadas(rutaEstimada);
-            pedidoRepository.update(pedido);
-            return Optional.of(pedido);
-        }
-        
-        return Optional.empty();
-    }
 
 
 }

@@ -11,8 +11,5 @@ public interface EmpresaService {
     List<Empresa> obtenerTodasLasEmpresas();
     Optional<Empresa> actualizarEmpresa(String rut, Empresa empresaActualizada);
     boolean eliminarEmpresa(String rut);
-    
-    Optional<Empresa> actualizarUbicacionEmpresa(String rut, Point nuevaUbicacion);
-    List<Empresa> obtenerEmpresasEnRadio(Point centro, double radioMetros);
-    Empresa obtenerEmpresaMasCercana(Point ubicacion);
+
 }
