@@ -74,10 +74,9 @@ const login = async () => {
     
     // Handle successful login
     if (response.data && response.data.accessToken) {
-      // Usamos authService en lugar de manipular localStorage directamente
       authService.login(response.data.accessToken, response.data.refreshToken)
-      
-      // Redirect to home or dashboard
+      // Guarda el rut del usuario autenticado
+      localStorage.setItem('user', JSON.stringify({ rut: formData.rut }))
       router.push('/')
     } else {
       errorMessage.value = 'Error en la respuesta del servidor'
@@ -104,4 +103,8 @@ const login = async () => {
     isLoading.value = false
   }
 }
+
+const userStr = localStorage.getItem('user')
+const user = userStr ? JSON.parse(userStr) : null
+const rutCliente = user?.rut
 </script>
