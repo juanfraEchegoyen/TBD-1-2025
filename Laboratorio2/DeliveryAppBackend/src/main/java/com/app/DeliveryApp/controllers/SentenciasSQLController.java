@@ -1,14 +1,12 @@
 package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.dto.*;
+import com.app.DeliveryApp.models.ZonaCobertura;
 import com.app.DeliveryApp.services.SentenciasSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -97,6 +95,18 @@ public class SentenciasSQLController {
         try {
             List<RankingBonusDTO> ranking = sentenciasSQLService.getRankingDevolucionesOCancelaciones();
             return ResponseEntity.ok(ranking);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    //Lab 2
+    @GetMapping("/zonasCoberturaYUbicacionPorCliente/{rutCliente}")
+    public ResponseEntity<List<ZonaCoberturaClienteDTO>> getZonasCoberturaYUbicacionPorCliente(@PathVariable String rutCliente) {
+        try {
+            List<ZonaCoberturaClienteDTO> zonas = sentenciasSQLService.getZonasCoberturaYUbicacionPorCliente(rutCliente);
+            return ResponseEntity.ok(zonas);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {

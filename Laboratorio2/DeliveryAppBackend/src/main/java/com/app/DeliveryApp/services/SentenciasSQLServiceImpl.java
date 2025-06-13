@@ -4,6 +4,7 @@ import com.app.DeliveryApp.dto.*;
 import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.app.DeliveryApp.models.ZonaCobertura;
 
 import java.util.List;
 
@@ -71,5 +72,15 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
             throw new IllegalArgumentException("No hay devoluciones o cancelaciones registradas");
         }
         return sentenciasSQLRepository.getRankingDevolucionesOCancelaciones();
+    }
+    //Lab 2
+    // Este metodo obtiene las zonas de cobertura por cliente
+    @Override
+    public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
+        List<ZonaCoberturaClienteDTO> zonas = sentenciasSQLRepository.getZonasCoberturaYUbicacionPorCliente(rutCliente);
+        if (zonas.isEmpty()) {
+            throw new IllegalArgumentException("El cliente no está ubicado en ninguna zona de cobertura registrada");
+        }
+        return zonas;
     }
 }

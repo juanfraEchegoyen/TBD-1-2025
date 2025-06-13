@@ -2,6 +2,7 @@ package com.app.DeliveryApp.services;
 
 import com.app.DeliveryApp.dto.*;
 
+
 import java.util.List;
 
 public interface SentenciasSQLService {
@@ -12,5 +13,5 @@ public interface SentenciasSQLService {
     List<RepartidorMejorRendimientoDTO> getRepartidoresMejorRendimiento();
     MetodoPagoFrecuenteDTO getMetodoPagoFrecuente();
     List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
-
+    List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente);
 }

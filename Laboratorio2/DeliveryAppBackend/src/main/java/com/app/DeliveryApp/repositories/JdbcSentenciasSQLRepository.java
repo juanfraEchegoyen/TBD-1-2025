@@ -1,10 +1,13 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.dto.*;
+import com.app.DeliveryApp.models.ZonaCobertura;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.locationtech.jts.geom.MultiPolygon;
+
 
 import java.util.List;
 
@@ -191,6 +194,30 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             );  // Añade este paréntesis de cierre
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
+        }
+    }
+    //LAB 2
+    // Implementación del metodo para obtener zonas de cobertura por cliente
+
+    private static final String SELECT_ZONAS_Y_UBICACION_CLIENTE = """
+    SELECT ST_AsText(z.area_cobertura) AS areaCoberturaWkt, ST_AsText(c.ubicacion) AS ubicacionClienteWkt
+    FROM ZonaCobertura z
+    JOIN Cliente c ON c.rut_cliente = ?
+    WHERE ST_Within(c.ubicacion, z.area_cobertura)
+""";
+
+    public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
+        try {
+            return jdbcTemplate.query(
+                    SELECT_ZONAS_Y_UBICACION_CLIENTE,
+                    new Object[]{rutCliente},
+                    (rs, rowNum) -> new ZonaCoberturaClienteDTO(
+                            rs.getString("areaCoberturaWkt"),
+                            rs.getString("ubicacionClienteWkt")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            return List.of();
         }
     }
 
