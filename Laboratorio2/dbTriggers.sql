@@ -69,6 +69,28 @@ FOR EACH ROW
 EXECUTE FUNCTION calificacion_automatica_nopedido();
 
 
+CREATE OR REPLACE FUNCTION generar_ruta_estimada()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.rutas_estimadas IS NULL THEN
+        NEW.rutas_estimadas := ST_MakeLine(
+            ARRAY[
+                (SELECT ubicacion FROM EmpresaAsociada WHERE rut_empresa = NEW.rut_empresa),
+                (SELECT ubicacion FROM Cliente WHERE rut_cliente = NEW.rut_cliente)
+            ]
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER generar_ruta_trigger
+BEFORE INSERT ON Pedido
+FOR EACH ROW
+EXECUTE FUNCTION generar_ruta_estimada();
+
+
+
 /*
 --Probamos el de noti
 CALL registrar_pedido(

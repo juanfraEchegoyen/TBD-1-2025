@@ -4,12 +4,20 @@ import com.app.DeliveryApp.dto.*;
 import com.app.DeliveryApp.models.ZonaCobertura;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.locationtech.jts.geom.MultiPolygon;
 
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.sql.DriverManager.getConnection;
 
 @Repository
 public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
@@ -199,6 +207,43 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 
 
     //LAB 2
+
+    //1. Obtener los 5 puntos de entrega más cercanos a una empresa
+    private static final String SELECT_ENTREGAS_CERCANAS_SQL = """
+    WITH empresa_seleccionada AS (
+        SELECT ubicacion FROM EmpresaAsociada WHERE rut_empresa = ?
+    ),
+    entregas_pendientes AS (
+        SELECT c.rut_cliente, c.ubicacion, p.id_pedido
+        FROM Cliente c
+        JOIN Pedido p ON c.rut_cliente = p.rut_cliente
+        WHERE p.estado_entrega = 'Pendiente'
+    )
+    SELECT ep.rut_cliente, ep.id_pedido, ST_AsText(ep.ubicacion) AS ubicacion
+    FROM entregas_pendientes ep, empresa_seleccionada es
+    ORDER BY ST_Distance(ep.ubicacion, es.ubicacion) ASC
+    LIMIT 5;
+    """;
+
+
+    public List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa) {
+        try {
+            return jdbcTemplate.query(SELECT_ENTREGAS_CERCANAS_SQL,
+                    ps -> ps.setString(1, rutEmpresa),
+                    (rs, rowNum) -> new EntregaDTO(
+                            rs.getString("rut_cliente"),
+                            rs.getInt("id_pedido"),
+                            rs.getString("ubicacion") // Ahora recibe la ubicación en WKT
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener entregas cercanas", ex);
+        }
+    }
+
+
+
+
     // 2. Obtener zonas de cobertura por cliente
 
     private static final String SELECT_ZONAS_Y_UBICACION_CLIENTE = """
@@ -207,6 +252,71 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     JOIN Cliente c ON c.rut_cliente = ?
     WHERE ST_Within(c.ubicacion, z.area_cobertura)
 """;
+
+
+    //3. Calcular la distancia total recorrida por un repartidor
+    private static final String SELECT_DISTANCIA_RECORRIDA_SQL = """
+    SELECT p.rut_repartidor, COUNT(*) AS pedidos_entregados, 
+           SUM(ST_Distance(c.ubicacion, e.ubicacion)) AS distancia_total_km
+    FROM Pedido p
+    JOIN Cliente c ON p.rut_cliente = c.rut_cliente
+    JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
+    WHERE p.fecha_pedido >= NOW() - INTERVAL '1 month'
+          AND p.estado_entrega = 'Entregado'
+          AND p.rut_repartidor = ?
+    GROUP BY p.rut_repartidor
+    ORDER BY distancia_total_km DESC;
+""";
+
+
+    public DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor) {
+        try {
+            return jdbcTemplate.queryForObject(SELECT_DISTANCIA_RECORRIDA_SQL,
+                    new Object[]{rutRepartidor},
+                    (rs, rowNum) -> new DistanciaDTO(
+                            rs.getString("rut_repartidor"),
+                            rs.getInt("pedidos_entregados"),
+                            rs.getDouble("distancia_total_km")
+                    )
+            );
+
+        } catch (EmptyResultDataAccessException ex) {
+            return null; // Si no hay resultados, retorna null
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al calcular distancia recorrida", ex);
+        }
+    }
+
+
+
+
+    //5. Listar pedidos que cruzan más de 2 zonas de reparto
+
+    private static final String SELECT_PEDIDOS_CRUZAN_ZONAS_SQL = """
+    SELECT p.id_pedido, p.rut_repartidor, COUNT(DISTINCT z.id_zona_cobertura) AS zonas_cruzadas
+    FROM Pedido p
+    JOIN ZonaCobertura z ON ST_Intersects(p.rutas_estimadas, z.area_cobertura)
+    GROUP BY p.id_pedido, p.rut_repartidor
+    HAVING COUNT(DISTINCT z.id_zona_cobertura) > 2
+    ORDER BY zonas_cruzadas DESC;
+""";
+
+    public List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas() {
+        try {
+            return jdbcTemplate.query(SELECT_PEDIDOS_CRUZAN_ZONAS_SQL,
+                    (rs, rowNum) -> new PedidoZonasDTO(
+                            rs.getInt("id_pedido"),
+                            rs.getString("rut_repartidor"),
+                            rs.getInt("zonas_cruzadas")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener pedidos que cruzan zonas", ex);
+        }
+    }
+
+
+
     // 6. Determinar los clientes que están a más de 5km de cualquier empresa
     private static final String SELECT_CLIENTES_MAS_5KM_EMPRESA = """
     SELECT c.rut_cliente, c.nombre_cliente, ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt
