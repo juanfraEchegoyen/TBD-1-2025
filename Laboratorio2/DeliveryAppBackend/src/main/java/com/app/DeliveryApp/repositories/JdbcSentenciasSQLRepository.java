@@ -14,7 +14,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-/* ---- SENTENCIAS DEL LAB 1 -----
+// ---- SENTENCIAS DEL LAB 1 -----
     //Bonus Generar un ranking de productos o servicios según devoluciones o cancelaciones.
     private static String SELECT_RANKING_DEVOLUCIONES_O_CANCELACIONES = """
             SELECT pr.nombre_producto, pr.categoria,
@@ -194,5 +194,4 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
         }
     }
 
- */
 }

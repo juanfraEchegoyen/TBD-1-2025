@@ -5,7 +5,6 @@ import com.app.DeliveryApp.dto.*;
 import java.util.List;
 
 public interface SentenciasSQLRepository {
-    /*
     ClienteGastoDTO getClienteConMayorGastos();
     List<ProductoMasVendidoDTO> getProductosMasVendidosUltimoMes();
     List<EmpresaEntregasFallidasDTO> getEmpresasEntregasFallidas();
@@ -13,5 +12,4 @@ public interface SentenciasSQLRepository {
     List<RepartidorMejorRendimientoDTO> getRepartidoresMejorRendimiento();
     MetodoPagoFrecuenteDTO getMetodoPagoFrecuente();
     List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
-     */
 }
