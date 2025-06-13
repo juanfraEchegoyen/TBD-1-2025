@@ -1,16 +1,11 @@
 <template>
-  <div class="min-h-screen overflow-y-auto py-8 px-4 flex items-center justify-center">
-    <div class="max-w-md mx-auto p-6">
+  <div class="min-h-screen overflow-auto py-8">
+    <div class="max-w-md w-full mx-auto p-6">
       <div class="text-2xl font-bold mb-6 text-center">Crear cuenta</div>
       
       <!-- Error message display -->
       <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-center">
         {{ errorMessage }}
-      </div>
-      
-      <!-- Success message display -->
-      <div v-if="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-center">
-        {{ successMessage }}
       </div>
 
       <!-- Selector de tipo de usuario -->
@@ -22,7 +17,7 @@
         </select>
       </div>
 
-      <!-- Campos básicos -->
+      <!-- Campo de RUT -->
       <div class="mb-4">
         <label class="block mb-2 font-semibold">RUT</label>
         <input
