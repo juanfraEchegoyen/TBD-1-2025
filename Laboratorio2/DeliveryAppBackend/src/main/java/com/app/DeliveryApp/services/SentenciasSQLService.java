@@ -15,4 +15,7 @@ public interface SentenciasSQLService {
     List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
     List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente);
     List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa();
+    List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa);
+    DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor);
+    List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas();
 }

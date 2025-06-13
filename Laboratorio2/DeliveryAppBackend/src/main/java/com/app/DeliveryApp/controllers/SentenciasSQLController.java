@@ -2,6 +2,7 @@ package com.app.DeliveryApp.controllers;
 
 import com.app.DeliveryApp.dto.*;
 import com.app.DeliveryApp.models.ZonaCobertura;
+import com.app.DeliveryApp.repositories.SentenciasSQLRepository;
 import com.app.DeliveryApp.services.SentenciasSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class SentenciasSQLController {
 
     @Autowired
     private SentenciasSQLService sentenciasSQLService;
+    private SentenciasSQLRepository SentenciasSQLRepository;
 
     @GetMapping("/clienteMayorGastos")
     public ResponseEntity<ClienteGastoDTO> getClienteConMayorGastos() {
@@ -103,6 +105,22 @@ public class SentenciasSQLController {
     }
     //Lab 2
 
+    //Endpoint query 1
+    @GetMapping("/entregasCercanas/{rutEmpresa}")
+    public ResponseEntity<?> obtenerEntregasCercanas(@PathVariable String rutEmpresa) {
+        try {
+            List<EntregaDTO> entregas = sentenciasSQLService.obtenerEntregasCercanas(rutEmpresa);
+            if (entregas.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron entregas cercanas");
+            }
+            return ResponseEntity.ok(entregas);
+        } catch (Exception e) {
+            e.printStackTrace(); // Imprime detalles en la consola
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno: " + e.getMessage());
+        }
+    }
+
+
     //Endpoint query 2
     @GetMapping("/zonasCoberturaYUbicacionPorCliente/{rutCliente}")
     public ResponseEntity<List<ZonaCoberturaClienteDTO>> getZonasCoberturaYUbicacionPorCliente(@PathVariable String rutCliente) {
@@ -111,6 +129,32 @@ public class SentenciasSQLController {
             return ResponseEntity.ok(zonas);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //Endpoint query 3
+    @GetMapping("/distanciaRecorrida/{rutRepartidor}")
+    public ResponseEntity<DistanciaDTO> calcularDistanciaRepartidor(@PathVariable String rutRepartidor) {
+        try {
+            DistanciaDTO distancia = sentenciasSQLService.calcularDistanciaRepartidor(rutRepartidor);
+            if (distancia != null) {
+                return ResponseEntity.ok(distancia);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //Endpoint query 5
+    @GetMapping("/pedidosQueCruzaronZonas")
+    public ResponseEntity<List<PedidoZonasDTO>> obtenerPedidosQueCruzaronZonas() {
+        try {
+            List<PedidoZonasDTO> pedidos = sentenciasSQLService.obtenerPedidosQueCruzaronZonas();
+            return ResponseEntity.ok(pedidos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

@@ -226,6 +226,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     """;
 
 
+    @Override
     public List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa) {
         try {
             return jdbcTemplate.query(SELECT_ENTREGAS_CERCANAS_SQL,
@@ -269,6 +270,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 """;
 
 
+    @Override
     public DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor) {
         try {
             return jdbcTemplate.queryForObject(SELECT_DISTANCIA_RECORRIDA_SQL,
@@ -301,6 +303,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     ORDER BY zonas_cruzadas DESC;
 """;
 
+    @Override
     public List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas() {
         try {
             return jdbcTemplate.query(SELECT_PEDIDOS_CRUZAN_ZONAS_SQL,

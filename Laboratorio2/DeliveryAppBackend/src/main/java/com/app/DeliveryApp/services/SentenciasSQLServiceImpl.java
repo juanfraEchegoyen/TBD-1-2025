@@ -74,6 +74,16 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
         return sentenciasSQLRepository.getRankingDevolucionesOCancelaciones();
     }
     // ------------------------Lab 2 ------------------------//
+    //1
+    @Override
+    public List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa) {
+        List<EntregaDTO> pedidos = sentenciasSQLRepository.obtenerEntregasCercanas(rutEmpresa);
+        if (pedidos.isEmpty()) {
+            throw new IllegalArgumentException("No hay enntregas cercanas.");
+        }
+        return pedidos;
+    }
+
 
     // Este metodo obtiene las zonas de cobertura por cliente
     @Override
@@ -84,6 +94,28 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
         }
         return zonas;
     }
+
+
+    // 3
+    @Override
+    public DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor){
+        DistanciaDTO distancia = sentenciasSQLRepository.calcularDistanciaRepartidor(rutRepartidor);
+        if (distancia == null) {
+            throw new IllegalArgumentException("NO hay distancia registrada");
+        }
+        return distancia;
+    }
+
+    // 5
+    @Override
+    public List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas(){
+        List<PedidoZonasDTO> pedidoZonasDTOS = sentenciasSQLRepository.obtenerPedidosQueCruzaronZonas();
+        if (pedidoZonasDTOS.isEmpty()) {
+            throw new IllegalArgumentException("No hay pedidos que hayan cruzado más de 2 zonas de reparto.");
+        }
+        return pedidoZonasDTOS;
+    }
+
     // Este metodo obtiene los clientes que se encuentran a más de 5km de cualquier empresa
     @Override
     public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
