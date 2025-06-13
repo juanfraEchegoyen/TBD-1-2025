@@ -12,29 +12,39 @@ public class RegistroClienteDTO {
     private String direccion;
     private String comuna;
     private String ubicacion; // WKT format
-    
+    private TipoUsuario tipoUsuario; // Nuevo atributo
+
+    // Enum para definir el tipo de usuario
+    public enum TipoUsuario {
+        CLIENTE,
+        REPARTIDOR
+    }
+
     // Getters y setters
     public String getRut() { return rut; }
     public void setRut(String rut) { this.rut = rut; }
-    
+
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-    
+
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
-    
+
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    
+
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
-    
+
     public String getComuna() { return comuna; }
     public void setComuna(String comuna) { this.comuna = comuna; }
-    
+
     public String getUbicacion() { return ubicacion; }
     public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
-    
+
+    public TipoUsuario getTipoUsuario() { return tipoUsuario; }
+    public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
+
     public Cliente toCliente() {
         Cliente cliente = new Cliente();
         cliente.setRut(this.rut);
@@ -43,7 +53,7 @@ public class RegistroClienteDTO {
         cliente.setPassword(this.password);
         cliente.setDireccion(this.direccion);
         cliente.setComuna(this.comuna);
-        
+
         // Convertir WKT a Point usando JTS
         if (this.ubicacion != null && !this.ubicacion.trim().isEmpty()) {
             try {
@@ -55,7 +65,7 @@ public class RegistroClienteDTO {
                 throw new RuntimeException("Error al procesar ubicación: " + e.getMessage());
             }
         }
-        
+
         return cliente;
     }
 }

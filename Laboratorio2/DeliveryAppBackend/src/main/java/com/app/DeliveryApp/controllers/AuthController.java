@@ -33,15 +33,32 @@ public class AuthController {
         return ResponseEntity.ok(respuesta);
     }
 
-    @PostMapping("/registro/cliente")
-    public ResponseEntity<?> registroCliente(@RequestBody RegistroClienteDTO clienteDto) {
+    @PostMapping("/registro")
+    public ResponseEntity<?> registroUsuario(@RequestBody RegistroClienteDTO usuarioDto) {
         try {
-            Cliente cliente = clienteDto.toCliente();
-            servicioAutenticacion.registroCliente(cliente);
-            
-            Map<String, String> respuesta = new HashMap<>();
-            respuesta.put("mensaje", "Cliente registrado exitosamente");
-            return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+            if (usuarioDto.getTipoUsuario() == RegistroClienteDTO.TipoUsuario.CLIENTE) {
+                Cliente cliente = usuarioDto.toCliente();
+                servicioAutenticacion.registroCliente(cliente);
+
+                Map<String, String> respuesta = new HashMap<>();
+                respuesta.put("mensaje", "Cliente registrado exitosamente");
+                return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+            } else if (usuarioDto.getTipoUsuario() == RegistroClienteDTO.TipoUsuario.REPARTIDOR) {
+                Repartidor repartidor = new Repartidor();
+                repartidor.setRut(usuarioDto.getRut());
+                repartidor.setNombre(usuarioDto.getNombre());
+                repartidor.setTelefono(usuarioDto.getTelefono());
+                repartidor.setPassword(usuarioDto.getPassword());
+                repartidor.setUbicacion(usuarioDto.toCliente().getUbicacion());
+
+                servicioAutenticacion.registroRepartidor(repartidor);
+
+                Map<String, String> respuesta = new HashMap<>();
+                respuesta.put("mensaje", "Repartidor registrado exitosamente");
+                return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+            } else {
+                throw new IllegalArgumentException("Tipo de usuario no válido");
+            }
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());

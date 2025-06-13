@@ -193,30 +193,18 @@ const registrar = async () => {
   try {
     isLoading.value = true
     
-    const endpoint = formData.tipoUsuario === 'CLIENTE' 
-      ? '/auth/registro/cliente' 
-      : '/auth/registro/repartidor'
-    
     const payload = {
       rut: formData.rut,
       nombre: formData.nombre,
       telefono: formData.telefono,
       password: formData.password,
-      ubicacion: formData.ubicacion
+      direccion: formData.direccion,
+      comuna: formData.comuna,
+      ubicacion: formData.ubicacion,
+      tipoUsuario: formData.tipoUsuario // Agregar tipoUsuario al payload
     }
     
-    // Agregar campos específicos para cliente
-    if (formData.tipoUsuario === 'CLIENTE') {
-      payload.direccion = formData.direccion
-      payload.comuna = formData.comuna
-    } else {
-      // Para repartidor, inicializar valores por defecto
-      payload.puntuacionPromedio = 0.0
-      payload.cantidadEntregas = 0
-      payload.distanciaRecorrida = 0.0
-    }
-    
-    await apiClient.post(endpoint, payload)
+    await apiClient.post('/auth/registro', payload)
     
     successMessage.value = `${formData.tipoUsuario.toLowerCase()} registrado exitosamente. Redirigiendo...`
     
