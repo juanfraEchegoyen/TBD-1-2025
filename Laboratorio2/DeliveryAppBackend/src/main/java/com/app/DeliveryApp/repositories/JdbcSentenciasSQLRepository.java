@@ -199,7 +199,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
 
 
     //LAB 2
-    // Implementación del metodo para obtener zonas de cobertura por cliente
+    // 2. Obtener zonas de cobertura por cliente
 
     private static final String SELECT_ZONAS_Y_UBICACION_CLIENTE = """
     SELECT ST_AsText(z.area_cobertura) AS areaCoberturaWkt, ST_AsText(c.ubicacion) AS ubicacionClienteWkt
@@ -207,6 +207,16 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     JOIN Cliente c ON c.rut_cliente = ?
     WHERE ST_Within(c.ubicacion, z.area_cobertura)
 """;
+    // 6. Determinar los clientes que están a más de 5km de cualquier empresa
+    private static final String SELECT_CLIENTES_MAS_5KM_EMPRESA = """
+    SELECT c.rut_cliente, c.nombre_cliente, ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt
+    FROM Cliente c
+    WHERE EXISTS (
+        SELECT 1
+        FROM EmpresaAsociada e
+        WHERE ST_Distance(c.ubicacion, e.ubicacion) > 5000
+    )
+    """;
 
     public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
         try {
