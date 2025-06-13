@@ -14,4 +14,5 @@ public interface SentenciasSQLRepository {
     MetodoPagoFrecuenteDTO getMetodoPagoFrecuente();
     List<RankingBonusDTO> getRankingDevolucionesOCancelaciones();
     List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente);
+    List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa();
 }

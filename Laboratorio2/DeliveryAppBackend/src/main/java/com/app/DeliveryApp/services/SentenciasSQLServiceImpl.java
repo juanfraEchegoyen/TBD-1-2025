@@ -73,7 +73,8 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
         }
         return sentenciasSQLRepository.getRankingDevolucionesOCancelaciones();
     }
-    //Lab 2
+    // ------------------------Lab 2 ------------------------//
+
     // Este metodo obtiene las zonas de cobertura por cliente
     @Override
     public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
@@ -82,5 +83,14 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
             throw new IllegalArgumentException("El cliente no está ubicado en ninguna zona de cobertura registrada");
         }
         return zonas;
+    }
+    // Este metodo obtiene los clientes que se encuentran a más de 5km de cualquier empresa
+    @Override
+    public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
+        List<ClienteLejanoDTO> clientes = sentenciasSQLRepository.getClientesAMasDe5KmDeEmpresa();
+        if (clientes.isEmpty()) {
+            throw new IllegalArgumentException("No hay clientes a más de 5km de cualquier empresa");
+        }
+        return clientes;
     }
 }

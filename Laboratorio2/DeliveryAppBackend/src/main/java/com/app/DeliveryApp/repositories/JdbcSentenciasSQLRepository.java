@@ -218,6 +218,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     )
     """;
 
+    //2. Query para obtener zonas de cobertura y ubicación del cliente
     public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
         try {
             return jdbcTemplate.query(
@@ -230,6 +231,21 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             );
         } catch (DataAccessException ex) {
             return List.of();
+        }
+    }
+    //6. Query para obtener clientes a más de 5km de cualquier empresa
+    @Override
+    public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
+        try {
+            return jdbcTemplate.query(SELECT_CLIENTES_MAS_5KM_EMPRESA,
+                    (rs, rowNum) -> new ClienteLejanoDTO(
+                            rs.getString("rut_cliente"),
+                            rs.getString("nombre_cliente"),
+                            rs.getString("ubicacion_cliente_wkt")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener clientes lejanos", ex);
         }
     }
 

@@ -102,11 +102,26 @@ public class SentenciasSQLController {
         }
     }
     //Lab 2
+
+    //Endpoint query 2
     @GetMapping("/zonasCoberturaYUbicacionPorCliente/{rutCliente}")
     public ResponseEntity<List<ZonaCoberturaClienteDTO>> getZonasCoberturaYUbicacionPorCliente(@PathVariable String rutCliente) {
         try {
             List<ZonaCoberturaClienteDTO> zonas = sentenciasSQLService.getZonasCoberturaYUbicacionPorCliente(rutCliente);
             return ResponseEntity.ok(zonas);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //Endpoint query 6
+    @GetMapping("/clientesLejanos")
+    public ResponseEntity<List<ClienteLejanoDTO>> getClientesLejanos() {
+        try {
+            List<ClienteLejanoDTO> clientes = sentenciasSQLService.getClientesAMasDe5KmDeEmpresa();
+            return ResponseEntity.ok(clientes);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
