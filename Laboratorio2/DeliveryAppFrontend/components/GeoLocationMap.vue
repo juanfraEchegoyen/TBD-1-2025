@@ -1,11 +1,5 @@
 <template>
   <div class="location-map-picker">
-    <button
-      @click="fetchZonaCobertura"
-      class="mb-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-    >
-      Mostrar zona y ubicación del cliente
-    </button>
     <div class="search-box mb-2">
       <input 
         v-model="searchQuery" 
@@ -45,9 +39,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import wellknown from 'wellknown'
-import apiClient from '../service/http-common'
+import { ref, onMounted } from 'vue'
 
 // ENTRADA: Coordenadas iniciales para el mapa (opcionales)
 // PROCEDIMIENTO: Define las coordenadas iniciales del mapa y el marcador (Santiago de Chile por defecto)
@@ -60,14 +52,6 @@ const props = defineProps({
   initialLongitude: {
     type: [Number, String],
     default: -70.6693 // Santiago de Chile
-  },
-  areaCoberturaWkt: {
-    type: String,
-    default: ''
-  },
-  ubicacionClienteWkt: {
-    type: String,
-    default: ''
   }
 })
 
@@ -84,8 +68,6 @@ const map = ref(null)
 const marker = ref(null)
 const currentAddress = ref('')
 const currentAddressData = ref(null)
-const areaCoberturaWkt = ref(props.areaCoberturaWkt)
-const ubicacionClienteWkt = ref(props.ubicacionClienteWkt)
 
 // Variables para importación dinámica de Leaflet
 let L = null
@@ -294,59 +276,6 @@ const emitLocationUpdate = (lat, lng, address, addressData = null) => {
     addressData: addressData || currentAddressData.value
   })
 }
-
-// Observa cambios y redibuja el mapa si cambian los WKTs
-watch([areaCoberturaWkt, ubicacionClienteWkt], ([newArea, newPunto]) => {
-  if (map.value && newArea) {
-    // Limpia capas anteriores excepto la capa base
-    map.value.eachLayer(layer => {
-      if (layer instanceof L.GeoJSON) map.value.removeLayer(layer)
-    })
-    // Dibuja nueva zona
-    const areaGeoJson = wellknown(newArea)
-    const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
-    map.value.fitBounds(areaLayer.getBounds())
-    // Dibuja nuevo punto
-    if (newPunto) {
-      const puntoGeoJson = wellknown(newPunto)
-      L.geoJSON(puntoGeoJson, {
-        pointToLayer: (feature, latlng) => L.marker(latlng, { icon: L.icon({
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-        }) })
-      }).addTo(map.value)
-    }
-  }
-})
-
-// Llama al endpoint y actualiza los datos usando fetch y token
-const fetchZonaCobertura = async () => {
-  const userStr = localStorage.getItem('user')
-  const user = userStr ? JSON.parse(userStr) : null
-  const rutCliente = user?.rut
-  if (!rutCliente) {
-    alert('No hay usuario autenticado. Inicia sesión.')
-    return
-  }
-  try {
-    const res = await apiClient.get(
-      `/api/v1/sentenciassql/zonasCoberturaYUbicacionPorCliente/${rutCliente}`
-    )
-    if (res.data && res.data.length > 0) {
-      areaCoberturaWkt.value = res.data[0].areaCoberturaWkt
-      ubicacionClienteWkt.value = res.data[0].ubicacionClienteWkt
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      alert('No autorizado. Inicia sesión nuevamente.')
-    } else {
-      alert('Error al obtener la zona de cobertura')
-    }
-  }
-}
-
-
-
 </script>
 
 <style scoped>
