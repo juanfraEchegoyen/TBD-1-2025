@@ -106,7 +106,7 @@ public class JdbcClienteRepository implements ClienteRepository {
         }
 
         // Verificar si el punto está dentro de la zona de cobertura de la Región Metropolitana
-        String checkSql = "SELECT COUNT(*) FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326)) AND nombre_comuna = 'Región Metropolitana'";
+        String checkSql = "SELECT COUNT(*) FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, ubicacionWkt);
 
         if (count == null || count == 0) {
