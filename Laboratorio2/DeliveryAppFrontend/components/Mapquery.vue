@@ -24,6 +24,12 @@
     >
       5. Listar pedidos que cruzan más de 2 zonas de reparto
     </button>
+    <button
+      @click="mostrarClientesLejanos"
+      class="mb-2 ml-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+    >
+      6. Mostrar clientes lejanos (&gt;5km)
+    </button>
     <div 
       id="map" 
       ref="mapContainer" 
@@ -78,6 +84,11 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Mensaje cuando no hay clientes lejanos -->
+    <div v-if="clientesLejanos.length === 0 && clientesLejanosConsultado" class="text-red-600 mb-2">
+      No hay clientes lejanos
+    </div>
   </div>
 </template>
 
@@ -117,6 +128,9 @@ const resultadoDistancia = ref(null)
 const mostrarDistancia = ref(false)
 const pedidosZonas = ref([])
 const mostrarPedidosZonas = ref(false)
+const clientesLejanosMarkers = ref([])
+const clientesLejanos = ref([])
+const clientesLejanosConsultado = ref(false)
 
 let L = null
 
@@ -293,6 +307,46 @@ const listarPedidosZonas = async () => {
 const cerrarPedidosZonas = () => {
   pedidosZonas.value = []
   mostrarPedidosZonas.value = false
+}
+
+// Función para mostrar todos los clientes lejanos
+const mostrarClientesLejanos = async () => {
+  try {
+    const res = await apiClient.get('/api/v1/sentenciassql/clientesLejanos')
+    clientesLejanos.value = res.data
+    clientesLejanosConsultado.value = true
+
+    // Si la lista está vacía, muestra un prompt y termina
+    if (clientesLejanos.value.length === 0) {
+      window.alert('No hay clientes lejanos')
+      return
+    }
+
+    // Limpia marcadores anteriores
+    clientesLejanosMarkers.value.forEach(marker => map.value.removeLayer(marker))
+    clientesLejanosMarkers.value = []
+
+    // Dibuja un marcador para cada cliente lejano
+    clientesLejanos.value.forEach(cliente => {
+      const puntoGeoJson = wellknown(cliente.ubicacionClienteWkt)
+      const marker = L.geoJSON(puntoGeoJson, {
+        pointToLayer: (feature, latlng) =>
+          L.marker(latlng, { title: cliente.nombreCliente })
+            .bindPopup(`<b>${cliente.nombreCliente}</b><br>RUT: ${cliente.rutCliente}`)
+      }).addTo(map.value)
+      clientesLejanosMarkers.value.push(marker)
+    })
+
+    // Ajusta el mapa si hay marcadores
+    if (clientesLejanosMarkers.value.length > 0) {
+      const group = L.featureGroup(clientesLejanosMarkers.value)
+      map.value.fitBounds(group.getBounds())
+    }
+  } catch (e) {
+    clientesLejanos.value = []
+    clientesLejanosConsultado.value = true
+    window.alert('Error al obtener clientes lejanos')
+  }
 }
 </script>
 

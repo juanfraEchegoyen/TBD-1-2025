@@ -119,10 +119,6 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     // Este metodo obtiene los clientes que se encuentran a más de 5km de cualquier empresa
     @Override
     public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
-        List<ClienteLejanoDTO> clientes = sentenciasSQLRepository.getClientesAMasDe5KmDeEmpresa();
-        if (clientes.isEmpty()) {
-            throw new IllegalArgumentException("No hay clientes a más de 5km de cualquier empresa");
-        }
-        return clientes;
+        return sentenciasSQLRepository.getClientesAMasDe5KmDeEmpresa();
     }
 }

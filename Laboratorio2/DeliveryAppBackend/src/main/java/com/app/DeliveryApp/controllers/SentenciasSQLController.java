@@ -165,11 +165,10 @@ public class SentenciasSQLController {
     public ResponseEntity<List<ClienteLejanoDTO>> getClientesLejanos() {
         try {
             List<ClienteLejanoDTO> clientes = sentenciasSQLService.getClientesAMasDe5KmDeEmpresa();
-            return ResponseEntity.ok(clientes);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.ok(clientes); // Devuelve 200 OK, aunque la lista esté vacía
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
 }
