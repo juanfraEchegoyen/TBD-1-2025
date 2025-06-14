@@ -134,10 +134,10 @@ const updateLocation = (location) => {
   }
   
   if (location.addressData) {
-    formData.comuna = location.addressData.county || 
+    formData.comuna = location.addressData.suburb || 
                      location.addressData.city_district || 
                      location.addressData.municipality || 
-                     location.addressData.suburb ||
+                     location.addressData.county ||
                      ''
   }
   

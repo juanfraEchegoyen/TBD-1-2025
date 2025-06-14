@@ -60,14 +60,14 @@ public class JdbcClienteRepository implements ClienteRepository {
             ubicacionWkt = wktWriter.write(cliente.getUbicacion());
         }
 
-        // Verificar si el punto está dentro de algún polígono
-        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
-        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+        // Verificar si el punto está dentro de alguna área de cobertura
+        String checkSql = "SELECT COUNT(*) FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, ubicacionWkt);
 
-        if (!validate){
-            throw new IllegalArgumentException("La ubicación del cliente no está dentro de ninguna zona de cobertura válida.");
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("La ubicación del cliente no está dentro de ninguna zona de cobertura.");
         }
-        
+
         jdbcTemplate.update(INSERT_CLIENTE_SQL,
                 cliente.getRut(),
                 cliente.getPassword(),
@@ -99,20 +99,20 @@ public class JdbcClienteRepository implements ClienteRepository {
         if (cliente == null || cliente.getRut() == null) {
             throw new IllegalArgumentException("RUT o cliente no pueden ser nulos para el update");
         }
-        
+
         String ubicacionWkt = null;
         if (cliente.getUbicacion() != null) {
             ubicacionWkt = wktWriter.write(cliente.getUbicacion());
         }
 
-        // Verificar si el punto está dentro de algún polígono
-        String checkSql = "SELECT COUNT(*) > 0 FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326))";
-        Boolean validate = jdbcTemplate.queryForObject(checkSql, Boolean.class, ubicacionWkt);
+        // Verificar si el punto está dentro de la zona de cobertura de la Región Metropolitana
+        String checkSql = "SELECT COUNT(*) FROM ZonaCobertura WHERE ST_Contains(area_cobertura, ST_GeomFromText(?, 4326)) AND nombre_comuna = 'Región Metropolitana'";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, ubicacionWkt);
 
-        if (!validate){
-            throw new IllegalArgumentException("La ubicación del cliente no está dentro de ninguna zona de cobertura válida.");
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("La ubicación del cliente no está dentro de la zona de cobertura de la Región Metropolitana.");
         }
-        
+
         return jdbcTemplate.update(UPDATE_CLIENTE_SQL,
                 cliente.getPassword(),
                 cliente.getNombre(),
