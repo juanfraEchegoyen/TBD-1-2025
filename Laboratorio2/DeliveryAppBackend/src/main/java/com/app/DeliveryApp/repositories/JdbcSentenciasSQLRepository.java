@@ -219,16 +219,17 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     //1. Obtener los 5 puntos de entrega más cercanos a una empresa
     private static final String SELECT_ENTREGAS_CERCANAS_SQL = """
     WITH empresa_seleccionada AS (
-        SELECT ubicacion FROM EmpresaAsociada WHERE rut_empresa = ?
+        SELECT ubicacion,rut_empresa FROM EmpresaAsociada WHERE rut_empresa = ?
     ),
     entregas_pendientes AS (
-        SELECT c.rut_cliente, c.ubicacion, p.id_pedido
+        SELECT c.rut_cliente, c.ubicacion, p.id_pedido,p.rut_empresa
         FROM Cliente c
         JOIN Pedido p ON c.rut_cliente = p.rut_cliente
         WHERE p.estado_entrega = 'Pendiente'
     )
     SELECT ep.rut_cliente, ep.id_pedido, ST_AsText(ep.ubicacion) AS ubicacion
     FROM entregas_pendientes ep, empresa_seleccionada es
+    WHERE ep.rut_empresa = es.rut_empresa
     ORDER BY ST_Distance(ep.ubicacion, es.ubicacion) ASC
     LIMIT 5;
     """;

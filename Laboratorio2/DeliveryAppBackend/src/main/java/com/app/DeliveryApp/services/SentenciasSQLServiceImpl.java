@@ -79,7 +79,7 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     public List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa) {
         List<EntregaDTO> pedidos = sentenciasSQLRepository.obtenerEntregasCercanas(rutEmpresa);
         if (pedidos.isEmpty()) {
-            throw new IllegalArgumentException("No hay enntregas cercanas.");
+            throw new IllegalArgumentException("No hay entregas cercanas.");
         }
         return pedidos;
     }

@@ -1,10 +1,12 @@
 package com.app.DeliveryApp.repositories;
 
+import com.app.DeliveryApp.dto.EmpresaNombreRutDTO;
 import com.app.DeliveryApp.models.Empresa;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,6 +33,8 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
     private static final String UPDATE_EMPRESA_SQL =
             "UPDATE EmpresaAsociada SET nombre_empresa = ?, ubicacion = ST_GeomFromText(?, 4326) WHERE rut_empresa = ?";    private static final String DELETE_EMPRESA_BY_RUT_SQL =
             "DELETE FROM EmpresaAsociada WHERE rut_empresa = ?";
+            
+    private static final String OBTENERNOMBRES_SQL = "SELECT rut_empresa, nombre_empresa FROM empresaasociada ORDER BY rut_empresa ASC "   ;
 
     private final RowMapper<Empresa> empresaRowMapper = (rs, rowNum) -> {
         Empresa empresa = new Empresa();
@@ -118,5 +122,18 @@ public class JdbcEmpresaRepository implements EmpresaRepository {
             throw new IllegalArgumentException("RUT empresa no puede ser nulo para eliminar");
         }
         return jdbcTemplate.update(DELETE_EMPRESA_BY_RUT_SQL, rut);
+    }
+
+    @Override
+    public List<EmpresaNombreRutDTO> ObtenerRutYnombres(){
+        try{
+            return jdbcTemplate.query(OBTENERNOMBRES_SQL,
+                    (rs, rowNum) -> new EmpresaNombreRutDTO(
+                            rs.getString("rut_empresa"),
+                            rs.getString("nombre_empresa")
+                    ));
+        }catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener la lista de empresas", ex);
+        }
     }
 }

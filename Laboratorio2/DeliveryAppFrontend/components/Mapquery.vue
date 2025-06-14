@@ -1,7 +1,9 @@
 <template>
   <div class="location-map-picker max-h-[80vh] overflow-y-auto">
+    <!-- Botones principales -->
     <button
-      @click="fetchEntregasCercanas"
+      v-if="!mostrarSelectorEmpresa"
+      @click="mostrarEmpresasYPreparar"
       class="mb-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
     >
       1. Obtener los 5 puntos de entrega más cercanos
@@ -13,7 +15,8 @@
       2. Mostrar zona y ubicación del cliente
     </button>
     <button
-      @click="calcularDistanciaRecorrida"
+      v-if="!mostrarSelectorRepartidor"
+      @click="mostrarRepartidoresYPreparar"
       class="mb-2 ml-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
     >
       3. Calcular la distancia total recorrida por un repartidor
@@ -30,6 +33,47 @@
     >
       6. Mostrar clientes lejanos (&gt;5km)
     </button>
+
+    <!-- Selector de empresa solo para opción 1 (arriba del mapa) -->
+    <div v-if="mostrarSelectorEmpresa" class="mb-2">
+      <label for="empresaSelect" class="mr-2 font-semibold">Empresa:</label>
+      <select
+        id="empresaSelect"
+        v-model="rutEmpresaSeleccionada"
+        class="px-2 py-1 rounded border border-gray-300"
+      >
+        <option v-for="empresa in empresas" :key="empresa.rut" :value="empresa.rut">
+          {{ empresa.nombre }}
+        </option>
+      </select>
+      <button
+        @click="buscarEntregasCercanas"
+        class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Buscar entregas cercanas
+      </button>
+    </div>
+
+    <!-- Selector de repartidor solo para opción 3 (DEBAJO de los botones) -->
+    <div v-if="mostrarSelectorRepartidor" class="mb-2 mt-4">
+      <label for="repartidorSelect" class="mr-2 font-semibold">Repartidor:</label>
+      <select
+        id="repartidorSelect"
+        v-model="rutRepartidorSeleccionado"
+        class="px-2 py-1 rounded border border-gray-300"
+      >
+        <option v-for="repartidor in repartidores" :key="repartidor.rut" :value="repartidor.rut">
+          {{ repartidor.nombre }}
+        </option>
+      </select>
+      <button
+        @click="buscarDistanciaRecorrida"
+        class="ml-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+      >
+        Buscar distancia recorrida
+      </button>
+    </div>
+
     <div 
       id="map" 
       ref="mapContainer" 
@@ -50,7 +94,7 @@
       </button>
       <h2 class="text-xl font-semibold mb-2">Distancia total recorrida por repartidor</h2>
       <p><strong>Rut repartidor:</strong> {{ resultadoDistancia.rutCliente }}</p>
-      <p><strong>ID Pedido:</strong> {{ resultadoDistancia.idpedido }}</p>
+      <p><strong>Cantidad de pedidos entregados:</strong> {{ resultadoDistancia.cantidadPedidos ?? resultadoDistancia.idpedido }}</p>
       <p><strong>Distancia recorrida:</strong> {{ resultadoDistancia.distanciaRecorrida.toFixed(3) }} km</p>
     </div>
 
@@ -87,7 +131,7 @@
 
     <!-- Mensaje cuando no hay clientes lejanos -->
     <div v-if="clientesLejanos.length === 0 && clientesLejanosConsultado" class="text-red-600 mb-2">
-      No hay clientes lejanos
+      No hay más clientes lejanos
     </div>
   </div>
 </template>
@@ -131,9 +175,39 @@ const mostrarPedidosZonas = ref(false)
 const clientesLejanosMarkers = ref([])
 const clientesLejanos = ref([])
 const clientesLejanosConsultado = ref(false)
+const rutEmpresaSeleccionada = ref('')
+const empresas = ref([])
+const mostrarSelectorEmpresa = ref(false)
 
 let L = null
 
+const repartidores = ref([])
+const rutRepartidorSeleccionado = ref('')
+const mostrarSelectorRepartidor = ref(false)
+
+const fetchRepartidores = async () => {
+  try {
+    const res = await apiClient.get('http://localhost:8080/api/v1/repartidores/RutYnombres')
+    if (res.data && Array.isArray(res.data)) {
+      repartidores.value = res.data
+      if (repartidores.value.length > 0) {
+        rutRepartidorSeleccionado.value = repartidores.value[0].rut
+      }
+    }
+  } catch (error) {
+    console.error('Error al obtener la lista de repartidores:', error)
+  }
+}
+
+const mostrarRepartidoresYPreparar = async () => {
+  mostrarSelectorRepartidor.value = true
+  await fetchRepartidores()
+}
+
+const buscarDistanciaRecorrida = async () => {
+  mostrarSelectorRepartidor.value = false
+  await calcularDistanciaRecorrida()
+}
 onMounted(async () => {
   try {
     const leafletModule = await import('leaflet')
@@ -159,6 +233,9 @@ onMounted(async () => {
     if (initialLat && initialLng) {
       marker.value = L.marker([initialLat, initialLng], { draggable: true }).addTo(map.value)
     }
+
+    // Obtener lista de empresas
+    await fetchEmpresas()
   } catch (error) {
     console.error('Error al cargar Leaflet:', error)
   }
@@ -190,8 +267,9 @@ const fetchEntregasCercanas = async () => {
   mostrarDistancia.value = false
   mostrarPedidosZonas.value = false
   try {
-    const res = await apiClient.get('http://localhost:8080/api/v1/sentenciassql/entregasCercanas/80000000-1')
-    if (res.data && Array.isArray(res.data)) {
+    const rut = rutEmpresaSeleccionada.value || '80000000-1'
+    const res = await apiClient.get(`http://localhost:8080/api/v1/sentenciassql/entregasCercanas/${rut}`)
+    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
       res.data.forEach(entrega => {
         const punto = wellknown.parse(entrega.distanciaLinea)
         if (punto && punto.coordinates) {
@@ -208,9 +286,11 @@ const fetchEntregasCercanas = async () => {
           entregaMarkers.value.push(markerEntrega)
         }
       })
+    } else {
+      alert('No existen puntos de entrega cercanos para esta empresa')
     }
   } catch (error) {
-    alert('Error al obtener los puntos de entrega más cercanos')
+    alert('No existen puntos de entrega cercanos para esta empresa')
   }
 }
 
@@ -267,7 +347,7 @@ const calcularDistanciaRecorrida = async () => {
   mostrarDistancia.value = false
   mostrarPedidosZonas.value = false
   try {
-    const rutRepartidor = '12121212-1'
+    const rutRepartidor = rutRepartidorSeleccionado.value || '12121212-1'
     const res = await apiClient.get(`http://localhost:8080/api/v1/sentenciassql/distanciaRecorrida/${rutRepartidor}`)
     if (res.data && res.data.distanciaRecorrida !== undefined) {
       resultadoDistancia.value = res.data
@@ -347,6 +427,33 @@ const mostrarClientesLejanos = async () => {
     clientesLejanosConsultado.value = true
     window.alert('Error al obtener clientes lejanos')
   }
+}
+
+// Cambia el endpoint aquí:
+const fetchEmpresas = async () => {
+  try {
+    const res = await apiClient.get('http://localhost:8080/api/v1/empresas/obtenerTodasNombres')
+    if (res.data && Array.isArray(res.data)) {
+      empresas.value = res.data
+      if (empresas.value.length > 0) {
+        rutEmpresaSeleccionada.value = empresas.value[0].rut
+      }
+    }
+  } catch (error) {
+    console.error('Error al obtener la lista de empresas:', error)
+  }
+}
+
+// Mostrar selector y cargar empresas
+const mostrarEmpresasYPreparar = async () => {
+  mostrarSelectorEmpresa.value = true
+  await fetchEmpresas()
+}
+
+// Al hacer clic en buscar, llama a la función real y oculta el selector
+const buscarEntregasCercanas = async () => {
+  mostrarSelectorEmpresa.value = false
+  await fetchEntregasCercanas()
 }
 </script>
 

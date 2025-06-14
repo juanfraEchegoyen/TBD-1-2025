@@ -1,10 +1,13 @@
 package com.app.DeliveryApp.repositories;
 
+import com.app.DeliveryApp.dto.EmpresaNombreRutDTO;
+import com.app.DeliveryApp.dto.RepartidorRutNombreDTO;
 import com.app.DeliveryApp.models.Repartidor;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,7 +34,11 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
     private static final String UPDATE_REPARTIDOR_SQL =
             "UPDATE Repartidor SET password = ?, nombre_repartidor = ?, telefono = ?, puntuacion_promedio = ?, cantidad_entregas = ?, ubicacion = ST_GeomFromText(?, 4326), distancia_recorrida = ? WHERE rut_repartidor = ?";
     private static final String DELETE_REPARTIDOR_BY_RUT_SQL =
-            "DELETE FROM Repartidor WHERE rut_repartidor = ?";    private final RowMapper<Repartidor> repartidorRowMapper = (rs, rowNum) -> {
+            "DELETE FROM Repartidor WHERE rut_repartidor = ?";
+
+    private static final String OBTENER_RUT_NOMBRES_TODOS= "SELECT rut_repartidor, nombre_repartidor FROM Repartidor ORDER BY rut_repartidor";
+
+    private final RowMapper<Repartidor> repartidorRowMapper = (rs, rowNum) -> {
         Repartidor repartidor = new Repartidor();
         repartidor.setRut(rs.getString("rut_repartidor"));
         repartidor.setPassword(rs.getString("password"));
@@ -154,5 +161,18 @@ public class JdbcRepartidorRepository implements RepartidorRepository {
             throw new IllegalArgumentException("RUT repartidor debe ser distinto de null");
         }
         return jdbcTemplate.update(DELETE_REPARTIDOR_BY_RUT_SQL, rut);
+    }
+
+    @Override
+    public List<RepartidorRutNombreDTO> ObtenerRutYnombresRepartidor(){
+        try{
+            return jdbcTemplate.query(OBTENER_RUT_NOMBRES_TODOS,
+                    (rs, rowNum) -> new RepartidorRutNombreDTO(
+                            rs.getString("rut_repartidor"),
+                            rs.getString("nombre_repartidor")
+                    ));
+        }catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener la lista de repartidores", ex);
+        }
     }
 }
