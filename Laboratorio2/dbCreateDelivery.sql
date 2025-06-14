@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Pedido (
 	rut_cliente VARCHAR(15) NOT NULL,
 	rut_empresa VARCHAR(15) NOT NULL,
 	rut_repartidor VARCHAR(15) NOT NULL,
-	fecha_pedido TIMESTAMP NOT NULL DEFAULT NOW();
+	fecha_pedido TIMESTAMP NOT NULL DEFAULT NOW(),
 	FOREIGN KEY (rut_cliente) REFERENCES Cliente(rut_cliente),
 	FOREIGN KEY (rut_empresa) REFERENCES EmpresaAsociada(rut_empresa),
 	FOREIGN KEY (rut_repartidor) REFERENCES Repartidor(rut_repartidor)
