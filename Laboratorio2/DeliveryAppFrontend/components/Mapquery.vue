@@ -1,46 +1,83 @@
 <template>
-  <div class="location-map-picker">
+  <div class="location-map-picker max-h-[80vh] overflow-y-auto">
+    <button
+      @click="fetchEntregasCercanas"
+      class="mb-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      1. Obtener los 5 puntos de entrega más cercanos
+    </button>
     <button
       @click="fetchZonaCobertura"
-      class="mb-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      class="mb-2 ml-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
     >
-      Mostrar zona y ubicación del cliente
+      2. Mostrar zona y ubicación del cliente
     </button>
-    <div class="search-box mb-2">
-      <input 
-        v-model="searchQuery" 
-        @keyup.enter="searchAddress"
-        type="text" 
-        placeholder="Buscar dirección en Chile" 
-        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-      />
-      <button 
-        @click="searchAddress" 
-        type="button" 
-        class="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        Buscar
-      </button>
-    </div>
-    
-    <div v-if="searchResults.length > 0" class="search-results mb-2 max-h-40 overflow-y-auto bg-white border rounded p-2">
-      <ul>
-        <li 
-          v-for="(result, index) in searchResults" 
-          :key="index" 
-          @click="selectLocation(result)"
-          class="cursor-pointer p-1 hover:bg-gray-100 border-b last:border-b-0"
-        >
-          {{ result.display_name }}
-        </li>
-      </ul>
-    </div>
-    
+    <button
+      @click="calcularDistanciaRecorrida"
+      class="mb-2 ml-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+    >
+      3. Calcular la distancia total recorrida por un repartidor
+    </button>
+    <button
+      @click="listarPedidosZonas"
+      class="mb-2 ml-2 bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
+    >
+      5. Listar pedidos que cruzan más de 2 zonas de reparto
+    </button>
     <div 
       id="map" 
       ref="mapContainer" 
       class="h-60 w-full border-4 border-gray-300 rounded-lg shadow-md hover:border-gray-500 hover:shadow-lg transition-all duration-200 overflow-hidden"
     ></div>
+
+    <!-- Contenedor de resultado distancia recorrida -->
+    <div
+      v-if="resultadoDistancia && mostrarDistancia"
+      class="relative mt-4 bg-white p-4 rounded shadow"
+    >
+      <button
+        @click="cerrarDistancia"
+        class="close-btn"
+        style="position:absolute;top:0.5rem;right:0.5rem;"
+      >
+        ✖
+      </button>
+      <h2 class="text-xl font-semibold mb-2">Distancia total recorrida por repartidor</h2>
+      <p><strong>Rut repartidor:</strong> {{ resultadoDistancia.rutCliente }}</p>
+      <p><strong>ID Pedido:</strong> {{ resultadoDistancia.idpedido }}</p>
+      <p><strong>Distancia recorrida:</strong> {{ resultadoDistancia.distanciaRecorrida.toFixed(3) }} km</p>
+    </div>
+
+    <!-- Contenedor de resultado pedidos que cruzan zonas -->
+    <div
+      v-if="pedidosZonas.length && mostrarPedidosZonas"
+      class="relative mt-4 bg-white p-4 rounded shadow"
+    >
+      <button
+        @click="cerrarPedidosZonas"
+        class="close-btn"
+        style="position:absolute;top:0.5rem;right:0.5rem;"
+      >
+        ✖
+      </button>
+      <h2 class="text-xl font-semibold mb-2">Pedidos que cruzan más de 2 zonas de reparto</h2>
+      <table class="table-auto w-full border-collapse border border-gray-300 mb-4">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border px-2 py-1">ID Pedido</th>
+            <th class="border px-2 py-1">Rut Repartidor</th>
+            <th class="border px-2 py-1">Zonas Cruzadas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="pedido in pedidosZonas" :key="pedido.id_pedido">
+            <td class="border px-2 py-1">{{ pedido.id_pedido }}</td>
+            <td class="border px-2 py-1">{{ pedido.rut_repartidor }}</td>
+            <td class="border px-2 py-1">{{ pedido.zonas_cruzadas }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -49,17 +86,14 @@ import { ref, onMounted, watch } from 'vue'
 import wellknown from 'wellknown'
 import apiClient from '../service/http-common'
 
-// ENTRADA: Coordenadas iniciales para el mapa (opcionales)
-// PROCEDIMIENTO: Define las coordenadas iniciales del mapa y el marcador (Santiago de Chile por defecto)
-// SALIDA: Objeto de propiedades disponibles para el componente
 const props = defineProps({
   initialLatitude: {
     type: [Number, String],
-    default: -33.4489 // Santiago de Chile
+    default: -33.4489
   },
   initialLongitude: {
     type: [Number, String],
-    default: -70.6693 // Santiago de Chile
+    default: -70.6693
   },
   areaCoberturaWkt: {
     type: String,
@@ -71,37 +105,26 @@ const props = defineProps({
   }
 })
 
-// ENTRADA: Ninguna
-// PROCEDIMIENTO: Define eventos emitidos por el componente
-// SALIDA: Método para comunicar cambios en la ubicación al componente padre
 const emit = defineEmits(['update:location'])
 
-// ----- VARIABLES DE ESTADO -----
-const searchQuery = ref('')
-const searchResults = ref([])
 const mapContainer = ref(null)
 const map = ref(null)
 const marker = ref(null)
-const currentAddress = ref('')
-const currentAddressData = ref(null)
 const areaCoberturaWkt = ref(props.areaCoberturaWkt)
 const ubicacionClienteWkt = ref(props.ubicacionClienteWkt)
+const entregaMarkers = ref([])
+const resultadoDistancia = ref(null)
+const mostrarDistancia = ref(false)
+const pedidosZonas = ref([])
+const mostrarPedidosZonas = ref(false)
 
-// Variables para importación dinámica de Leaflet
 let L = null
 
-// ----- INICIALIZACIÓN ----
-
-// ENTRADA: Null
-// PROCEDIMIENTO: Inicializa el mapa y configura eventos cuando el componente se monta
-// SALIDA: Mapa interactivo con marcador inicial y eventos configurados
 onMounted(async () => {
   try {
-    // Importación dinámica de Leaflet
     const leafletModule = await import('leaflet')
     L = leafletModule.default
 
-    // Importar CSS de Leaflet dinámicamente
     if (process.client) {
       await import('leaflet/dist/leaflet.css')
     }
@@ -121,28 +144,14 @@ onMounted(async () => {
     
     if (initialLat && initialLng) {
       marker.value = L.marker([initialLat, initialLng], { draggable: true }).addTo(map.value)
-      getReverseGeocode(initialLat, initialLng)
-      
-      marker.value.on('dragend', function(event) {
-        const position = marker.value.getLatLng()
-        getReverseGeocode(position.lat, position.lng)
-      })
     }
-    
-    map.value.on('click', function(e) {
-      setMarkerPosition(e.latlng.lat, e.latlng.lng)
-    })
   } catch (error) {
     console.error('Error al cargar Leaflet:', error)
   }
 })
 
-// ENTRADA: Null
-// PROCEDIMIENTO: Obtiene la URL de los iconos de Leaflet y los configuramos
-// SALIDA: Configuración adecuada para mostrar iconos de marcadores
 function fixLeafletIcon() {
   if (!L) return
-  
   delete L.Icon.Default.prototype._getIconUrl
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -151,176 +160,51 @@ function fixLeafletIcon() {
   })
 }
 
-// ENTRADA: Latitud, longitud y dirección opcional
-// PROCEDIMIENTO: Establece o actualiza la posición del marcador en el mapa
-// SALIDA: Marcador actualizado y emisión de evento con la nueva ubicación
-const setMarkerPosition = (lat, lng, address = null) => {
-  if (!L) return
-  
-  if (marker.value) {
-    marker.value.setLatLng([lat, lng])
-  } else {
-    marker.value = L.marker([lat, lng], { draggable: true }).addTo(map.value)
-    
-    marker.value.on('dragend', function(event) {
-      const position = marker.value.getLatLng()
-      getReverseGeocode(position.lat, position.lng)
-    })
-  }
-  
-  emitLocationUpdate(lat, lng, address)
-  
-  if (!address) {
-    getReverseGeocode(lat, lng)
-  }
-}
-
-// ----- FUNCIONES DE BÚSQUEDA Y GEOCODIFICACIÓN ----
-
-// ENTRADA: Consulta de búsqueda del usuario
-// PROCEDIMIENTO: Busca direcciones usando la API de OpenStreetMap Nominatim sin enviar el formulario
-// SALIDA: Resultados de búsqueda actualizados en el estado
-const searchAddress = async (event) => {
-  // Prevenir envío de formulario si el evento existe
-  if (event && event.preventDefault) {
-    event.preventDefault()
-  }
-  
-  if (!searchQuery.value.trim()) return
-  
-  try {
-    // Agregar "Chile" a la búsqueda para mejores resultados
-    const searchTerm = `${searchQuery.value}, Chile`
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=5&addressdetails=1&countrycodes=cl`
-    )
-    const data = await response.json()
-    searchResults.value = data
-  } catch (error) {
-    console.error('Error al buscar la dirección:', error)
-    searchResults.value = []
-  }
-}
-
-// ENTRADA: Latitud y longitud
-// PROCEDIMIENTO: Obtiene la dirección textual de unas coordenadas geográficas
-// SALIDA: Dirección formateada y evento emitido con datos actualizados
-const getReverseGeocode = async (lat, lng) => {
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
-    )
-    const data = await response.json()
-    if (data && data.address) {
-      currentAddressData.value = data.address
-      currentAddress.value = formatSimplifiedAddress(data.address)
-      emitLocationUpdate(lat, lng, currentAddress.value, data.address)
-    } else {
-      currentAddressData.value = null
-      currentAddress.value = 'Dirección no disponible'
-      emitLocationUpdate(lat, lng, currentAddress.value, null)
-    }
-  } catch (error) {
-    console.error('Error en geocodificación inversa:', error)
-    currentAddressData.value = null
-    currentAddress.value = 'Dirección no disponible'
-    emitLocationUpdate(lat, lng, currentAddress.value, null)
-  }
-}
-
-// ENTRADA: Objeto de ubicación seleccionada por el usuario
-// PROCEDIMIENTO: Procesa la selección del usuario y actualiza el mapa
-// SALIDA: Mapa centrado en ubicación seleccionada con marcador actualizado
-const selectLocation = (location) => {
-  const lat = parseFloat(location.lat)
-  const lng = parseFloat(location.lon)
-  
-  if (location.address) {
-    currentAddressData.value = location.address
-    currentAddress.value = formatSimplifiedAddress(location.address)
-  } else {
-    getReverseGeocode(lat, lng)
-  }
-  
-  if (map.value) {
-    map.value.setView([lat, lng], 16)
-  }
-  setMarkerPosition(lat, lng, currentAddress.value)
-  searchResults.value = []
-}
-
-// ENTRADA: Objeto con datos de dirección
-// PROCEDIMIENTO: Formatea los datos de dirección para mostrar solo campos relevantes
-// SALIDA: Cadena de texto con la dirección formateada
-const formatSimplifiedAddress = (addressData) => {
-  if (!addressData || typeof addressData !== 'object') {
-    return 'Dirección no disponible'
-  }
-  
-  const street = addressData.road || addressData.street || ''
-  const houseNumber = addressData.house_number || ''
-  const comuna = addressData.county || addressData.city_district || addressData.suburb || addressData.municipality || ''
-  const region = addressData.state || addressData.region || ''
-  
-  let formattedAddress = ''
-  if (street) {
-    formattedAddress += street
-    if (houseNumber) formattedAddress += ' ' + houseNumber
-  }
-  
-  if (comuna) {
-    if (formattedAddress) formattedAddress += ', '
-    formattedAddress += comuna
-  }
-  
-  if (region) {
-    if (formattedAddress) formattedAddress += ', '
-    formattedAddress += region
-  }
-  
-  return formattedAddress || 'Dirección no disponible'
-}
-
-// ----- FUNCIONES DE COMUNICACIÓN ----
-
-// ENTRADA: Latitud, longitud y dirección
-// PROCEDIMIENTO: Emite evento con los datos de ubicación actualizados
-// SALIDA: Evento emitido al componente padre
-const emitLocationUpdate = (lat, lng, address, addressData = null) => {
-  emit('update:location', { 
-    latitude: lat, 
-    longitude: lng,
-    address: address || currentAddress.value,
-    addressData: addressData || currentAddressData.value
+// Limpia todas las capas del mapa excepto la base
+function clearAllLayers() {
+  if (!map.value) return
+  map.value.eachLayer(layer => {
+    if (layer instanceof L.TileLayer) return
+    map.value.removeLayer(layer)
   })
+  entregaMarkers.value = []
 }
 
-// Observa cambios y redibuja el mapa si cambian los WKTs
-watch([areaCoberturaWkt, ubicacionClienteWkt], ([newArea, newPunto]) => {
-  if (map.value && newArea) {
-    // Limpia capas anteriores excepto la capa base
-    map.value.eachLayer(layer => {
-      if (layer instanceof L.GeoJSON) map.value.removeLayer(layer)
-    })
-    // Dibuja nueva zona
-    const areaGeoJson = wellknown(newArea)
-    const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
-    map.value.fitBounds(areaLayer.getBounds())
-    // Dibuja nuevo punto
-    if (newPunto) {
-      const puntoGeoJson = wellknown(newPunto)
-      L.geoJSON(puntoGeoJson, {
-        pointToLayer: (feature, latlng) => L.marker(latlng, { icon: L.icon({
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-        }) })
-      }).addTo(map.value)
+// 1. Obtener los 5 puntos de entrega más cercanos
+const fetchEntregasCercanas = async () => {
+  clearAllLayers()
+  mostrarDistancia.value = false
+  mostrarPedidosZonas.value = false
+  try {
+    const res = await apiClient.get('http://localhost:8080/api/v1/sentenciassql/entregasCercanas/80000000-1')
+    if (res.data && Array.isArray(res.data)) {
+      res.data.forEach(entrega => {
+        const punto = wellknown.parse(entrega.distanciaLinea)
+        if (punto && punto.coordinates) {
+          const [lng, lat] = punto.coordinates
+          const markerEntrega = L.circleMarker([lat, lng], {
+            radius: 10,
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.8
+          }).addTo(map.value)
+          markerEntrega.bindPopup(
+            `<b>Cliente:</b> ${entrega.rutCliente}<br><b>ID Pedido:</b> ${entrega.idPedido}`
+          )
+          entregaMarkers.value.push(markerEntrega)
+        }
+      })
     }
+  } catch (error) {
+    alert('Error al obtener los puntos de entrega más cercanos')
   }
-})
+}
 
-// Llama al endpoint y actualiza los datos usando fetch y token
+// 2. Mostrar zona y ubicación del cliente
 const fetchZonaCobertura = async () => {
+  clearAllLayers()
+  mostrarDistancia.value = false
+  mostrarPedidosZonas.value = false
   const userStr = localStorage.getItem('user')
   const user = userStr ? JSON.parse(userStr) : null
   const rutCliente = user?.rut
@@ -335,6 +219,23 @@ const fetchZonaCobertura = async () => {
     if (res.data && res.data.length > 0) {
       areaCoberturaWkt.value = res.data[0].areaCoberturaWkt
       ubicacionClienteWkt.value = res.data[0].ubicacionClienteWkt
+
+      // Dibuja la zona de cobertura
+      if (map.value && areaCoberturaWkt.value) {
+        const areaGeoJson = wellknown(areaCoberturaWkt.value)
+        const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
+        map.value.fitBounds(areaLayer.getBounds())
+      }
+      // Dibuja el punto del cliente
+      if (map.value && ubicacionClienteWkt.value) {
+        const puntoGeoJson = wellknown(ubicacionClienteWkt.value)
+        L.geoJSON(puntoGeoJson, {
+          pointToLayer: (feature, latlng) => L.marker(latlng, { icon: L.icon({
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
+          }) })
+        }).addTo(map.value)
+      }
     }
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -345,12 +246,69 @@ const fetchZonaCobertura = async () => {
   }
 }
 
+// 3. Calcular la distancia total recorrida por un repartidor
+const calcularDistanciaRecorrida = async () => {
+  clearAllLayers()
+  resultadoDistancia.value = null
+  mostrarDistancia.value = false
+  mostrarPedidosZonas.value = false
+  try {
+    const rutRepartidor = '12121212-1'
+    const res = await apiClient.get(`http://localhost:8080/api/v1/sentenciassql/distanciaRecorrida/${rutRepartidor}`)
+    if (res.data && res.data.distanciaRecorrida !== undefined) {
+      resultadoDistancia.value = res.data
+      mostrarDistancia.value = true
+    } else {
+      alert('No se pudo obtener la distancia recorrida')
+    }
+  } catch (error) {
+    alert('Error al obtener la distancia recorrida')
+  }
+}
 
+const cerrarDistancia = () => {
+  resultadoDistancia.value = null
+  mostrarDistancia.value = false
+}
 
+// 5. Listar pedidos que cruzan más de 2 zonas de reparto
+const listarPedidosZonas = async () => {
+  clearAllLayers()
+  pedidosZonas.value = []
+  mostrarPedidosZonas.value = false
+  mostrarDistancia.value = false
+  try {
+    const res = await apiClient.get('http://localhost:8080/api/v1/sentenciassql/pedidosQueCruzaronZonas')
+    if (res.data && Array.isArray(res.data)) {
+      pedidosZonas.value = res.data
+      mostrarPedidosZonas.value = true
+    } else {
+      alert('No se pudo obtener la lista de pedidos')
+    }
+  } catch (error) {
+    alert('Error al obtener la lista de pedidos')
+  }
+}
+
+const cerrarPedidosZonas = () => {
+  pedidosZonas.value = []
+  mostrarPedidosZonas.value = false
+}
 </script>
 
 <style scoped>
 .location-map-picker {
   width: 100%;
+}
+.close-btn {
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+}
+.close-btn:hover {
+  color: #374151;
 }
 </style>
