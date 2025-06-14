@@ -121,4 +121,13 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
     public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
         return sentenciasSQLRepository.getClientesAMasDe5KmDeEmpresa();
     }
+
+    // Método para obtener a qué zona pertenece un cliente
+    public String getZonaPerteneceCliente(String rutCliente) {
+        String zona = sentenciasSQLRepository.getZonaPerteneceCliente(rutCliente);
+        if (zona == null || zona.isEmpty()) {
+            throw new IllegalArgumentException("El cliente no pertenece a ninguna zona de cobertura registrada");
+        }
+        return zona;
+    }
 }

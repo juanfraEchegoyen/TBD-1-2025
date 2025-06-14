@@ -170,5 +170,19 @@ public class SentenciasSQLController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    
+
+    // Special Sentence 1
+    @GetMapping("/zonaPerteneceCliente/{rutCliente}")
+    public ResponseEntity<String> getZonaPerteneceCliente(@PathVariable String rutCliente) {
+        try {
+            String zona = sentenciasSQLService.getZonaPerteneceCliente(rutCliente);
+            if (zona != null) {
+                return ResponseEntity.ok(zona);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró zona para el cliente");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno: " + e.getMessage());
+        }
+    }
 }

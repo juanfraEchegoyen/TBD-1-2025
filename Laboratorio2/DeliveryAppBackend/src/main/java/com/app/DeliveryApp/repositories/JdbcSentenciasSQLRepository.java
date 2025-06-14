@@ -101,6 +101,14 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             LIMIT 1
             """;
 
+    public static final String SELECT_ZONA_PERTENECE_CLIENTE_SQL = """
+            SELECT z.zona, z.area_cobertura
+            FROM ZonaCobertura AS z
+            JOIN Cliente AS c ON ST_Within(c.ubicacion, z.area_cobertura)
+            WHERE c.rut_cliente = ?
+            """;
+
+
     @Override
     public ClienteGastoDTO getClienteConMayorGastos() {
         try {
@@ -359,6 +367,27 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             );
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener clientes lejanos", ex);
+        }
+    }
+
+    // Query que calcula automáticamente la zona a la que pertenece un cliente
+    @Override
+    public String getZonaPerteneceCliente(String rutCliente) {
+        try {
+            return jdbcTemplate.query(SELECT_ZONA_PERTENECE_CLIENTE_SQL,
+                    ps -> ps.setString(1, rutCliente),
+                    rs -> {
+                        if (rs.next()) {
+                            return rs.getString("zona");
+                        } else {
+                            return null; // Si no se encuentra la zona, retorna null
+                        }
+                    }
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al obtener la zona del cliente", e);
         }
     }
 

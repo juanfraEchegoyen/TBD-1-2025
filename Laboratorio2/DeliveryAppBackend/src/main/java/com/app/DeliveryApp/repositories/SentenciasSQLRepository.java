@@ -18,4 +18,5 @@ public interface SentenciasSQLRepository {
     List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa);
     DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor);
     List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas();
+    String getZonaPerteneceCliente(String rutCliente);
 }
