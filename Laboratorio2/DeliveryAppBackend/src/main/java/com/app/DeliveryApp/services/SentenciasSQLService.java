@@ -19,4 +19,5 @@ public interface SentenciasSQLService {
     DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor);
     List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas();
     String getZonaPerteneceCliente(String rutCliente);
+    List<EntregaLejanaDTO> obtenerEntregasMasLejanasPorEmpresa();
 }

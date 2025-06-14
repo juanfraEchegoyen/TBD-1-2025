@@ -297,9 +297,43 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             throw new RuntimeException("Error al calcular distancia recorrida", ex);
         }
     }
+//4.	Identificar el punto de entrega más lejano desde cada empresa asociada.
+    private static final String SELECT_ENTREGA_MAS_LEJANA_POR_EMPRESA = """
+SELECT DISTINCT ON (e.rut_empresa)
+    e.rut_empresa,
+    e.nombre_empresa,
+    c.rut_cliente,
+    c.nombre_cliente,
+    ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt,
+    ST_AsText(e.ubicacion) AS ubicacion_empresa_wkt,
+    p.id_pedido,
+    ST_Distance(c.ubicacion, e.ubicacion) AS distancia
+FROM Pedido p
+JOIN Cliente c ON p.rut_cliente = c.rut_cliente
+JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
+WHERE p.estado_entrega = 'Pendiente'
+ORDER BY e.rut_empresa, ST_Distance(c.ubicacion, e.ubicacion) DESC
+""";
 
-
-
+    @Override
+    public List<EntregaLejanaDTO> obtenerEntregasMasLejanasPorEmpresa() {
+        try {
+            return jdbcTemplate.query(SELECT_ENTREGA_MAS_LEJANA_POR_EMPRESA,
+                    (rs, rowNum) -> new EntregaLejanaDTO(
+                            rs.getString("rut_empresa"),
+                            rs.getString("nombre_empresa"),
+                            rs.getString("rut_cliente"),
+                            rs.getString("nombre_cliente"),
+                            rs.getString("ubicacion_cliente_wkt"),
+                            rs.getString("ubicacion_empresa_wkt"),
+                            rs.getInt("id_pedido"),
+                            rs.getDouble("distancia")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener entregas más lejanas por empresa", ex);
+        }
+    }
 
     //5. Listar pedidos que cruzan más de 2 zonas de reparto
 

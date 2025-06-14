@@ -149,6 +149,19 @@ public class SentenciasSQLController {
         }
     }
 
+    //Endpoint query 4
+    @GetMapping("/entregasMasLejanasPorEmpresa")
+    public ResponseEntity<List<EntregaLejanaDTO>> obtenerEntregasMasLejanasPorEmpresa() {
+        try {
+            List<EntregaLejanaDTO> entregas = sentenciasSQLService.obtenerEntregasMasLejanasPorEmpresa();
+            return ResponseEntity.ok(entregas);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     //Endpoint query 5
     @GetMapping("/pedidosQueCruzaronZonas")
     public ResponseEntity<List<PedidoZonasDTO>> obtenerPedidosQueCruzaronZonas() {

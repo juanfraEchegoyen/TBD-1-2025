@@ -105,6 +105,15 @@ public class SentenciasSQLServiceImpl implements SentenciasSQLService {
         }
         return distancia;
     }
+    // 4
+    @Override
+    public List<EntregaLejanaDTO> obtenerEntregasMasLejanasPorEmpresa() {
+        List<EntregaLejanaDTO> entregas = sentenciasSQLRepository.obtenerEntregasMasLejanasPorEmpresa();
+        if (entregas.isEmpty()) {
+            throw new IllegalArgumentException("No hay entregas pendientes lejanas por empresa.");
+        }
+        return entregas;
+    }
 
     // 5
     @Override
