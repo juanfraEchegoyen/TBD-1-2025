@@ -143,8 +143,8 @@ async function calculateRoute(rutCliente, nombreProducto) {
     const startPoint = coordinates[0]
     const endPoint = coordinates[coordinates.length - 1]
     
-    // Marcador de inicio (producto/empresa)
-    const startMarker = L.marker(startPoint, {
+    // Marcador de inicio (producto/empresa) - añadido directamente al mapa
+    L.marker(startPoint, {
       icon: L.icon({
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -153,10 +153,10 @@ async function calculateRoute(rutCliente, nombreProducto) {
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       })
-    }).bindPopup('Producto/Empresa')
+    }).addTo(map.value).bindPopup('Producto/Empresa')
     
-    // Marcador de fin (cliente)
-    const endMarker = L.marker(endPoint, {
+    // Marcador de fin (cliente) - añadido directamente al mapa
+    L.marker(endPoint, {
       icon: L.icon({
         iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-red.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -165,11 +165,7 @@ async function calculateRoute(rutCliente, nombreProducto) {
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       })
-    }).bindPopup('Cliente')
-    
-    // Agregar marcadores al grupo de capas
-    markersLayer.addLayer(startMarker)
-    markersLayer.addLayer(endMarker)
+    }).addTo(map.value).bindPopup('Cliente')
     
     // Ajustar la vista del mapa para mostrar toda la ruta
     map.value.fitBounds(routeLayer.getBounds(), { padding: [20, 20] })
@@ -241,7 +237,16 @@ function clearRoute() {
     routeLayer = null
   }
   
-  // Limpiar todos los marcadores anteriores
+  // Limpiar todos los marcadores del mapa
+  if (map.value) {
+    map.value.eachLayer(function (layer) {
+      if (layer instanceof L.Marker) {
+        map.value.removeLayer(layer)
+      }
+    })
+  }
+  
+  // También limpiar el grupo de marcadores si existe
   if (markersLayer) {
     markersLayer.clearLayers()
   }
