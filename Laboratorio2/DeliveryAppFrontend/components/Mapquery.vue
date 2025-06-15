@@ -170,7 +170,7 @@
             <td class="border px-2 py-1">{{ entrega.rutCliente }}</td>
             <td class="border px-2 py-1">{{ entrega.nombreCliente }}</td>
             <td class="border px-2 py-1">{{ entrega.idPedido }}</td>
-            <td class="border px-2 py-1">{{ entrega.distancia.toFixed(3) }}</td>
+            <td class="border px-2 py-1">{{ (entrega.distancia  / 1000 ).toFixed(3) }}</td>
           </tr>
         </tbody>
       </table>
