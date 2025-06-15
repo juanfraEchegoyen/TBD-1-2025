@@ -26,7 +26,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
     @Autowired
     private ClienteRepository clienteRepository;
     @Autowired
-    private RepartidorRepository repartidorRepository;
+    private EmpresaRepository empresaRepository;
 
     private final WKTReader wktReader = new WKTReader();
     private final WKTWriter wktWriter = new WKTWriter();
@@ -116,7 +116,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
         Integer idProducto = detalle.getIdProducto().intValue();
 
         // Calcular ruta estimada automáticamente
-        LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutRepartidor());
+        LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutEmpresa());
 
         // Convertir LineString a WKT
         String rutaCalculadaWkt = null;
@@ -157,17 +157,17 @@ public class JdbcPedidoRepository implements PedidoRepository {
         jdbcTemplate.update(sql, idPedido);
     }
 
-    public LineString calcularRutaEstimada(String rutCliente, String rutRepartidor) {
-        System.out.println("Calculando ruta estimada entre cliente: " + rutCliente + " y repartidor: " + rutRepartidor); //**
+    public LineString calcularRutaEstimada(String rutCliente, String rutEmpresa) {
+        System.out.println("Calculando ruta estimada entre cliente: " + rutCliente + " y empresa: " + rutEmpresa); //**
         try {
-            if (rutCliente == null || rutRepartidor == null) {
+            if (rutCliente == null || rutEmpresa == null) {
                 System.out.println("RUT de cliente o repartidor es nulo, no se puede calcular ruta");
                 return null;
             }
 
             // Obtener ubicaciones del cliente y repartidor usando sus repositorios
             Optional<Cliente> clienteOpt = clienteRepository.findByRut(rutCliente);
-            Optional<Repartidor> repartidorOpt = repartidorRepository.findByRut(rutRepartidor);
+            Optional<Empresa> repartidorOpt = empresaRepository.findByRut(rutEmpresa);
 
             if (clienteOpt.isEmpty() || repartidorOpt.isEmpty()) {
                 System.err.println("No se encontró cliente o repartidor para calcular ruta");
@@ -175,22 +175,22 @@ public class JdbcPedidoRepository implements PedidoRepository {
             }
             System.out.println("Cliente y repartidor encontrados, calculando ruta..."); //**
             Cliente cliente = clienteOpt.get();
-            Repartidor repartidor = repartidorOpt.get();
+            Empresa repartidor = repartidorOpt.get();
 
             Point ubicacionCliente = cliente.getUbicacion();
-            Point ubicacionRepartidor = repartidor.getUbicacion();
+            Point ubicacionEmpresa = repartidor.getUbicacion();
 
             System.out.println("Ubicación del cliente: " + ubicacionCliente); //**
-            System.out.println("Ubicación del repartidor: " + ubicacionRepartidor); //**
+            System.out.println("Ubicación del repartidor: " + ubicacionEmpresa); //**
 
-            if (ubicacionCliente == null || ubicacionRepartidor == null) {
+            if (ubicacionCliente == null || ubicacionEmpresa == null) {
                 System.err.println("Cliente o repartidor no tienen ubicación definida");
                 return null;
             }
 
             // Coordenadas del repartidor (origen)
-            double repartidorLat = ubicacionRepartidor.getY();
-            double repartidorLon = ubicacionRepartidor.getX();
+            double repartidorLat = ubicacionEmpresa.getY();
+            double repartidorLon = ubicacionEmpresa.getX();
 
             // Coordenadas del cliente (destino)
             double clienteLat = ubicacionCliente.getY();
@@ -233,7 +233,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
         try {
             // Calcular ruta estimada automáticamente
-            LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutRepartidor());
+            LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutEmpresa());
             if (rutaCalculada != null) {
                 pedido.setRutasEstimadas(rutaCalculada);
             }
