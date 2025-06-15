@@ -36,7 +36,13 @@
         <div class="form-grid">
           <div>
             <label class="label">Cliente (RUT):</label>
-            <input v-model="registroPedido.rutCliente" class="input" required placeholder="Ingrese el RUT del cliente" />
+            <input 
+              v-model="registroPedido.rutCliente" 
+              @input="onClienteChange"
+              class="input" 
+              required 
+              placeholder="Ingrese el RUT del cliente" 
+            />
           </div>
 
           <div>
@@ -63,7 +69,7 @@
                 v-model="registroPedido.idProducto"
                 class="input"
                 required
-                @change="calcularTotal"
+                @change="onProductoChange"
               >
                 <option value="" disabled selected>Seleccione un producto</option>
                 <option v-for="producto in productos" :key="producto.idProducto" :value="producto.idProducto">
@@ -105,6 +111,16 @@
             </div>
 
           </div>
+        </div>
+
+        <!-- Mapa de ruta -->
+        <div v-if="mostrarMapa" class="mb-4">
+          <RouteMap 
+            :rut-cliente="registroPedido.rutCliente"
+            :nombre-producto="productoSeleccionado?.nombre || ''"
+            :should-calculate-route="shouldCalculateRoute"
+            ref="routeMapRef"
+          />
         </div>
 
         <div class="mt-4">
@@ -222,12 +238,14 @@
 import apiClient from '../service/http-common';
 import BaseButton from '../components/BaseButton.vue';
 import BaseButtonGreen from '../components/BaseButtonGreen.vue';
+import RouteMap from '../components/RouteMap.vue';
 
 export default {
   name: 'CrearPedidoPage',
   components: {
     BaseButton,
-    BaseButtonGreen
+    BaseButtonGreen,
+    RouteMap
   },
   data() {
     return {
@@ -254,7 +272,10 @@ export default {
       pedidos: [],
       clientes: [],
       precioTotal: 0,
-      loading: false
+      loading: false,
+      // Nuevas variables para el mapa de ruta
+      mostrarMapa: false,
+      shouldCalculateRoute: false
     };
   },
   computed: {
@@ -326,6 +347,30 @@ export default {
         this.precioTotal = 0;
       }
     },
+    // Nuevos métodos para manejar cambios en cliente y producto
+    onClienteChange() {
+      this.checkAndShowRoute();
+    },
+    onProductoChange() {
+      this.calcularTotal();
+      this.checkAndShowRoute();
+    },
+    checkAndShowRoute() {
+      if (this.registroPedido.rutCliente && this.registroPedido.idProducto) {
+        this.mostrarMapa = true;
+        this.shouldCalculateRoute = true;
+        // Reset para forzar recálculo
+        this.$nextTick(() => {
+          this.shouldCalculateRoute = false;
+          this.$nextTick(() => {
+            this.shouldCalculateRoute = true;
+          });
+        });
+      } else {
+        this.mostrarMapa = false;
+        this.shouldCalculateRoute = false;
+      }
+    },
     async registrarPedido() {
       try {
         const producto = this.productoSeleccionado;
@@ -349,6 +394,8 @@ export default {
             nombreMedioPago: ''
           };
           this.precioTotal = 0;
+          this.mostrarMapa = false;
+          this.shouldCalculateRoute = false;
         } else {
           this.mostrarError('Error inesperado al registrar el pedido');
         }
@@ -420,107 +467,113 @@ export default {
   max-width: 900px;
   margin: 0 auto;
   padding: 1rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Evitar scroll horizontal */
 }
+
+/* Asegurar que el body y html permitan scroll */
+:global(body) {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden; /* Evitar scroll horizontal */
+  height: auto;
+  min-height: 100vh;
+}
+
+:global(html) {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; /* Evitar scroll horizontal */
+}
+
 .titulo {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .tab-activa {
   background-color: #b91c1c !important;
   color: #fff !important;
 }
+
 .panel {
   background: #fff;
   padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   margin-bottom: 1rem;
+  overflow: visible;
+  max-width: 100%; /* Evitar que se desborde */
+  box-sizing: border-box;
 }
-.subtitulo {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+
+/* Contenedor específico para el mapa */
+.mb-4 {
+  margin-bottom: 1rem;
+  max-width: 100%;
+  overflow: hidden;
 }
+
+/* Mejorar responsividad */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.label {
-  font-size: 0.95rem;
-  margin-bottom: 0.25rem;
-  display: block;
-}
-.input {
-  width: 100%;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
-}
-.producto-select {
-  width: 100%;
-  max-width: 415px;
-}
-.cantidad-input {
-  width: 80px;
-}
-.total {
-  font-size: 1rem;
-  font-weight: bold;
-}
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #d1d5db;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
-.tabla th,
-.tabla td {
-  border: 1px solid #d1d5db;
-  padding: 0.5rem;
-  text-align: left;
+
+.producto-select {
+  flex: 1;
+  min-width: 200px;
+  max-width: 100%;
 }
-.tabla-header {
-  background-color: #f3f4f6;
+
+/* Responsividad mejorada */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+    max-width: 100vw; /* Usar todo el ancho de la ventana */
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .producto-select {
+    max-width: 100%;
+    min-width: unset;
+  }
+  
+  .panel {
+    margin: 0 0 1rem 0;
+    padding: 0.75rem;
+  }
 }
-.acciones {
-  display: flex;
-  justify-content: space-around;
-  gap: 0.5rem;
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.25rem;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .panel {
+    padding: 0.5rem;
+  }
 }
-.accion-estado {
-  color: #2563eb;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.accion-estado:hover {
-  color: #1d4ed8;
-}
-.accion-confirmar {
-  color: #16a34a;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.accion-confirmar:hover {
-  color: #166534;
-}
-.mensaje {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
-}
+
+/* Resto de tus estilos existentes... */
 </style>

@@ -1,10 +1,8 @@
 package com.app.DeliveryApp.services;
 
-import com.app.DeliveryApp.dto.PedidoRequestDTO;
 import com.app.DeliveryApp.models.*;
 import com.app.DeliveryApp.repositories.*;
-import com.app.DeliveryApp.services.OSMRService;
-import org.postgis.LineString;
+import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +22,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final RepartidorRepository repartidorRepository;
     private final MedioPagoRepository medioPagoRepository;
 
+
     @Autowired
     public PedidoServiceImpl(PedidoRepository pedidoRepository,
                              DetallePedidoRepository detallePedidoRepository,
@@ -39,6 +38,7 @@ public class PedidoServiceImpl implements PedidoService {
         this.empresaRepository = empresaRepository;
         this.repartidorRepository = repartidorRepository;
         this.medioPagoRepository = medioPagoRepository;
+
     }
 
     @Override
@@ -249,6 +249,15 @@ public class PedidoServiceImpl implements PedidoService {
                 && !estadoActual.equals(estadoNuevo)) {
             throw new IllegalArgumentException("No se pudo cambiar el estado desde '" + estadoActual + "' a '" + estadoNuevo + "'.");
         }
+    }
+
+    @Override
+    public LineString calcularRutaEstimada(String rutCliente, String nombreProducto) {
+        Producto producto = productoRepository.findByNombre(nombreProducto)
+                .orElseThrow(() -> new NoSuchElementException("Producto con nombre " + nombreProducto + " no encontrado"));
+        String rutEmpresa = producto.getRutEmpresa();
+        return pedidoRepository.calcularRutaEstimada(rutCliente, rutEmpresa);
+
     }
 
 

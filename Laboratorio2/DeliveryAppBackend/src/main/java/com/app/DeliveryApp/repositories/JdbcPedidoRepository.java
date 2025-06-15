@@ -161,24 +161,24 @@ public class JdbcPedidoRepository implements PedidoRepository {
         System.out.println("Calculando ruta estimada entre cliente: " + rutCliente + " y empresa: " + rutEmpresa); //**
         try {
             if (rutCliente == null || rutEmpresa == null) {
-                System.out.println("RUT de cliente o repartidor es nulo, no se puede calcular ruta");
+                System.out.println("RUT de cliente o empresa es nulo, no se puede calcular ruta");
                 return null;
             }
 
             // Obtener ubicaciones del cliente y repartidor usando sus repositorios
             Optional<Cliente> clienteOpt = clienteRepository.findByRut(rutCliente);
-            Optional<Empresa> repartidorOpt = empresaRepository.findByRut(rutEmpresa);
+            Optional<Empresa> empresaOpt = empresaRepository.findByRut(rutEmpresa);
 
-            if (clienteOpt.isEmpty() || repartidorOpt.isEmpty()) {
-                System.err.println("No se encontró cliente o repartidor para calcular ruta");
+            if (clienteOpt.isEmpty() || empresaOpt.isEmpty()) {
+                System.err.println("No se encontró cliente o empresa para calcular ruta");
                 return null;
             }
-            System.out.println("Cliente y repartidor encontrados, calculando ruta..."); //**
+            System.out.println("Cliente y empresa encontrados, calculando ruta..."); //**
             Cliente cliente = clienteOpt.get();
-            Empresa repartidor = repartidorOpt.get();
+            Empresa empresa = empresaOpt.get();
 
             Point ubicacionCliente = cliente.getUbicacion();
-            Point ubicacionEmpresa = repartidor.getUbicacion();
+            Point ubicacionEmpresa = empresa.getUbicacion();
 
             System.out.println("Ubicación del cliente: " + ubicacionCliente); //**
             System.out.println("Ubicación del repartidor: " + ubicacionEmpresa); //**
