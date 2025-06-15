@@ -1,54 +1,261 @@
 <template>
-  <div class="address-page">
-    <h2 class="text-xl font-bold mb-4">Zona de cobertura y ubicación del cliente</h2>
-    <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+  <div class="min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+    <!-- Header mejorado -->
+    <div class="flex-shrink-0 p-6 pb-4 text-center">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Panel de Consultas Geoespaciales</h1>
+      <p class="text-gray-600">Análisis espacial del sistema de delivery</p>
+      <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-blue-600 mx-auto mt-3 rounded-full"></div>
+    </div>
+
+    <!-- Menú de navegación -->
+    <div class="flex-shrink-0 px-6 pb-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button 
+              v-for="(consulta, key) in consultasDisponibles" 
+              :key="key"
+              @click="mostrarConsulta(key)"
+              :class="[
+                'px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                consultaActiva === key 
+                  ? consulta.activeClass + ' text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
+            >
+              {{ consulta.titulo }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor principal con scroll -->
+    <div class="flex-1 overflow-y-auto px-6 pb-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 h-full">
+          <div class="p-6 h-full overflow-y-auto">
+            
+            <!-- Contenido dinámico basado en la consulta activa -->
+            <div v-if="!consultaActiva" class="text-center py-8">
+              <div class="text-4xl mb-3">🗺️</div>
+              <h3 class="text-xl font-bold text-gray-600 mb-2">Selecciona una consulta geoespacial</h3>
+              <p class="text-gray-500">Usa el menú superior para ver los diferentes análisis espaciales disponibles</p>
+            </div>
+
+            <!-- Entregas Cercanas -->
+            <div v-if="consultaActiva === 'entregasCercanas'" class="h-full">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">📍</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Puntos de Entrega Cercanos</h2>
+                    <p class="text-gray-600 text-sm">Los 5 puntos de entrega más cercanos por empresa</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-blue-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Zona de Cobertura -->
+            <div v-if="consultaActiva === 'zonaCobertura'" class="h-full">
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🌍</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Zona de Cobertura</h2>
+                    <p class="text-gray-600 text-sm">Zona de cobertura y ubicación del cliente</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-green-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Distancia Repartidor (Solo tabla) -->
+            <div v-if="consultaActiva === 'distanciaRepartidor'" class="h-full">
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🚴</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Distancia Recorrida</h2>
+                    <p class="text-gray-600 text-sm">Distancia total recorrida por repartidor</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-purple-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMapDistancia" :showMap="false" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Entregas Más Lejanas -->
+            <div v-if="consultaActiva === 'entregasLejanas'" class="h-full">
+              <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">📏</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Entregas Más Lejanas</h2>
+                    <p class="text-gray-600 text-sm">Punto de entrega más lejano a cada empresa</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-yellow-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Pedidos Cruzan Zonas -->
+            <div v-if="consultaActiva === 'pedidosZonas'" class="h-full">
+              <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-pink-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🔄</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Pedidos Multi-Zona</h2>
+                    <p class="text-gray-600 text-sm">Pedidos que cruzan más de 2 zonas de reparto</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-pink-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Clientes Lejanos -->
+            <div v-if="consultaActiva === 'clientesLejanos'" class="h-full">
+              <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200 h-full flex flex-col">
+                <div class="flex items-center mb-4 flex-shrink-0">
+                  <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🏃‍♂️</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Clientes Lejanos</h2>
+                    <p class="text-gray-600 text-sm">Clientes a más de 5km de distancia</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-4 border border-red-200 flex-1 min-h-0">
+                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, nextTick } from 'vue'
 import Mapquery from '@/components/Mapquery.vue'
-import wellknown from 'wellknown'
 
-const areaCoberturaWkt = `MULTIPOLYGON(((-70.58444555799997 -33.431783924999934,-70.58443375699989 -33.431783404999976,-70.58431222499996 -33.43196372899996,-70.58393227699997 -33.43244257199996,-70.58351538499994 -33.43283300999997,-70.58274928099996 -33.433450087999915,-70.58224165999997 -33.43377550099996,-70.58224791499998 -33.43378529599994,-70.58246464699994 -33.434107677999975,-70.58258741399999 -33.434245778999866,-70.58259942699993 -33.43425929199998,-70.58261163799995 -33.43427302799989,-70.58271695499997 -33.43439149999995,-70.58298430099995 -33.43469223699992,-70.5830996219999 -33.43482195699994,-70.58385039599995 -33.4356771919999,-70.58461997099994 -33.43653314199992,-70.58508082499998 -33.43703228699985,-70.58536667599998 -33.43737127999992,-70.5860407479999 -33.438120209999965,-70.58666329699997 -33.43882283599993,-70.58681681199988 -33.43899812699988,-70.58700078599992 -33.43920819799996,-70.58705994899992 -33.43928358399995,-70.58717598299995 -33.439431432999925,-70.58727360299986 -33.43958109899995,-70.5873484139999 -33.43969297599989,-70.58744799499988 -33.43984189099996,-70.58753137999997 -33.439967020999916,-70.58762253699996 -33.44010380899988,-70.58767557499988 -33.44018339999997,-70.58778112399995 -33.44035745299982,-70.58784723599996 -33.4404562229999,-70.58791582499998 -33.44055869099992,-70.58795989999999 -33.44062453599997,-70.58806627499996 -33.44078345499997,-70.58819684999986 -33.44097852699997,-70.58860371499986 -33.44163164299988,-70.58865517099986 -33.44169407699991,-70.58872074899995 -33.44179780099995,-70.58895214599983 -33.442163808999965,-70.58950921999991 -33.44304492999987,-70.58993720799998 -33.44372126299987,-70.59048007799993 -33.44457158099988,-70.59083125399997 -33.445176232999984,-70.59106877099998 -33.44550800899998,-70.59109375499992 -33.445555911999975,-70.59112504399991 -33.445615895999936,-70.59115599099994 -33.44567522799997,-70.59116614299995 -33.4457149669999,-70.59117288399989 -33.44574135399995,-70.59123396599989 -33.44578466299998,-70.59126100599997 -33.44580383299996,-70.59131278199999 -33.44587394399997,-70.59133147099988 -33.445907613999964,-70.59135123699991 -33.445943263999936,-70.59136468499997 -33.44596374199995,-70.59140285699993 -33.44602187399988,-70.59144295299996 -33.44608293699997,-70.59149130699996 -33.44615657599991,-70.59161865399983 -33.44635051499989,-70.59169769599998 -33.44647088999983,-70.59176316499997 -33.446547534999866,-70.59203568999988 -33.44685861499994,-70.59207096499995 -33.446907884999916,-70.59226126699997 -33.44713067599997,-70.5923850499999 -33.44727559399996,-70.59255204099998 -33.447471089999965,-70.5927189439999 -33.447666522999896,-70.59279266599998 -33.44777184599991,-70.59418810999989 -33.44702070499994,-70.59449569099985 -33.44685877399996,-70.59610599599995 -33.44599037299997,-70.59669783999988 -33.44561833399996,-70.59698928899991 -33.44543512599995,-70.59724097799989 -33.445245246999946,-70.59742532299992 -33.445143651999956,-70.59795325499994 -33.44483926699991,-70.5981001689999 -33.44480132299998,-70.5982632059999 -33.44483527299997,-70.59887174599999 -33.44489651099997,-70.5991371739999 -33.44492321999985,-70.59918310099988 -33.44467912599998,-70.59996324999997 -33.444749956999885,-70.60040955699986 -33.44479051799988,-70.60060657999998 -33.444808363999925,-70.60109578499998 -33.44485280299995,-70.60165730099999 -33.44489970099994,-70.60221105299996 -33.444955636999964,-70.60289544199992 -33.445027981999885,-70.60386898399992 -33.44512746799995,-70.60437067799995 -33.445177195999975,-70.60521972899994 -33.445296117999874,-70.60616117599994 -33.445428689999915,-70.60637500899998 -33.44545255899993,-70.60716381199995 -33.44554018199989,-70.60812836499991 -33.44564595299994,-70.60876530299993 -33.44574429499994,-70.60945750999991 -33.44592901699991,-70.60947145199992 -33.44594919699989,-70.60975035299992 -33.4460115519999,-70.60977989199995 -33.44602028799994,-70.61034764999994 -33.44619014399996,-70.61075346499996 -33.44630739599995,-70.61121177699994 -33.44644036899996,-70.61131157399996 -33.446452000999955,-70.61231117099999 -33.446599774999925,-70.61259278699998 -33.44664140499998,-70.61274426599994 -33.446663798999964,-70.61298418399997 -33.44669926399996,-70.6131510649999 -33.446723931999884,-70.61324454599992 -33.446737750999944,-70.61347149599999 -33.44677129799982,-70.61389079099985 -33.446833278999975,-70.61382603999988 -33.44717233499995,-70.61380936199993 -33.44725262299994,-70.61374431899998 -33.44756569099991,-70.61403144199994 -33.44761117299993,-70.61651644099993 -33.44803460299988,-70.61710163099985 -33.44813520399987,-70.61781429499985 -33.448266640999975,-70.61843245599994 -33.448377148999896,-70.61863725599989 -33.44764618499988,-70.61876467199994 -33.44726574999987,-70.61985088399996 -33.44748604999995,-70.62090152099995 -33.44768870399997,-70.62224892999996 -33.447959719999915,-70.62323710899989 -33.448163173999944,-70.6237199339999 -33.44825606799992,-70.62513190699991 -33.44854014999987,-70.6253593379999 -33.44857479399991,-70.6262407879999 -33.448791219999976,-70.62676605199994 -33.44891959899991,-70.62687925499989 -33.448936137999965,-70.62798357599996 -33.44914711599995,-70.62894597499991 -33.44934184799996,-70.63025395999989 -33.449593518999905,-70.6313557979999 -33.44980857999997,-70.63152658899992 -33.4498360099999,-70.63285145499987 -33.44541262699994,-70.63457844099992 -33.439573098999915,-70.63476469999989 -33.43888539999995,-70.63528829799998 -33.43688529999986,-70.63538080299998 -33.436424115999955,-70.63537586599995 -33.43638532499995,-70.63535444699994 -33.43621701599989,-70.63536430299996 -33.43592430599995,-70.63537176299985 -33.43570274499996,-70.63541190699988 -33.43547464499994,-70.63552639499994 -33.43482414399995,-70.63564537899993 -33.434172183999976,-70.63579333599989 -33.43336146099995,-70.63595102099998 -33.43246046099995,-70.63604828799998 -33.431913014999964,-70.63621921399988 -33.4308938609999,-70.63624274499989 -33.43076729399991,-70.63605592399995 -33.43012056799995,-70.63601472999994 -33.42979629599995,-70.63614491499987 -33.42959573599995,-70.63611069699988 -33.42952717199995,-70.6357738559999 -33.429287743999964,-70.63552064899983 -33.4290820839999,-70.63522212399988 -33.428667944999916,-70.6350493729999 -33.42832181499989,-70.63491427999992 -33.42776618699992,-70.63477657499988 -33.427071184999875,-70.63472790499998 -33.42668862299996,-70.63437867599993 -33.42578740799996,-70.63355868399992 -33.42416063199994,-70.63269276599988 -33.422290733999944,-70.63252004099996 -33.42194467199994,-70.63234740199988 -33.421598535999976,-70.63226966599996 -33.42152634599995,-70.63205143499994 -33.42132361499995,-70.63171324799993 -33.421014598999875,-70.63074621899995 -33.42040016999994,-70.63032367899996 -33.420022443999926,-70.62973819399991 -33.419821140999886,-70.62940466399994 -33.4197558539999,-70.62890623299995 -33.41976240199995,-70.62844798399993 -33.419698751999874,-70.62765685499994 -33.41960459899991,-70.62711368999993 -33.41943752299994,-70.62530817799995 -33.418415968999966,-70.62240134599995 -33.41625917999994,-70.62020396699995 -33.41426711399998,-70.61910083399988 -33.41302728699998,-70.61829038999997 -33.41188816799996,-70.6179062839999 -33.41133569199991,-70.61744162999992 -33.41092374799996,-70.61722062099994 -33.41071038799987,-70.61676488199998 -33.41027062099988,-70.61454235699995 -33.40916553599993,-70.60592499499995 -33.409277402999976,-70.60586968799998 -33.40927819299992,-70.60652766099997 -33.410696119999955,-70.60730635499993 -33.41349164099995,-70.60787298399993 -33.41548403599995,-70.60660812599997 -33.416047996999964,-70.60622844699992 -33.41626463999995,-70.6050055639999 -33.416899876999935,-70.60466884299996 -33.417057163999914,-70.60425375599988 -33.41712562699996,-70.60374937099988 -33.41718630299994,-70.6034123689999 -33.417208683999945,-70.60256780299983 -33.41737289899993,-70.60223349299997 -33.41750347599998,-70.60172208799992 -33.4177625989999,-70.60155528199988 -33.417981216999976,-70.60139028099991 -33.418307969999944,-70.60102883699994 -33.41866437099992,-70.60056250999997 -33.419023308999954,-70.60005943399995 -33.41940103999997,-70.59916120199995 -33.42003224299998,-70.59788169399997 -33.42077056399995,-70.59582676299993 -33.42232843299996,-70.59327915499989 -33.424377906999894,-70.59130002899991 -33.42587002399989,-70.58937304999984 -33.42740457599996,-70.58742028899991 -33.428939432999925,-70.58602934299995 -33.43025138099995,-70.58539461999999 -33.43071245099998,-70.58483861299999 -33.43125878799998,-70.58444555799997 -33.431783924999934)))`
-const ubicacionClienteWkt = `POINT(-70.6118 -33.426)`
-
+const consultaActiva = ref(null)
 const geoMap = ref(null)
+const geoMapDistancia = ref(null)
 
-onMounted(() => {
-  setTimeout(() => {
-    const map = (geoMap.value && geoMap.value.map && geoMap.value.map.value) ? geoMap.value.map.value : null
-    if (!map) return
+// Configuración del menú basado en los botones de Mapquery
+const consultasDisponibles = {
+  entregasCercanas: {
+    titulo: '1. Entregas Cercanas',
+    activeClass: 'bg-blue-600'
+  },
+  zonaCobertura: {
+    titulo: '2. Zona de Cobertura',
+    activeClass: 'bg-green-600'
+  },
+  distanciaRepartidor: {
+    titulo: '3. Distancia Repartidor',
+    activeClass: 'bg-purple-600'
+  },
+  entregasLejanas: {
+    titulo: '4. Entregas Lejanas',
+    activeClass: 'bg-yellow-600'
+  },
+  pedidosZonas: {
+    titulo: '5. Pedidos Multi-Zona',
+    activeClass: 'bg-pink-600'
+  },
+  clientesLejanos: {
+    titulo: '6. Clientes Lejanos',
+    activeClass: 'bg-red-600'
+  }
+}
 
-    // Limpia capas anteriores si existen
-    if (map._polygonLayer) {
-      map.removeLayer(map._polygonLayer)
-      map._polygonLayer = null
+const mostrarConsulta = async (tipoConsulta) => {
+  // Si ya está activa la misma consulta, la ocultamos
+  if (consultaActiva.value === tipoConsulta) {
+    consultaActiva.value = null
+    return
+  }
+  
+  // Activamos la nueva consulta
+  consultaActiva.value = tipoConsulta
+  
+  // Esperamos a que el componente se renderice
+  await nextTick()
+  
+  // Ejecutamos la función correspondiente del componente Mapquery
+  if (tipoConsulta === 'distanciaRepartidor') {
+    // Para distancia repartidor usamos el componente sin mapa
+    if (geoMapDistancia.value && geoMapDistancia.value.mostrarSelectorRepartidorSinMapa) {
+      geoMapDistancia.value.mostrarSelectorRepartidorSinMapa()
     }
-    if (map._markerLayer) {
-      map.removeLayer(map._markerLayer)
-      map._markerLayer = null
+  } else {
+    // Para el resto usamos el componente con mapa
+    if (geoMap.value) {
+      switch(tipoConsulta) {
+        case 'entregasCercanas':
+          if (geoMap.value.mostrarEmpresasYPreparar) {
+            geoMap.value.mostrarEmpresasYPreparar()
+          }
+          break
+        case 'zonaCobertura':
+          if (geoMap.value.fetchZonaCobertura) {
+            geoMap.value.fetchZonaCobertura()
+          }
+          break
+        case 'entregasLejanas':
+          if (geoMap.value.mostrarEntregasMasLejanas) {
+            geoMap.value.mostrarEntregasMasLejanas()
+          }
+          break
+        case 'pedidosZonas':
+          if (geoMap.value.listarPedidosZonas) {
+            geoMap.value.listarPedidosZonas()
+          }
+          break
+        case 'clientesLejanos':
+          if (geoMap.value.mostrarClientesLejanos) {
+            geoMap.value.mostrarClientesLejanos()
+          }
+          break
+      }
     }
-
-    // Dibuja polígono (área de cobertura)
-    const area = wellknown.parse(areaCoberturaWkt)
-    const coords = area.coordinates[0][0].map(([lng, lat]) => [lat, lng])
-    const L = map.constructor
-    map._polygonLayer = L.polygon(coords, { color: 'blue', fillOpacity: 0.2 }).addTo(map)
-    map.fitBounds(map._polygonLayer.getBounds())
-
-    // Dibuja punto (ubicación del cliente)
-    const punto = wellknown.parse(ubicacionClienteWkt)
-    const [lng, lat] = punto.coordinates
-    map._markerLayer = L.marker([lat, lng], { title: 'Cliente', color: 'red' }).addTo(map)
-  }, 500)
-})
+  }
+}
 </script>
 
 <style scoped>
-.address-page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem 0;
+h1 {
+  color: #333333;
 }
 </style>

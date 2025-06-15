@@ -1,45 +1,6 @@
 <template>
   <div class="location-map-picker max-h-[80vh] overflow-y-auto">
-    <!-- Botones principales -->
-    <button
-      v-if="!mostrarSelectorEmpresa"
-      @click="mostrarEmpresasYPreparar"
-      class="mb-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-    >
-      1. Obtener los 5 puntos de entrega más cercanos
-    </button>
-    <button
-      @click="fetchZonaCobertura"
-      class="mb-2 ml-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-    >
-      2. Mostrar zona y ubicación del cliente
-    </button>
-    <button
-      v-if="!mostrarSelectorRepartidor"
-      @click="mostrarRepartidoresYPreparar"
-      class="mb-2 ml-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-    >
-      3. Calcular la distancia total recorrida por un repartidor
-    </button>
-    <button
-      @click="mostrarEntregasMasLejanas"
-      class="mb-2 ml-2 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
-    >
-      4. Identificar el punto de entrega más lejano a cada empresa
-    </button>
-    <button
-      @click="listarPedidosZonas"
-      class="mb-2 ml-2 bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
-    >
-      5. Listar pedidos que cruzan más de 2 zonas de reparto
-    </button>
-    <button
-      @click="mostrarClientesLejanos"
-      class="mb-2 ml-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-    >
-      6. Mostrar clientes lejanos (&gt;5km)
-    </button>
-
+    
     <!-- Selector de empresa solo para opción 1 (arriba del mapa) -->
     <div v-if="mostrarSelectorEmpresa" class="mb-2">
       <label for="empresaSelect" class="mr-2 font-semibold">Empresa:</label>
@@ -60,8 +21,8 @@
       </button>
     </div>
 
-    <!-- Selector de repartidor solo para opción 3 (DEBAJO de los botones) -->
-    <div v-if="mostrarSelectorRepartidor" class="mb-2 mt-4">
+    <!-- Selector de repartidor solo para opción 3 -->
+    <div v-if="mostrarSelectorRepartidor" class="mb-2">
       <label for="repartidorSelect" class="mr-2 font-semibold">Repartidor:</label>
       <select
         id="repartidorSelect"
@@ -81,6 +42,7 @@
     </div>
 
     <div 
+      v-if="mostrarMapa"
       id="map" 
       ref="mapContainer" 
       class="h-60 w-full border-4 border-gray-300 rounded-lg shadow-md hover:border-gray-500 hover:shadow-lg transition-all duration-200 overflow-hidden"
@@ -184,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, defineExpose } from 'vue'
 import wellknown from 'wellknown'
 import apiClient from '../service/http-common'
 
@@ -204,6 +166,10 @@ const props = defineProps({
   ubicacionClienteWkt: {
     type: String,
     default: ''
+  },
+  showMap: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -225,6 +191,7 @@ const clientesLejanosConsultado = ref(false)
 const rutEmpresaSeleccionada = ref('')
 const empresas = ref([])
 const mostrarSelectorEmpresa = ref(false)
+const mostrarMapa = ref(props.showMap)
 
 let L = null
 
@@ -255,11 +222,25 @@ const mostrarRepartidoresYPreparar = async () => {
   await fetchRepartidores()
 }
 
+// Modificamos esta función para que NO oculte el selector
 const buscarDistanciaRecorrida = async () => {
-  mostrarSelectorRepartidor.value = false
+  // No ocultamos el selector: mostrarSelectorRepartidor.value = false
   await calcularDistanciaRecorrida()
 }
+
+// Nueva función solo para mostrar selector sin mapa
+const mostrarSelectorRepartidorSinMapa = async () => {
+  mostrarMapa.value = false
+  mostrarSelectorRepartidor.value = true
+  await fetchRepartidores()
+}
+
 onMounted(async () => {
+  if (!props.showMap) {
+    mostrarMapa.value = false
+    return
+  }
+  
   try {
     const leafletModule = await import('leaflet')
     L = leafletModule.default
@@ -393,7 +374,9 @@ const fetchZonaCobertura = async () => {
 
 // 3. Calcular la distancia total recorrida por un repartidor
 const calcularDistanciaRecorrida = async () => {
-  clearAllLayers()
+  if (map.value) {
+    clearAllLayers()
+  }
   resultadoDistancia.value = null
   mostrarDistancia.value = false
   mostrarPedidosZonas.value = false
@@ -480,7 +463,7 @@ const mostrarClientesLejanos = async () => {
   }
 }
 
-// Cambia el endpoint aquí:
+// Cambiar endpoint aquí:
 const fetchEmpresas = async () => {
   try {
     const res = await apiClient.get('http://localhost:8080/api/v1/empresas/obtenerTodasNombres')
@@ -571,6 +554,20 @@ const cerrarEntregasMasLejanas = () => {
   entregasMasLejanasMarkers.value = []
   mostrarEntregasMasLejanas.value = false
 }
+
+// Exponer las funciones para que el componente padre pueda llamarlas
+defineExpose({
+  mostrarEmpresasYPreparar,
+  fetchZonaCobertura,
+  mostrarRepartidoresYPreparar,
+  mostrarEntregasMasLejanas,
+  listarPedidosZonas,
+  mostrarClientesLejanos,
+  buscarEntregasCercanas,
+  buscarDistanciaRecorrida,
+  calcularDistanciaRecorrida,
+  mostrarSelectorRepartidorSinMapa
+})
 </script>
 
 <style scoped>
