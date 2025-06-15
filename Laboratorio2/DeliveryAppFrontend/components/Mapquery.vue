@@ -22,6 +22,12 @@
       3. Calcular la distancia total recorrida por un repartidor
     </button>
     <button
+      @click="mostrarEntregasMasLejanas"
+      class="mb-2 ml-2 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+    >
+      4. Identificar el punto de entrega más lejano a cada empresa
+    </button>
+    <button
       @click="listarPedidosZonas"
       class="mb-2 ml-2 bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
     >
@@ -129,6 +135,47 @@
       </table>
     </div>
 
+    <!-- Contenedor de resultado entregas más lejanas -->
+    <div
+      v-if="entregasMasLejanas.length && mostrarEntregasMasLejanas"
+      class="relative mt-4 bg-white p-4 rounded shadow"
+    >
+      <button
+        @click="cerrarEntregasMasLejanas"
+        class="close-btn"
+        style="position:absolute;top:0.5rem;right:0.5rem;"
+      >
+        ✖
+      </button>
+      <h2 class="text-xl font-semibold mb-2">Punto de entrega más lejano a cada empresa</h2>
+      <table class="table-auto w-full border-collapse border border-gray-300 mb-4">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border px-2 py-1">Color</th>
+            <th class="border px-2 py-1">RUT Empresa</th>
+            <th class="border px-2 py-1">Nombre Empresa</th>
+            <th class="border px-2 py-1">RUT Cliente</th>
+            <th class="border px-2 py-1">Nombre Cliente</th>
+            <th class="border px-2 py-1">ID Pedido</th>
+            <th class="border px-2 py-1">Distancia (km)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(entrega, idx) in entregasMasLejanas" :key="entrega.idPedido">
+            <td class="border px-2 py-1">
+              <span :style="`display:inline-block;width:18px;height:18px;background:${colores[idx % colores.length]};border-radius:3px;border:2px solid #222;`"></span>
+            </td>
+            <td class="border px-2 py-1">{{ entrega.rutEmpresa }}</td>
+            <td class="border px-2 py-1">{{ entrega.nombreEmpresa }}</td>
+            <td class="border px-2 py-1">{{ entrega.rutCliente }}</td>
+            <td class="border px-2 py-1">{{ entrega.nombreCliente }}</td>
+            <td class="border px-2 py-1">{{ entrega.idPedido }}</td>
+            <td class="border px-2 py-1">{{ entrega.distancia.toFixed(3) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- Mensaje cuando no hay clientes lejanos -->
     <div v-if="clientesLejanos.length === 0 && clientesLejanosConsultado" class="text-red-600 mb-2">
       No hay más clientes lejanos
@@ -184,6 +231,10 @@ let L = null
 const repartidores = ref([])
 const rutRepartidorSeleccionado = ref('')
 const mostrarSelectorRepartidor = ref(false)
+const entregasMasLejanas = ref([])
+const entregasMasLejanasMarkers = ref([])
+
+const colores = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'black']
 
 const fetchRepartidores = async () => {
   try {
@@ -454,6 +505,71 @@ const mostrarEmpresasYPreparar = async () => {
 const buscarEntregasCercanas = async () => {
   mostrarSelectorEmpresa.value = false
   await fetchEntregasCercanas()
+}
+
+// Solo debe haber UNA función con este nombre
+const mostrarEntregasMasLejanas = async () => {
+  clearAllLayers()
+  entregasMasLejanas.value = []
+  entregasMasLejanasMarkers.value = []
+  mostrarEntregasMasLejanas.value = false
+  try {
+    const res = await apiClient.get('http://localhost:8080/api/v1/sentenciassql/entregasMasLejanasPorEmpresa')
+    if (res.data && Array.isArray(res.data)) {
+      entregasMasLejanas.value = res.data
+      mostrarEntregasMasLejanas.value = true
+
+      res.data.forEach((entrega, idx) => {
+        const color = colores[idx % colores.length]
+
+        // Empresa: cuadrado
+        const empresaGeoJson = wellknown(entrega.ubicacionEmpresaWkt)
+        const empresaMarker = L.geoJSON(empresaGeoJson, {
+          pointToLayer: (feature, latlng) =>
+            L.marker(latlng, {
+              icon: L.divIcon({
+                className: '',
+                html: `<div style="background:${color};width:18px;height:18px;border-radius:3px;border:2px solid #222"></div>`,
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
+              }),
+              title: entrega.nombreEmpresa
+            }).bindPopup(`<b>Empresa:</b> ${entrega.nombreEmpresa}<br>RUT: ${entrega.rutEmpresa}`)
+        }).addTo(map.value)
+        entregasMasLejanasMarkers.value.push(empresaMarker)
+
+        // Cliente: círculo
+        const clienteGeoJson = wellknown(entrega.ubicacionClienteWkt)
+        const clienteMarker = L.geoJSON(clienteGeoJson, {
+          pointToLayer: (feature, latlng) =>
+            L.circleMarker(latlng, {
+              radius: 10,
+              color: color,
+              fillColor: color,
+              fillOpacity: 0.7
+            }).bindPopup(`<b>Cliente:</b> ${entrega.nombreCliente}<br>RUT: ${entrega.rutCliente}<br><b>Distancia:</b> ${entrega.distancia.toFixed(3)} km`)
+        }).addTo(map.value)
+        entregasMasLejanasMarkers.value.push(clienteMarker)
+      })
+
+      // Ajusta el mapa para mostrar todos los marcadores
+      if (entregasMasLejanasMarkers.value.length > 0) {
+        const group = L.featureGroup(entregasMasLejanasMarkers.value)
+        map.value.fitBounds(group.getBounds())
+      }
+    } else {
+      alert('No se encontraron entregas más lejanas')
+    }
+  } catch (error) {
+    alert('Error al obtener las entregas más lejanas')
+  }
+}
+
+const cerrarEntregasMasLejanas = () => {
+  entregasMasLejanas.value = []
+  entregasMasLejanasMarkers.value.forEach(marker => map.value.removeLayer(marker))
+  entregasMasLejanasMarkers.value = []
+  mostrarEntregasMasLejanas.value = false
 }
 </script>
 

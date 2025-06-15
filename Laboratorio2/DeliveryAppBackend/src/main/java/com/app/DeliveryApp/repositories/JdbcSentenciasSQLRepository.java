@@ -230,7 +230,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     SELECT ep.rut_cliente, ep.id_pedido, ST_AsText(ep.ubicacion) AS ubicacion
     FROM entregas_pendientes ep, empresa_seleccionada es
     WHERE ep.rut_empresa = es.rut_empresa
-    ORDER BY ST_Distance(ep.ubicacion, es.ubicacion) ASC
+    ORDER BY ST_DistanceSphere(ep.ubicacion, es.ubicacion) ASC
     LIMIT 5;
     """;
 
@@ -267,7 +267,7 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     //3. Calcular la distancia total recorrida por un repartidor
     private static final String SELECT_DISTANCIA_RECORRIDA_SQL = """
     SELECT p.rut_repartidor, COUNT(*) AS pedidos_entregados, 
-           SUM(ST_Distance(c.ubicacion, e.ubicacion)) AS distancia_total_km
+           SUM(ST_DistanceSphere(c.ubicacion, e.ubicacion)) AS distancia_total_km
     FROM Pedido p
     JOIN Cliente c ON p.rut_cliente = c.rut_cliente
     JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
@@ -307,7 +307,7 @@ SELECT DISTINCT ON (e.rut_empresa)
     ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt,
     ST_AsText(e.ubicacion) AS ubicacion_empresa_wkt,
     p.id_pedido,
-    ST_Distance(c.ubicacion, e.ubicacion) AS distancia
+    ST_DistanceSphere(c.ubicacion, e.ubicacion) AS distancia
 FROM Pedido p
 JOIN Cliente c ON p.rut_cliente = c.rut_cliente
 JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
@@ -370,7 +370,7 @@ ORDER BY e.rut_empresa, ST_Distance(c.ubicacion, e.ubicacion) DESC
     WHERE EXISTS (
         SELECT 1
         FROM EmpresaAsociada e
-        WHERE ST_Distance(c.ubicacion, e.ubicacion) > 5000
+        WHERE ST_DistanceSphere(c.ubicacion, e.ubicacion) > 5000
     )
     """;
 
