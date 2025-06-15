@@ -14,5 +14,4 @@ public interface PedidoService {
     Optional<Pedido> actualizarPedido(Long id, Pedido pedidoActualizado); 
     boolean eliminarPedido(Long id);
     String registrarPedido(Pedido pedido, DetallePedido detallePedido, MedioPago medioPago);
-
 }

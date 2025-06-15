@@ -1,8 +1,10 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.PedidoRequestDTO;
 import com.app.DeliveryApp.models.*;
 import com.app.DeliveryApp.repositories.*;
-import org.locationtech.jts.geom.LineString;
+import com.app.DeliveryApp.services.OSMRService;
+import org.postgis.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -240,7 +242,9 @@ public class PedidoServiceImpl implements PedidoService {
             producto.setStock(nuevoStock);
             productoRepository.update(producto);
         }
-    }    private void validarTransicionEstado(String estadoActual, String estadoNuevo) {
+    }
+
+    private void validarTransicionEstado(String estadoActual, String estadoNuevo) {
         if (("ENTREGADO".equals(estadoActual) || "CANCELADO".equals(estadoActual))
                 && !estadoActual.equals(estadoNuevo)) {
             throw new IllegalArgumentException("No se pudo cambiar el estado desde '" + estadoActual + "' a '" + estadoNuevo + "'.");

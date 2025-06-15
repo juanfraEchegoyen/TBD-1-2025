@@ -1,9 +1,9 @@
 package com.app.DeliveryApp.repositories;
 
-import com.app.DeliveryApp.models.DetallePedido;
-import com.app.DeliveryApp.models.MedioPago;
-import com.app.DeliveryApp.models.Pedido;
+import com.app.DeliveryApp.models.*;
+import com.app.DeliveryApp.services.OSMRService;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,13 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    
+    @Autowired
+    private OSMRService osmrService;
+    @Autowired
+    private ClienteRepository clienteRepository;
+    @Autowired
+    private RepartidorRepository repartidorRepository;
+
     private final WKTReader wktReader = new WKTReader();
     private final WKTWriter wktWriter = new WKTWriter();
     
@@ -34,7 +40,9 @@ public class JdbcPedidoRepository implements PedidoRepository {
     private static final String UPDATE_PEDIDO_SQL =
             "UPDATE Pedido SET estado_entrega = ?, prioridad_pedido = ?, problema_critico = ?, rut_cliente = ?, rut_empresa = ?, rut_repartidor = ?, rutas_estimadas = ST_GeomFromText(?, 4326) WHERE id_pedido = ?";
     private static final String DELETE_PEDIDO_BY_ID_SQL =
-            "DELETE FROM Pedido WHERE id_pedido = ?";    private final RowMapper<Pedido> pedidoRowMapper = (rs, rowNum) -> {
+            "DELETE FROM Pedido WHERE id_pedido = ?";
+
+    private final RowMapper<Pedido> pedidoRowMapper = (rs, rowNum) -> {
         Pedido pedido = new Pedido();
         pedido.setIdPedido(rs.getLong("id_pedido"));
         pedido.setEstadoEntrega(rs.getString("estado_entrega"));
@@ -58,7 +66,9 @@ public class JdbcPedidoRepository implements PedidoRepository {
         }
         
         return pedido;
-    };    @Override
+    };
+
+    @Override
     public Pedido save(Pedido pedido) {
         try {
             String rutasWkt = null;
@@ -94,7 +104,7 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
 
     public void RegistrarPedido(Pedido pedido, DetallePedido detalle, MedioPago medioPago) {
-        String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "CALL registrar_pedido(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))";
 
         // Convertir Double a Integer para precio_total
         Integer precioTotal = detalle.getPrecioTotal().intValue();
@@ -104,6 +114,16 @@ public class JdbcPedidoRepository implements PedidoRepository {
 
         // Convertir Long a Integer para idProducto
         Integer idProducto = detalle.getIdProducto().intValue();
+
+        // Calcular ruta estimada automáticamente
+        LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutRepartidor());
+
+        // Convertir LineString a WKT
+        String rutaCalculadaWkt = null;
+        if (rutaCalculada != null) {
+            rutaCalculadaWkt = wktWriter.write(rutaCalculada);
+            pedido.setRutasEstimadas(rutaCalculada);
+        }
 
         jdbcTemplate.update(sql,
                 pedido.getEstadoEntrega(),
@@ -117,7 +137,8 @@ public class JdbcPedidoRepository implements PedidoRepository {
                 sqlFechaEntrega,       // java.util.Date → java.sql.Date
                 detalle.getCantidad(),
                 idProducto,             // Long → Integer
-                medioPago.getNombreMedioPago()
+                medioPago.getNombreMedioPago(),
+                rutaCalculadaWkt
         );
     }
 
@@ -136,6 +157,58 @@ public class JdbcPedidoRepository implements PedidoRepository {
         jdbcTemplate.update(sql, idPedido);
     }
 
+    public LineString calcularRutaEstimada(String rutCliente, String rutRepartidor) {
+        System.out.println("Calculando ruta estimada entre cliente: " + rutCliente + " y repartidor: " + rutRepartidor); //**
+        try {
+            if (rutCliente == null || rutRepartidor == null) {
+                System.out.println("RUT de cliente o repartidor es nulo, no se puede calcular ruta");
+                return null;
+            }
+
+            // Obtener ubicaciones del cliente y repartidor usando sus repositorios
+            Optional<Cliente> clienteOpt = clienteRepository.findByRut(rutCliente);
+            Optional<Repartidor> repartidorOpt = repartidorRepository.findByRut(rutRepartidor);
+
+            if (clienteOpt.isEmpty() || repartidorOpt.isEmpty()) {
+                System.err.println("No se encontró cliente o repartidor para calcular ruta");
+                return null;
+            }
+            System.out.println("Cliente y repartidor encontrados, calculando ruta..."); //**
+            Cliente cliente = clienteOpt.get();
+            Repartidor repartidor = repartidorOpt.get();
+
+            Point ubicacionCliente = cliente.getUbicacion();
+            Point ubicacionRepartidor = repartidor.getUbicacion();
+
+            System.out.println("Ubicación del cliente: " + ubicacionCliente); //**
+            System.out.println("Ubicación del repartidor: " + ubicacionRepartidor); //**
+
+            if (ubicacionCliente == null || ubicacionRepartidor == null) {
+                System.err.println("Cliente o repartidor no tienen ubicación definida");
+                return null;
+            }
+
+            // Coordenadas del repartidor (origen)
+            double repartidorLat = ubicacionRepartidor.getY();
+            double repartidorLon = ubicacionRepartidor.getX();
+
+            // Coordenadas del cliente (destino)
+            double clienteLat = ubicacionCliente.getY();
+            double clienteLon = ubicacionCliente.getX();
+
+            System.out.println("Calculando ruta desde repartidor (" + repartidorLat + "," + repartidorLon +
+                    ") hacia cliente (" + clienteLat + "," + clienteLon + ")");
+
+            // Calcular ruta usando OSMR
+            return osmrService.obtenerRutaLineString(repartidorLat, repartidorLon, clienteLat, clienteLon);
+
+        } catch (Exception e) {
+            System.err.println("Error al calcular ruta estimada: " + e.getMessage());
+            return null;
+        }
+    }
+
+
     @Override
     public Optional<Pedido> findById(Long id) {
         if (id == null) return Optional.empty();
@@ -150,26 +223,41 @@ public class JdbcPedidoRepository implements PedidoRepository {
     @Override
     public List<Pedido> findAll() {
         return jdbcTemplate.query(SELECT_ALL_PEDIDOS_SQL, pedidoRowMapper);
-    }    @Override
+    }
+
+    @Override
     public int update(Pedido pedido) {
         if (pedido == null || pedido.getIdPedido() == null) {
             throw new IllegalArgumentException("Pedido o Id pedido no pueden ser nulos para el update");
         }
-        
-        String rutasWkt = null;
-        if (pedido.getRutasEstimadas() != null) {
-            rutasWkt = wktWriter.write(pedido.getRutasEstimadas());
+
+        try {
+            // Calcular ruta estimada automáticamente
+            LineString rutaCalculada = calcularRutaEstimada(pedido.getRutCliente(), pedido.getRutRepartidor());
+            if (rutaCalculada != null) {
+                pedido.setRutasEstimadas(rutaCalculada);
+            }
+
+            // Convertir rutas estimadas a WKT
+            String rutasWkt = null;
+            if (pedido.getRutasEstimadas() != null) {
+                rutasWkt = wktWriter.write(pedido.getRutasEstimadas());
+            }
+
+            // Actualizar el pedido en la base de datos
+            return jdbcTemplate.update(UPDATE_PEDIDO_SQL,
+                    pedido.getEstadoEntrega(),
+                    pedido.getPrioridadPedido(),
+                    pedido.isProblemaCritico(),
+                    pedido.getRutCliente(),
+                    pedido.getRutEmpresa(),
+                    pedido.getRutRepartidor(),
+                    rutasWkt,
+                    pedido.getIdPedido());
+        } catch (Exception e) {
+            System.err.println("Error al actualizar el pedido: " + e.getMessage());
+            throw new RuntimeException("Error en la BD al actualizar el pedido", e);
         }
-        
-        return jdbcTemplate.update(UPDATE_PEDIDO_SQL,
-                pedido.getEstadoEntrega(),
-                pedido.getPrioridadPedido(),
-                pedido.isProblemaCritico(),
-                pedido.getRutCliente(),
-                pedido.getRutEmpresa(),
-                pedido.getRutRepartidor(),
-                rutasWkt,
-                pedido.getIdPedido());
     }
 
     @Override

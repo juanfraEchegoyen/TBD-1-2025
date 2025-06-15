@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Pedido (
 	estado_entrega VARCHAR(50),
 	prioridad_pedido VARCHAR(50),
 	problema_critico BOOLEAN,
-	rutas_estimadas geometry(LineString, 4326),
+	rutas_estimadas geometry(LINESTRING, 4326),
 	rut_cliente VARCHAR(15) NOT NULL,
 	rut_empresa VARCHAR(15) NOT NULL,
 	rut_repartidor VARCHAR(15) NOT NULL,
