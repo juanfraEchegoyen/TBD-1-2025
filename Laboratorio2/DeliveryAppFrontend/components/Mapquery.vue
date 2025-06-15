@@ -101,7 +101,7 @@
       <h2 class="text-xl font-semibold mb-2">Distancia total recorrida por repartidor</h2>
       <p><strong>Rut repartidor:</strong> {{ resultadoDistancia.rutCliente }}</p>
       <p><strong>Cantidad de pedidos entregados:</strong> {{ resultadoDistancia.cantidadPedidos ?? resultadoDistancia.idpedido }}</p>
-      <p><strong>Distancia recorrida:</strong> {{ resultadoDistancia.distanciaRecorrida.toFixed(3) }} km</p>
+      <p><strong>Distancia recorrida:</strong> {{ (resultadoDistancia.distanciaRecorrida / 1000).toFixed(3) }} km</p>
     </div>
 
     <!-- Contenedor de resultado pedidos que cruzan zonas -->
@@ -170,7 +170,7 @@
             <td class="border px-2 py-1">{{ entrega.rutCliente }}</td>
             <td class="border px-2 py-1">{{ entrega.nombreCliente }}</td>
             <td class="border px-2 py-1">{{ entrega.idPedido }}</td>
-            <td class="border px-2 py-1">{{ (entrega.distancia  / 1000 ).toFixed(3) }}</td>
+            <td class="border px-2 py-1">{{ (entrega.distancia /1000).toFixed(3) }}</td>
           </tr>
         </tbody>
       </table>
