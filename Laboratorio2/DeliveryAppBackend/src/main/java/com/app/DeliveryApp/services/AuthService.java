@@ -59,8 +59,8 @@ public class AuthService implements UserDetailsService {
         }
         
         // Validar ubicación si está presente
-        if (cliente.getUbicacion() != null) {
-            validarUbicacionChile(cliente.getUbicacion());
+        if (cliente.getUbicacion() == null) {
+            throw new IllegalArgumentException("La ubicación del cliente no puede ser nula");
         }
         
         // Encriptar la contraseña antes de guardarla
@@ -80,10 +80,10 @@ public class AuthService implements UserDetailsService {
             throw new IllegalArgumentException("El repartidor ya existe con este RUT");
         }
         
-        // Validar ubicación si está presente
-        if (repartidor.getUbicacion() != null) {
-            validarUbicacionChile(repartidor.getUbicacion());
+        if( repartidor.getUbicacion() == null) {
+            throw new IllegalArgumentException("La ubicación del repartidor no puede ser nula");
         }
+
         
         // Inicializar valores por defecto para repartidor si no están seteados
         if (repartidor.getPuntuacionPromedio() == null) {
@@ -103,16 +103,7 @@ public class AuthService implements UserDetailsService {
         // Guardar el repartidor en la base de datos
         repositorioRepartidores.save(repartidor);
     }
-    
-    private void validarUbicacionChile(Point ubicacion) {
-        double lat = ubicacion.getY();
-        double lng = ubicacion.getX();
-        
-        // Validar que las coordenadas estén en un rango válido para Chile
-        if (lat < -56 || lat > -17 || lng < -110 || lng > -66) {
-            throw new IllegalArgumentException("Las coordenadas no están dentro del territorio chileno");
-        }
-    }
+
     
     /**
      * Autentica al usuario (cliente o repartidor) usando LoginRequestDTO

@@ -1,219 +1,290 @@
 <template>
-  <div class="container">
-    <h1 class="titulo">Gestión de Pedidos</h1>
-    
-    <!-- Navegación entre funcionalidades -->
-    <div class="tabs">
-      <BaseButton 
-        :class="{ 'tab-activa': activeTab === 'register' }"
-        @click="activeTab = 'register'"
-      >
-        Registrar Pedido
-      </BaseButton>
-      
-      <BaseButton 
-        :class="{ 'tab-activa': activeTab === 'stock' }"
-        @click="activeTab = 'stock'"
-      >
-        Gestionar Stock
-      </BaseButton>
-
-      <BaseButton 
-        :class="{ 'tab-activa': activeTab === 'status' }"
-        @click="activeTab = 'status'"
-      >
-        Cambiar Estado
-      </BaseButton>
+  <div class="min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+    <div class="flex-shrink-0 p-6 text-center">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Gestión de Pedidos</h1>
+      <p class="text-gray-600">Sistema integral de gestión y seguimiento de pedidos</p>
+      <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mx-auto mt-3 rounded-full"></div>
     </div>
 
-    <!-- Contenido según la pestaña activa -->
-    <div v-if="activeTab === 'register'" class="panel">
-      <h2 class="subtitulo">Registrar Nuevo Pedido</h2>
-      
-      <!-- Formulario de registro de pedido -->
-      <form @submit.prevent="registrarPedido">
-        <!-- Datos de pedido -->
-        <div class="form-grid">
-          <div>
-            <label class="label">Cliente (RUT):</label>
-            <input v-model="registroPedido.rutCliente" class="input" required placeholder="Ingrese el RUT del cliente" />
-          </div>
-
-          <div>
-            <label class="label">Prioridad:</label>
-            <select
-              v-model="registroPedido.prioridadPedido"
-              class="input"
-              required
+    <div class="flex-shrink-0 px-6 pb-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button 
+              @click="activeTab = 'register'"
+              :class="[
+                'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                activeTab === 'register' 
+                  ? 'bg-green-500 text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
             >
-              <option value="Baja">Baja</option>
-              <option value="Media">Media</option>
-              <option value="Alta">Alta</option>
-              <option value="Urgente">Urgente</option>
-            </select>
-          </div>
-        </div>
-        <!-- Datos del producto -->
-        <div class="mb-3 mt-2">
-          <div class="flex flex-wrap items-end gap-2">
-            <!-- Producto -->
-            <div class="producto-select">
-              <label class="label">Producto:</label>
-              <select
-                v-model="registroPedido.idProducto"
-                class="input"
-                required
-                @change="calcularTotal"
-              >
-                <option value="" disabled selected>Seleccione un producto</option>
-                <option v-for="producto in productos" :key="producto.idProducto" :value="producto.idProducto">
-                  {{ producto.nombre }} - ${{ producto.precio }} ({{ producto.stock }} disponibles)
-                </option>
-              </select>
-            </div>
-            <!-- Cantidad -->
-            <div class="w-20">
-              <label class="label">Cantidad:</label>
-              <input 
-                v-model.number="registroPedido.cantidad" 
-                type="number" 
-                min="1"
-                :max= "productoSeleccionado ? productoSeleccionado.stock : 1"
-                class="input"
-                @change="calcularTotal"
-              />
-            </div>
+              📝 Registrar Pedido
+            </button>
             
-            <!-- Medio de pago -->
-            <div class="w-full">
-              <label class="label">Medio de Pago:</label>
-              <select
-                v-model="registroPedido.nombreMedioPago"
-                class="input"
-                required
-              >
-                <option value="" disabled selected>Seleccione un medio de pago</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Crédito">Tarjeta de Crédito</option>
-                <option value="Débito">Tarjeta de Débito</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
+            <button 
+              @click="activeTab = 'stock'"
+              :class="[
+                'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                activeTab === 'stock' 
+                  ? 'bg-blue-500 text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
+            >
+              📦 Gestionar Stock
+            </button>
+
+            <button 
+              @click="activeTab = 'status'"
+              :class="[
+                'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                activeTab === 'status' 
+                  ? 'bg-orange-500 text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
+            >
+              🔄 Cambiar Estado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-6 pb-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200">
+          <div class="p-6">
+
+            <div v-if="activeTab === 'register'">
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                <div class="flex items-center mb-6">
+                  <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">📝</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Registrar Nuevo Pedido</h2>
+                    <p class="text-gray-600 text-sm">Crea un nuevo pedido en el sistema</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 border border-green-200">
+                  <form @submit.prevent="registrarPedido">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cliente (RUT)</label>
+                        <input 
+                          v-model="registroPedido.rutCliente" 
+                          @input="onClienteChange"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" 
+                          required 
+                          placeholder="Ingrese el RUT del cliente" 
+                        />
+                      </div>
+
+                      <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Prioridad</label>
+                        <select
+                          v-model="registroPedido.prioridadPedido"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          required
+                        >
+                          <option value="Baja">🟢 Baja</option>
+                          <option value="Media">🟡 Media</option>
+                          <option value="Alta">🟠 Alta</option>
+                          <option value="Urgente">🔴 Urgente</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Producto</label>
+                        <select
+                          v-model="registroPedido.idProducto"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          required
+                          @change="onProductoChange"
+                        >
+                          <option value="" disabled selected>Seleccione un producto</option>
+                          <option v-for="producto in productos" :key="producto.idProducto" :value="producto.idProducto">
+                            {{ producto.nombre }} - ${{ producto.precio }} ({{ producto.stock }} disponibles)
+                          </option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cantidad</label>
+                        <input 
+                          v-model.number="registroPedido.cantidad" 
+                          type="number" 
+                          min="1"
+                          :max="productoSeleccionado ? productoSeleccionado.stock : 1"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          @change="calcularTotal"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Medio de Pago</label>
+                        <select
+                          v-model="registroPedido.nombreMedioPago"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          required
+                        >
+                          <option value="" disabled selected>Seleccione un medio de pago</option>
+                          <option value="Efectivo">💵 Efectivo</option>
+                          <option value="Crédito">💳 Tarjeta de Crédito</option>
+                          <option value="Débito">💳 Tarjeta de Débito</option>
+                          <option value="Transferencia">🏦 Transferencia</option>
+                        </select>
+                      </div>
+
+                      <div class="flex items-end">
+                        <div class="bg-green-50 rounded-lg p-4 border border-green-200 w-full">
+                          <div class="text-sm font-medium text-gray-600">Total a Pagar</div>
+                          <div class="text-2xl font-bold text-green-600">${{ precioTotal || 0 }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="mostrarMapa" class="mb-6">
+                      <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+                          <span class="mr-2">🗺️</span>
+                          Visualización de Ruta
+                        </h4>
+                        <div class="bg-white rounded-lg border border-blue-200 overflow-hidden">
+                          <RouteMap 
+                            :rut-cliente="registroPedido.rutCliente"
+                            :nombre-producto="productoSeleccionado?.nombre || ''"
+                            :should-calculate-route="shouldCalculateRoute"
+                            ref="routeMapRef"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+                    >
+                      <span class="mr-2">✨</span>
+                      Registrar Pedido
+                    </button>
+                  </form>
+                </div>
+              </div>
             </div>
 
-            <div class="ml-auto text-right">
-              <p class="total">Total: ${{ precioTotal || 0 }}</p>
+            <div v-if="activeTab === 'stock'">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <div class="flex items-center mb-6">
+                  <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">📦</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Actualizar Stock</h2>
+                    <p class="text-gray-600 text-sm">Confirma pedidos y actualiza el inventario</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 border border-blue-200">
+                  <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Selecciona un pedido</label>
+                    <select 
+                      v-model="idPedidoConfirmar" 
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    >
+                      <option value="" disabled selected>Selecciona un pedido</option>
+                      <option v-for="pedido in pedidosPendientes" :key="pedido.idPedido" :value="pedido.idPedido">
+                        🆔 {{ pedido.idPedido }} - 📋 {{ pedido.estadoEntrega || pedido.estado }} - 👤 {{ pedido.rutCliente || pedido.idCliente }}
+                      </option>
+                    </select>
+                  </div>
+                  <button
+                    @click="confirmarPedido"
+                    :disabled="!idPedidoConfirmar"
+                    class="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+                  >
+                    <span class="mr-2">📦</span>
+                    Actualizar Stock
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="activeTab === 'status'">
+              <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                <div class="flex items-center mb-6">
+                  <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🔄</span>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-gray-800">Cambiar Estado de Pedido</h2>
+                    <p class="text-gray-600 text-sm">Actualiza el estado de los pedidos en proceso</p>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 border border-orange-200">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">Selecciona un Pedido</label>
+                      <select 
+                        v-model="cambioEstado.idPedido" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="" disabled selected>Selecciona un pedido</option>
+                        <option v-for="pedido in pedidosPendientes" :key="pedido.idPedido" :value="pedido.idPedido">
+                          🆔 {{ pedido.idPedido }} - 📋 {{ pedido.estadoEntrega || pedido.estado }} - 👤 {{ pedido.rutCliente || pedido.idCliente }}
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">Nuevo Estado</label>
+                      <select 
+                        v-model="cambioEstado.nuevoEstado" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="Entrega fallida">❌ Entrega fallida</option>
+                        <option value="Entregado">✅ Entregado</option>
+                        <option value="Devolución">↩️ Devolución</option>
+                        <option value="Cancelada">🚫 Cancelada</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button
+                    @click="cambiarEstadoPedido" 
+                    :disabled="!cambioEstado.idPedido"
+                    class="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+                  >
+                    <span class="mr-2">🔄</span>
+                    Actualizar Estado
+                  </button>
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
-
-        <div class="mt-4">
-          <BaseButtonGreen type="submit" class="w-full md:w-auto">
-            Registrar Pedido
-          </BaseButtonGreen>
-        </div>
-      </form>
+      </div>
     </div>
 
-    <!-- Pestaña para cambiar estado del pedido -->
-    <div v-if="activeTab === 'status'" class="panel">
-      <h2 class="subtitulo">Cambiar Estado de Pedido</h2>
-      <div class="flex flex-col md:flex-row gap-4 mb-4">
-        <div class="producto-select">
-          <label class="label">Selecciona un Pedido:</label>
-          <select v-model="cambioEstado.idPedido" class="w-full px-2 py-1 border rounded-md">
-            <option value="" disabled selected>Selecciona un pedido</option>
-            <option v-for="pedido in pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente')" :key="pedido.idPedido" :value="pedido.idPedido">
-              {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
-            </option>
-          </select>
-        </div>
-        <div class="producto-select">
-          <label class="label">Nuevo Estado:</label>
-          <select v-model="cambioEstado.nuevoEstado" class="w-full px-2 py-1 border rounded-md">
-            <option value="Entrega fallida">Entrega fallida</option>
-            <option value="Entregado">Entregado</option>
-            <option value="Devolución">Devolución</option>
-            <option value="Cancelada">Cancelada</option>
-          </select>
+    <div v-if="mensaje" class="fixed bottom-4 right-4 max-w-md z-50">
+      <div :class="[
+        'p-4 rounded-lg shadow-lg border',
+        mensajeEstilo === 'bg-green-100 text-green-800' 
+          ? 'bg-green-50 text-green-800 border-green-200' 
+          : 'bg-red-50 text-red-800 border-red-200'
+      ]">
+        <div class="flex items-center">
+          <span class="mr-2">
+            {{ mensajeEstilo === 'bg-green-100 text-green-800' ? '✅' : '❌' }}
+          </span>
+          {{ mensaje }}
         </div>
       </div>
-      <BaseButtonGreen @click="cambiarEstadoPedido" :disabled="!cambioEstado.idPedido">
-        Actualizar Estado
-      </BaseButtonGreen>
-    </div>
-
-    <!-- Pestaña para gestionar el stock-->
-    <div v-if="activeTab === 'stock'" class="panel">
-      <h2 class="subtitulo">Actualizar Stock</h2>
-      <div class="mb-4">
-        <label class="label">Selecciona un pedido:</label>
-        <select v-model="idPedidoConfirmar" class="w-full px-2 py-1 border rounded-md">
-          <option value="" disabled selected>Selecciona un pedido</option>
-          <option v-for="pedido in pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente')" :key="pedido.idPedido" :value="pedido.idPedido">
-            {{ pedido.idPedido }} - {{ pedido.estadoEntrega || pedido.estado }} - {{ pedido.rutCliente || pedido.idCliente }}
-          </option>
-        </select>
-      </div>
-      <BaseButtonGreen @click="confirmarPedido">
-        Actualizar Stock
-      </BaseButtonGreen>
-    </div>
-
-    <!-- Lista de Pedidos -->
-    <div v-if="activeTab === 'list'" class="panel">
-      <h2 class="subtitulo mb-4">Lista de Pedidos</h2>
-      
-      <div v-if="loading" class="text-center py-4">
-        <p>Cargando pedidos...</p>
-      </div>
-      
-      <div v-else-if="pedidos.length === 0" class="text-center py-4">
-        <p>No hay pedidos registrados</p>
-      </div>
-      
-      <div v-else class="overflow-x-auto">
-        <table class="tabla">
-          <thead>
-            <tr class="tabla-header">
-              <th >ID</th>
-              <th >Cliente</th>
-              <th >Empresa</th>
-              <th >Dirección</th>
-              <th >Estado</th>
-              <th >Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pedido in pedidos" :key="pedido.idPedido" class="hover:bg-gray-50">
-              <td >{{ pedido.idPedido }}</td>
-              <td >{{ pedido.idCliente }}</td>
-              <td >{{ pedido.idEmpresa }}</td>
-              <td >{{ pedido.direccionEntrega }}</td>
-              <td >{{ pedido.estado }}</td>
-              <td class="acciones">
-                <button 
-                  @click="cambioEstado.idPedido = pedido.idPedido; activeTab = 'status'" 
-                  class="accion-estado"
-                >
-                  Cambiar Estado
-                </button>
-                <button 
-                  @click="idPedidoConfirmar = pedido.idPedido; activeTab = 'stock'" 
-                  class="accion-confirmar"
-                >
-                  Confirmar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Mensajes de estado -->
-    <div v-if="mensaje" class="mensaje" :class="mensajeEstilo">
-      {{ mensaje }}
     </div>
   </div>
 </template>
@@ -222,17 +293,18 @@
 import apiClient from '../service/http-common';
 import BaseButton from '../components/BaseButton.vue';
 import BaseButtonGreen from '../components/BaseButtonGreen.vue';
+import RouteMap from '../components/RouteMap.vue';
 
 export default {
   name: 'CrearPedidoPage',
   components: {
     BaseButton,
-    BaseButtonGreen
+    BaseButtonGreen,
+    RouteMap
   },
   data() {
     return {
       activeTab: 'register',
-      // Nuevo objeto simplificado para registro de pedidos
       registroPedido: {
         prioridadPedido: 'Media',
         rutCliente: '',
@@ -240,7 +312,6 @@ export default {
         idProducto: '',
         nombreMedioPago: ''
       },
-      // Mantenemos los objetos originales para otras funcionalidades
       cambioEstado: {
         idPedido: null,
         nuevoEstado: 'Entregado'
@@ -254,7 +325,9 @@ export default {
       pedidos: [],
       clientes: [],
       precioTotal: 0,
-      loading: false
+      loading: false,
+      mostrarMapa: false,
+      shouldCalculateRoute: false
     };
   },
   computed: {
@@ -263,6 +336,12 @@ export default {
     },
     productoSeleccionado() {
       return this.productos.find(p => p.idProducto === this.registroPedido.idProducto);
+    },
+    pedidosPendientes() {
+      if (!Array.isArray(this.pedidos)) {
+        return [];
+      }
+      return this.pedidos.filter(p => (p.estadoEntrega || p.estado) === 'Pendiente');
     }
   },
   created() {
@@ -273,49 +352,77 @@ export default {
     this.fetchPedidos();
   },
   methods: {
+    /**
+     * Obtiene la lista de clientes desde la API y maneja errores
+     */
     async fetchClientes() {
       try {
         const response = await apiClient.get('/api/v1/clientes');
-        this.clientes = response.data;
+        this.clientes = Array.isArray(response.data) ? response.data : [];
       } catch (error) {
+        this.clientes = [];
         this.mostrarError('Error al cargar clientes: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Obtiene la lista de productos disponibles desde la API
+     */
     async fetchProductos() {
       try {
         const response = await apiClient.get('/api/v1/productos');
-        this.productos = response.data;
+        this.productos = Array.isArray(response.data) ? response.data : [];
       } catch (error) {
+        this.productos = [];
         this.mostrarError('Error al cargar productos: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Obtiene la lista de empresas registradas desde la API
+     */
     async fetchEmpresas() {
       try {
         const response = await apiClient.get('/api/v1/empresas');
-        this.empresas = response.data;
+        this.empresas = Array.isArray(response.data) ? response.data : [];
       } catch (error) {
+        this.empresas = [];
         this.mostrarError('Error al cargar empresas: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Obtiene la lista de repartidores disponibles desde la API
+     */
     async fetchRepartidores() {
       try {
         const response = await apiClient.get('/api/v1/repartidores');
-        this.repartidores = response.data;
+        this.repartidores = Array.isArray(response.data) ? response.data : [];
       } catch (error) {
+        this.repartidores = [];
         this.mostrarError('Error al cargar repartidores: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Obtiene la lista de pedidos existentes desde la API
+     */
     async fetchPedidos() {
       this.loading = true;
       try {
         const response = await apiClient.get('/api/v1/pedidos');
-        this.pedidos = response.data;
+        this.pedidos = Array.isArray(response.data) ? response.data : [];
       } catch (error) {
+        this.pedidos = [];
         this.mostrarError('Error al cargar pedidos: ' + (error.response?.data || error.message));
       } finally {
         this.loading = false;
       }
     },
+
+    /**
+     * Calcula el precio total del pedido basado en el producto y cantidad seleccionados
+     */
     calcularTotal() {
       if (this.registroPedido.idProducto && this.registroPedido.cantidad) {
         const producto = this.productos.find(p => p.idProducto === this.registroPedido.idProducto);
@@ -326,6 +433,44 @@ export default {
         this.precioTotal = 0;
       }
     },
+
+    /**
+     * Maneja el cambio de cliente y actualiza la visualización del mapa
+     */
+    onClienteChange() {
+      this.checkAndShowRoute();
+    },
+
+    /**
+     * Maneja el cambio de producto, recalcula el total y actualiza el mapa
+     */
+    onProductoChange() {
+      this.calcularTotal();
+      this.checkAndShowRoute();
+    },
+
+    /**
+     * Verifica si debe mostrar el mapa de ruta basado en datos del pedido
+     */
+    checkAndShowRoute() {
+      if (this.registroPedido.rutCliente && this.registroPedido.idProducto) {
+        this.mostrarMapa = true;
+        this.shouldCalculateRoute = true;
+        this.$nextTick(() => {
+          this.shouldCalculateRoute = false;
+          this.$nextTick(() => {
+            this.shouldCalculateRoute = true;
+          });
+        });
+      } else {
+        this.mostrarMapa = false;
+        this.shouldCalculateRoute = false;
+      }
+    },
+
+    /**
+     * Registra un nuevo pedido en el sistema enviando los datos al backend
+     */
     async registrarPedido() {
       try {
         const producto = this.productoSeleccionado;
@@ -333,14 +478,13 @@ export default {
           this.mostrarError('Debe seleccionar un producto válido');
           return;
         }
-        // Llamada simplificada a la API con solo los campos necesarios
+
         console.log(this.registroPedido);
         const response = await apiClient.post('/api/v1/pedidos/registrar', this.registroPedido);
 
         if (response.status === 200 || response.status === 201) {
           this.mostrarExito('Pedido registrado');
         
-          // Restablecer formulario
           this.registroPedido = {
             prioridadPedido: 'Media',
             rutCliente: '',
@@ -349,6 +493,10 @@ export default {
             nombreMedioPago: ''
           };
           this.precioTotal = 0;
+          this.mostrarMapa = false;
+          this.shouldCalculateRoute = false;
+          
+          this.fetchPedidos();
         } else {
           this.mostrarError('Error inesperado al registrar el pedido');
         }
@@ -356,6 +504,10 @@ export default {
         this.mostrarError('Error al registrar el pedido: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Cambia el estado de un pedido existente a través de la API
+     */
     async cambiarEstadoPedido() {
       if (!this.cambioEstado.idPedido) {
         this.mostrarError('Debe ingresar el ID del pedido');
@@ -366,19 +518,20 @@ export default {
         await apiClient.put(`/api/v1/pedidos/${this.cambioEstado.idPedido}/estado`, null, {
           params: { nuevoEstado: this.cambioEstado.nuevoEstado },
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}`}
-      });
+        });
         
         this.mostrarExito(`Estado del pedido ${this.cambioEstado.idPedido} actualizado a ${this.cambioEstado.nuevoEstado}`);
         this.cambioEstado.idPedido = null;
         
-        // Actualizar la lista si estamos viendo la pestaña de listado
-        if (this.activeTab === 'list') {
-          this.fetchPedidos();
-        }
+        this.fetchPedidos();
       } catch (error) {
         this.mostrarError('Error al actualizar el estado: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Confirma un pedido y actualiza el stock del producto correspondiente
+     */
     async confirmarPedido() {
       if (!this.idPedidoConfirmar) {
         this.mostrarError('Debe ingresar el ID del pedido a confirmar');
@@ -391,12 +544,17 @@ export default {
         this.mostrarExito(`Pedido ${this.idPedidoConfirmar} confirmado y stock actualizado`);
         this.idPedidoConfirmar = null;
         
-        // Recargar productos para reflejar el cambio en el stock
         this.fetchProductos();
+        this.fetchPedidos();
       } catch (error) {
         this.mostrarError('Error al confirmar el pedido: ' + (error.response?.data || error.message));
       }
     },
+
+    /**
+     * Muestra un mensaje de éxito al usuario
+     * @param {string} mensaje - Mensaje a mostrar
+     */
     mostrarExito(mensaje) {
       this.mensaje = mensaje;
       this.mensajeEstilo = 'bg-green-100 text-green-800';
@@ -404,6 +562,11 @@ export default {
         this.mensaje = '';
       }, 5000);
     },
+
+    /**
+     * Muestra un mensaje de error al usuario
+     * @param {string} mensaje - Mensaje de error a mostrar
+     */
     mostrarError(mensaje) {
       this.mensaje = mensaje;
       this.mensajeEstilo = 'bg-red-100 text-red-800';
@@ -416,111 +579,35 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1rem;
+h1 {
+  color: #333333;
 }
-.titulo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+
+input:focus, select:focus {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
-.tab-activa {
-  background-color: #b91c1c !important;
-  color: #fff !important;
+
+::-webkit-scrollbar {
+  width: 8px;
 }
-.panel {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  margin-bottom: 1rem;
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
 }
-.subtitulo {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.label {
-  font-size: 0.95rem;
-  margin-bottom: 0.25rem;
-  display: block;
-}
-.input {
-  width: 100%;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
-}
-.producto-select {
-  width: 100%;
-  max-width: 415px;
-}
-.cantidad-input {
-  width: 80px;
-}
-.total {
-  font-size: 1rem;
-  font-weight: bold;
-}
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #d1d5db;
-  margin-bottom: 1rem;
-}
-.tabla th,
-.tabla td {
-  border: 1px solid #d1d5db;
-  padding: 0.5rem;
-  text-align: left;
-}
-.tabla-header {
-  background-color: #f3f4f6;
-}
-.acciones {
-  display: flex;
-  justify-content: space-around;
-  gap: 0.5rem;
-}
-.accion-estado {
-  color: #2563eb;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.accion-estado:hover {
-  color: #1d4ed8;
-}
-.accion-confirmar {
-  color: #16a34a;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.accion-confirmar:hover {
-  color: #166534;
-}
-.mensaje {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 </style>

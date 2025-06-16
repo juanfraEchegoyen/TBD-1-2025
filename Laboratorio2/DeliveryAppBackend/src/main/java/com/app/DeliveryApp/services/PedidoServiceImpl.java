@@ -22,6 +22,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final RepartidorRepository repartidorRepository;
     private final MedioPagoRepository medioPagoRepository;
 
+
     @Autowired
     public PedidoServiceImpl(PedidoRepository pedidoRepository,
                              DetallePedidoRepository detallePedidoRepository,
@@ -37,6 +38,7 @@ public class PedidoServiceImpl implements PedidoService {
         this.empresaRepository = empresaRepository;
         this.repartidorRepository = repartidorRepository;
         this.medioPagoRepository = medioPagoRepository;
+
     }
 
     @Override
@@ -240,11 +242,22 @@ public class PedidoServiceImpl implements PedidoService {
             producto.setStock(nuevoStock);
             productoRepository.update(producto);
         }
-    }    private void validarTransicionEstado(String estadoActual, String estadoNuevo) {
+    }
+
+    private void validarTransicionEstado(String estadoActual, String estadoNuevo) {
         if (("ENTREGADO".equals(estadoActual) || "CANCELADO".equals(estadoActual))
                 && !estadoActual.equals(estadoNuevo)) {
             throw new IllegalArgumentException("No se pudo cambiar el estado desde '" + estadoActual + "' a '" + estadoNuevo + "'.");
         }
+    }
+
+    @Override
+    public LineString calcularRutaEstimada(String rutCliente, String nombreProducto) {
+        Producto producto = productoRepository.findByNombre(nombreProducto)
+                .orElseThrow(() -> new NoSuchElementException("Producto con nombre " + nombreProducto + " no encontrado"));
+        String rutEmpresa = producto.getRutEmpresa();
+        return pedidoRepository.calcularRutaEstimada(rutCliente, rutEmpresa);
+
     }
 
 

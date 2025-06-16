@@ -130,4 +130,21 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);         }
     }
 
+    @GetMapping("/calcularRuta/{rutCliente}/{nombreProducto}")
+    public ResponseEntity<?> calcularRutaEstimada(
+            @PathVariable String rutCliente,
+            @PathVariable String nombreProducto) {
+        try {
+            LineString ruta = pedidoService.calcularRutaEstimada(rutCliente, nombreProducto);
+            if (ruta == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se pudo calcular la ruta estimada.");
+            }
+            return ResponseEntity.ok(ruta.toText());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al calcular la ruta estimada: " + e.getMessage());
+        }
+    }
+
 }

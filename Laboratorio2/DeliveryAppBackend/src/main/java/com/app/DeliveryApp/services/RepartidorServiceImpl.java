@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.RepartidorRutNombreDTO;
 import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.repositories.RepartidorRepository;
 import org.locationtech.jts.geom.Point;
@@ -79,5 +80,10 @@ public class RepartidorServiceImpl implements RepartidorService {
             return Optional.of(repartidor);
         }
         return Optional.empty();
+    }
+    @Override
+    public List<RepartidorRutNombreDTO> ObtenerRutYnombresRepartidor(){
+        List<RepartidorRutNombreDTO> repartidores = repartidorRepository.ObtenerRutYnombresRepartidor();
+        return repartidores;
     }
 }

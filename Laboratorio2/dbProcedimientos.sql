@@ -10,7 +10,8 @@ CREATE PROCEDURE registrar_pedido(
     IN fecha_entrega DATE,
     IN cantidad INT,
     IN id_producto_pedido INT,
-    IN nombre_mediodepago VARCHAR(50)
+    IN nombre_mediodepago VARCHAR(50),
+    IN rutas_estimadas_pedido geometry(LineString, 4326)
 )
 LANGUAGE plpgsql
 AS $$
@@ -18,7 +19,7 @@ DECLARE
     nuevo_id_pedido INT;
 	stock_actual INT;
 BEGIN
-	--Validamos el que cliente, empresa,repartidor y produto existan
+	-- Validar existencia de cliente, empresa, repartidor y producto
     IF NOT EXISTS (SELECT 1 FROM Cliente WHERE rut_cliente = rut_cliente_pedido) THEN
         RAISE EXCEPTION 'El cliente no existe';
     END IF;
@@ -27,24 +28,24 @@ BEGIN
         RAISE EXCEPTION 'La empresa no existe';
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM Repartidor WHERE rut_repartidor_pedido = rut_repartidor) THEN
+    IF NOT EXISTS (SELECT 1 FROM Repartidor WHERE rut_repartidor = rut_repartidor_pedido) THEN
         RAISE EXCEPTION 'El repartidor no existe';
     END IF;
 
-	IF NOT EXISTS (SELECT 1 FROM Producto WHERE id_producto = id_producto_pedido ) THEN
+	IF NOT EXISTS (SELECT 1 FROM Producto WHERE id_producto = id_producto_pedido) THEN
 		RAISE EXCEPTION 'El producto no existe';
 	END IF;	
 
-	--verificamos que exista que el stock deseado
+	-- Verificar stock disponible
 	SELECT stock INTO stock_actual FROM Producto WHERE id_producto = id_producto_pedido;
 
 	IF stock_actual < cantidad THEN
         RAISE EXCEPTION 'Stock insuficiente para el pedido';
     END IF;
 	
-    -- si pasan las comprobaciones, entonces incertamos los valores en las tablas
-    INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor)
-    VALUES (estado_entrega, prioridad_pedido, problema_critico, rut_cliente_pedido, rut_empresa_pedido, rut_repartidor_pedido)
+    -- Insertar datos en las tablas
+    INSERT INTO Pedido (estado_entrega, prioridad_pedido, problema_critico, rut_cliente, rut_empresa, rut_repartidor, rutas_estimadas)
+    VALUES (estado_entrega, prioridad_pedido, problema_critico, rut_cliente_pedido, rut_empresa_pedido, rut_repartidor_pedido, rutas_estimadas_pedido)
     RETURNING id_pedido INTO nuevo_id_pedido;
 
     INSERT INTO DetallePedido (precio_total, tiempo_entrega, fecha_entrega, cantidad, id_pedido, id_producto)

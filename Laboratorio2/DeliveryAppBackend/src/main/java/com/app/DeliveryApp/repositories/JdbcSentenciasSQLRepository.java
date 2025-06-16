@@ -1,12 +1,23 @@
 package com.app.DeliveryApp.repositories;
 
 import com.app.DeliveryApp.dto.*;
+import com.app.DeliveryApp.models.ZonaCobertura;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.locationtech.jts.geom.MultiPolygon;
 
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.sql.DriverManager.getConnection;
 
 @Repository
 public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
@@ -89,6 +100,14 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             ORDER BY cantidad_usos DESC
             LIMIT 1
             """;
+
+    public static final String SELECT_ZONA_PERTENECE_CLIENTE_SQL = """
+            SELECT z.zona, z.area_cobertura
+            FROM ZonaCobertura AS z
+            JOIN Cliente AS c ON ST_Within(c.ubicacion, z.area_cobertura)
+            WHERE c.rut_cliente = ?
+            """;
+
 
     @Override
     public ClienteGastoDTO getClienteConMayorGastos() {
@@ -191,6 +210,219 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
             );  // Añade este paréntesis de cierre
         } catch (DataAccessException ex) {
             throw new RuntimeException("Error al obtener el ranking de devoluciones o cancelaciones", ex);
+        }
+    }
+
+
+    //LAB 2
+
+    //1. Obtener los 5 puntos de entrega más cercanos a una empresa
+    private static final String SELECT_ENTREGAS_CERCANAS_SQL = """
+    WITH empresa_seleccionada AS (
+        SELECT ubicacion,rut_empresa FROM EmpresaAsociada WHERE rut_empresa = ?
+    ),
+    entregas_pendientes AS (
+        SELECT c.rut_cliente, c.ubicacion, p.id_pedido,p.rut_empresa
+        FROM Cliente c
+        JOIN Pedido p ON c.rut_cliente = p.rut_cliente
+        WHERE p.estado_entrega = 'Pendiente'
+    )
+    SELECT ep.rut_cliente, ep.id_pedido, ST_AsText(ep.ubicacion) AS ubicacion
+    FROM entregas_pendientes ep, empresa_seleccionada es
+    WHERE ep.rut_empresa = es.rut_empresa
+    ORDER BY ST_DistanceSphere(ep.ubicacion, es.ubicacion) ASC
+    LIMIT 5;
+    """;
+
+
+    @Override
+    public List<EntregaDTO> obtenerEntregasCercanas(String rutEmpresa) {
+        try {
+            return jdbcTemplate.query(SELECT_ENTREGAS_CERCANAS_SQL,
+                    ps -> ps.setString(1, rutEmpresa),
+                    (rs, rowNum) -> new EntregaDTO(
+                            rs.getString("rut_cliente"),
+                            rs.getInt("id_pedido"),
+                            rs.getString("ubicacion") // Ahora recibe la ubicación en WKT
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener entregas cercanas", ex);
+        }
+    }
+
+
+
+
+    // 2. Obtener zonas de cobertura por cliente
+
+    private static final String SELECT_ZONAS_Y_UBICACION_CLIENTE = """
+    SELECT ST_AsText(z.area_cobertura) AS areaCoberturaWkt, ST_AsText(c.ubicacion) AS ubicacionClienteWkt
+    FROM ZonaCobertura z
+    JOIN Cliente c ON c.rut_cliente = ?
+    WHERE ST_Within(c.ubicacion, z.area_cobertura)
+""";
+
+
+    //3. Calcular la distancia total recorrida por un repartidor
+    private static final String SELECT_DISTANCIA_RECORRIDA_SQL = """
+    SELECT p.rut_repartidor, COUNT(*) AS pedidos_entregados, 
+           SUM(ST_DistanceSphere(c.ubicacion, e.ubicacion)) AS distancia_total_km
+    FROM Pedido p
+    JOIN Cliente c ON p.rut_cliente = c.rut_cliente
+    JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
+    WHERE p.fecha_pedido >= NOW() - INTERVAL '1 month'
+          AND p.estado_entrega = 'Entregado'
+          AND p.rut_repartidor = ?
+    GROUP BY p.rut_repartidor
+    ORDER BY distancia_total_km DESC;
+""";
+
+
+    @Override
+    public DistanciaDTO calcularDistanciaRepartidor(String rutRepartidor) {
+        try {
+            return jdbcTemplate.queryForObject(SELECT_DISTANCIA_RECORRIDA_SQL,
+                    new Object[]{rutRepartidor},
+                    (rs, rowNum) -> new DistanciaDTO(
+                            rs.getString("rut_repartidor"),
+                            rs.getInt("pedidos_entregados"),
+                            rs.getDouble("distancia_total_km")
+                    )
+            );
+
+        } catch (EmptyResultDataAccessException ex) {
+            return null; // Si no hay resultados, retorna null
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al calcular distancia recorrida", ex);
+        }
+    }
+//4.	Identificar el punto de entrega más lejano desde cada empresa asociada.
+    private static final String SELECT_ENTREGA_MAS_LEJANA_POR_EMPRESA = """
+SELECT DISTINCT ON (e.rut_empresa)
+    e.rut_empresa,
+    e.nombre_empresa,
+    c.rut_cliente,
+    c.nombre_cliente,
+    ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt,
+    ST_AsText(e.ubicacion) AS ubicacion_empresa_wkt,
+    p.id_pedido,
+    ST_DistanceSphere(c.ubicacion, e.ubicacion) AS distancia
+FROM Pedido p
+JOIN Cliente c ON p.rut_cliente = c.rut_cliente
+JOIN EmpresaAsociada e ON p.rut_empresa = e.rut_empresa
+WHERE p.estado_entrega = 'Pendiente'
+ORDER BY e.rut_empresa, ST_Distance(c.ubicacion, e.ubicacion) DESC
+""";
+
+    @Override
+    public List<EntregaLejanaDTO> obtenerEntregasMasLejanasPorEmpresa() {
+        try {
+            return jdbcTemplate.query(SELECT_ENTREGA_MAS_LEJANA_POR_EMPRESA,
+                    (rs, rowNum) -> new EntregaLejanaDTO(
+                            rs.getString("rut_empresa"),
+                            rs.getString("nombre_empresa"),
+                            rs.getString("rut_cliente"),
+                            rs.getString("nombre_cliente"),
+                            rs.getString("ubicacion_cliente_wkt"),
+                            rs.getString("ubicacion_empresa_wkt"),
+                            rs.getInt("id_pedido"),
+                            rs.getDouble("distancia")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener entregas más lejanas por empresa", ex);
+        }
+    }
+
+    //5. Listar pedidos que cruzan más de 2 zonas de reparto
+
+    private static final String SELECT_PEDIDOS_CRUZAN_ZONAS_SQL = """
+    SELECT p.id_pedido, p.rut_repartidor, COUNT(DISTINCT z.id_zona_cobertura) AS zonas_cruzadas
+    FROM Pedido p
+    JOIN ZonaCobertura z ON ST_Intersects(p.rutas_estimadas, z.area_cobertura)
+    GROUP BY p.id_pedido, p.rut_repartidor
+    HAVING COUNT(DISTINCT z.id_zona_cobertura) > 2
+    ORDER BY zonas_cruzadas DESC;
+""";
+
+    @Override
+    public List<PedidoZonasDTO> obtenerPedidosQueCruzaronZonas() {
+        try {
+            return jdbcTemplate.query(SELECT_PEDIDOS_CRUZAN_ZONAS_SQL,
+                    (rs, rowNum) -> new PedidoZonasDTO(
+                            rs.getInt("id_pedido"),
+                            rs.getString("rut_repartidor"),
+                            rs.getInt("zonas_cruzadas")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener pedidos que cruzan zonas", ex);
+        }
+    }
+
+
+
+    // 6. Determinar los clientes que están a más de 5km de cualquier empresa
+    private static final String SELECT_CLIENTES_MAS_5KM_EMPRESA = """
+    SELECT c.rut_cliente, c.nombre_cliente, ST_AsText(c.ubicacion) AS ubicacion_cliente_wkt
+    FROM Cliente c
+    WHERE EXISTS (
+        SELECT 1
+        FROM EmpresaAsociada e
+        WHERE ST_DistanceSphere(c.ubicacion, e.ubicacion) > 5000
+    )
+    """;
+
+    //2. Query para obtener zonas de cobertura y ubicación del cliente
+    public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
+        try {
+            return jdbcTemplate.query(
+                    SELECT_ZONAS_Y_UBICACION_CLIENTE,
+                    new Object[]{rutCliente},
+                    (rs, rowNum) -> new ZonaCoberturaClienteDTO(
+                            rs.getString("areaCoberturaWkt"),
+                            rs.getString("ubicacionClienteWkt")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            return List.of();
+        }
+    }
+    //6. Query para obtener clientes a más de 5km de cualquier empresa
+    @Override
+    public List<ClienteLejanoDTO> getClientesAMasDe5KmDeEmpresa() {
+        try {
+            return jdbcTemplate.query(SELECT_CLIENTES_MAS_5KM_EMPRESA,
+                    (rs, rowNum) -> new ClienteLejanoDTO(
+                            rs.getString("rut_cliente"),
+                            rs.getString("nombre_cliente"),
+                            rs.getString("ubicacion_cliente_wkt")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Error al obtener clientes lejanos", ex);
+        }
+    }
+
+    // Query que calcula automáticamente la zona a la que pertenece un cliente
+    @Override
+    public String getZonaPerteneceCliente(String rutCliente) {
+        try {
+            return jdbcTemplate.query(SELECT_ZONA_PERTENECE_CLIENTE_SQL,
+                    ps -> ps.setString(1, rutCliente),
+                    rs -> {
+                        if (rs.next()) {
+                            return rs.getString("zona");
+                        } else {
+                            return null; // Si no se encuentra la zona, retorna null
+                        }
+                    }
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al obtener la zona del cliente", e);
         }
     }
 

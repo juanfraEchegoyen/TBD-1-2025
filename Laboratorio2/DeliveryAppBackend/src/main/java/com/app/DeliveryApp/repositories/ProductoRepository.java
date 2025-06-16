@@ -11,4 +11,6 @@ public interface ProductoRepository {
     List<Producto> findAll();
     int update(Producto producto);
     int deleteById(Long id);
+
+    Optional<Producto> findByNombre(String nombreProducto);
 }

@@ -123,4 +123,21 @@ public class JdbcProductoRepository implements ProductoRepository {
         }
         return jdbcTemplate.update(DELETE_PRODUCTO_BY_ID_SQL, id);
     }
+
+    @Override
+    public Optional<Producto> findByNombre(String nombre) {
+        if (nombre == null || nombre.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            Producto producto = jdbcTemplate.queryForObject(
+                    "SELECT id_producto, nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa FROM Producto WHERE nombre_producto = ?",
+                    new Object[]{nombre},
+                    productoRowMapper
+            );
+            return Optional.of(producto);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }

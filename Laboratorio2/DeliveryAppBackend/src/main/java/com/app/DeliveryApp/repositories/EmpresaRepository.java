@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.repositories;
 
+import com.app.DeliveryApp.dto.EmpresaNombreRutDTO;
 import com.app.DeliveryApp.models.Empresa;
 import java.util.List;
 import java.util.Optional;
@@ -10,5 +11,6 @@ public interface EmpresaRepository {
     List<Empresa> findAll();
     int update(Empresa empresa);
     int deleteByRut(String rut);
+    public List<EmpresaNombreRutDTO> ObtenerRutYnombres();
 
 }
