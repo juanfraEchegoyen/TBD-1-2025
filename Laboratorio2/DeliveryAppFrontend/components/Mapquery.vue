@@ -41,6 +41,16 @@
       </button>
     </div>
 
+    <!-- Botón para listar pedidos multi-zona -->
+    <div v-if="mostrarBotonPedidosZonas" class="mb-2">
+      <button
+        @click="listarPedidosZonas"
+        class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
+      >
+        Buscar pedidos que cruzan zonas
+      </button>
+    </div>
+
     <div 
       v-if="mostrarMapa"
       id="map" 
@@ -192,6 +202,7 @@ const rutEmpresaSeleccionada = ref('')
 const empresas = ref([])
 const mostrarSelectorEmpresa = ref(false)
 const mostrarMapa = ref(props.showMap)
+const mostrarBotonPedidosZonas = ref(false)
 
 let L = null
 
@@ -203,6 +214,9 @@ const entregasMasLejanasMarkers = ref([])
 
 const colores = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'black']
 
+/**
+ * Obtiene la lista de repartidores desde la API
+ */
 const fetchRepartidores = async () => {
   try {
     const res = await apiClient.get('http://localhost:8080/api/v1/repartidores/RutYnombres')
@@ -217,22 +231,36 @@ const fetchRepartidores = async () => {
   }
 }
 
+/**
+ * Muestra el selector de repartidores y prepara la consulta
+ */
 const mostrarRepartidoresYPreparar = async () => {
   mostrarSelectorRepartidor.value = true
   await fetchRepartidores()
 }
 
-// Modificamos esta función para que NO oculte el selector
+/**
+ * Busca la distancia recorrida por el repartidor seleccionado
+ */
 const buscarDistanciaRecorrida = async () => {
-  // No ocultamos el selector: mostrarSelectorRepartidor.value = false
   await calcularDistanciaRecorrida()
 }
 
-// Nueva función solo para mostrar selector sin mapa
+/**
+ * Muestra solo el selector de repartidor sin mapa para consulta de distancia
+ */
 const mostrarSelectorRepartidorSinMapa = async () => {
   mostrarMapa.value = false
   mostrarSelectorRepartidor.value = true
   await fetchRepartidores()
+}
+
+/**
+ * Muestra solo el botón para consultar pedidos que cruzan zonas sin mapa
+ */
+const mostrarBotonPedidosZonasSinMapa = () => {
+  mostrarMapa.value = false
+  mostrarBotonPedidosZonas.value = true
 }
 
 onMounted(async () => {
@@ -266,13 +294,15 @@ onMounted(async () => {
       marker.value = L.marker([initialLat, initialLng], { draggable: true }).addTo(map.value)
     }
 
-    // Obtener lista de empresas
     await fetchEmpresas()
   } catch (error) {
     console.error('Error al cargar Leaflet:', error)
   }
 })
 
+/**
+ * Corrige los iconos de Leaflet cargándolos desde CDN
+ */
 function fixLeafletIcon() {
   if (!L) return
   delete L.Icon.Default.prototype._getIconUrl
@@ -283,7 +313,9 @@ function fixLeafletIcon() {
   })
 }
 
-// Limpia todas las capas del mapa excepto la base
+/**
+ * Limpia todas las capas del mapa excepto la base
+ */
 function clearAllLayers() {
   if (!map.value) return
   map.value.eachLayer(layer => {
@@ -293,7 +325,9 @@ function clearAllLayers() {
   entregaMarkers.value = []
 }
 
-// 1. Obtener los 5 puntos de entrega más cercanos
+/**
+ * Obtiene los 5 puntos de entrega más cercanos a una empresa
+ */
 const fetchEntregasCercanas = async () => {
   clearAllLayers()
   mostrarDistancia.value = false
@@ -326,7 +360,9 @@ const fetchEntregasCercanas = async () => {
   }
 }
 
-// 2. Mostrar zona y ubicación del cliente
+/**
+ * Muestra la zona de cobertura y ubicación del cliente autenticado
+ */
 const fetchZonaCobertura = async () => {
   clearAllLayers()
   mostrarDistancia.value = false
@@ -346,13 +382,11 @@ const fetchZonaCobertura = async () => {
       areaCoberturaWkt.value = res.data[0].areaCoberturaWkt
       ubicacionClienteWkt.value = res.data[0].ubicacionClienteWkt
 
-      // Dibuja la zona de cobertura
       if (map.value && areaCoberturaWkt.value) {
         const areaGeoJson = wellknown(areaCoberturaWkt.value)
         const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
         map.value.fitBounds(areaLayer.getBounds())
       }
-      // Dibuja el punto del cliente
       if (map.value && ubicacionClienteWkt.value) {
         const puntoGeoJson = wellknown(ubicacionClienteWkt.value)
         L.geoJSON(puntoGeoJson, {
@@ -372,7 +406,9 @@ const fetchZonaCobertura = async () => {
   }
 }
 
-// 3. Calcular la distancia total recorrida por un repartidor
+/**
+ * Calcula la distancia total recorrida por un repartidor
+ */
 const calcularDistanciaRecorrida = async () => {
   if (map.value) {
     clearAllLayers()
@@ -394,14 +430,21 @@ const calcularDistanciaRecorrida = async () => {
   }
 }
 
+/**
+ * Cierra la visualización del resultado de distancia
+ */
 const cerrarDistancia = () => {
   resultadoDistancia.value = null
   mostrarDistancia.value = false
 }
 
-// 5. Listar pedidos que cruzan más de 2 zonas de reparto
+/**
+ * Lista pedidos que cruzan más de 2 zonas de reparto - solo muestra tabla
+ */
 const listarPedidosZonas = async () => {
-  clearAllLayers()
+  if (map.value) {
+    clearAllLayers()
+  }
   pedidosZonas.value = []
   mostrarPedidosZonas.value = false
   mostrarDistancia.value = false
@@ -418,29 +461,31 @@ const listarPedidosZonas = async () => {
   }
 }
 
+/**
+ * Cierra la visualización de pedidos que cruzan zonas
+ */
 const cerrarPedidosZonas = () => {
   pedidosZonas.value = []
   mostrarPedidosZonas.value = false
 }
 
-// Función para mostrar todos los clientes lejanos
+/**
+ * Muestra todos los clientes lejanos en el mapa
+ */
 const mostrarClientesLejanos = async () => {
   try {
     const res = await apiClient.get('/api/v1/sentenciassql/clientesLejanos')
     clientesLejanos.value = res.data
     clientesLejanosConsultado.value = true
 
-    // Si la lista está vacía, muestra un prompt y termina
     if (clientesLejanos.value.length === 0) {
       window.alert('No hay clientes lejanos')
       return
     }
 
-    // Limpia marcadores anteriores
     clientesLejanosMarkers.value.forEach(marker => map.value.removeLayer(marker))
     clientesLejanosMarkers.value = []
 
-    // Dibuja un marcador para cada cliente lejano
     clientesLejanos.value.forEach(cliente => {
       const puntoGeoJson = wellknown(cliente.ubicacionClienteWkt)
       const marker = L.geoJSON(puntoGeoJson, {
@@ -451,7 +496,6 @@ const mostrarClientesLejanos = async () => {
       clientesLejanosMarkers.value.push(marker)
     })
 
-    // Ajusta el mapa si hay marcadores
     if (clientesLejanosMarkers.value.length > 0) {
       const group = L.featureGroup(clientesLejanosMarkers.value)
       map.value.fitBounds(group.getBounds())
@@ -463,7 +507,9 @@ const mostrarClientesLejanos = async () => {
   }
 }
 
-// Cambiar endpoint aquí:
+/**
+ * Obtiene la lista de empresas desde la API
+ */
 const fetchEmpresas = async () => {
   try {
     const res = await apiClient.get('http://localhost:8080/api/v1/empresas/obtenerTodasNombres')
@@ -478,19 +524,25 @@ const fetchEmpresas = async () => {
   }
 }
 
-// Mostrar selector y cargar empresas
+/**
+ * Muestra el selector de empresas y prepara la consulta
+ */
 const mostrarEmpresasYPreparar = async () => {
   mostrarSelectorEmpresa.value = true
   await fetchEmpresas()
 }
 
-// Al hacer clic en buscar, llama a la función real y oculta el selector
+/**
+ * Busca entregas cercanas y oculta el selector
+ */
 const buscarEntregasCercanas = async () => {
   mostrarSelectorEmpresa.value = false
   await fetchEntregasCercanas()
 }
 
-// Solo debe haber UNA función con este nombre
+/**
+ * Muestra las entregas más lejanas por empresa en el mapa
+ */
 const mostrarEntregasMasLejanas = async () => {
   clearAllLayers()
   entregasMasLejanas.value = []
@@ -505,7 +557,6 @@ const mostrarEntregasMasLejanas = async () => {
       res.data.forEach((entrega, idx) => {
         const color = colores[idx % colores.length]
 
-        // Empresa: cuadrado
         const empresaGeoJson = wellknown(entrega.ubicacionEmpresaWkt)
         const empresaMarker = L.geoJSON(empresaGeoJson, {
           pointToLayer: (feature, latlng) =>
@@ -521,7 +572,6 @@ const mostrarEntregasMasLejanas = async () => {
         }).addTo(map.value)
         entregasMasLejanasMarkers.value.push(empresaMarker)
 
-        // Cliente: círculo
         const clienteGeoJson = wellknown(entrega.ubicacionClienteWkt)
         const clienteMarker = L.geoJSON(clienteGeoJson, {
           pointToLayer: (feature, latlng) =>
@@ -535,7 +585,6 @@ const mostrarEntregasMasLejanas = async () => {
         entregasMasLejanasMarkers.value.push(clienteMarker)
       })
 
-      // Ajusta el mapa para mostrar todos los marcadores
       if (entregasMasLejanasMarkers.value.length > 0) {
         const group = L.featureGroup(entregasMasLejanasMarkers.value)
         map.value.fitBounds(group.getBounds())
@@ -548,6 +597,9 @@ const mostrarEntregasMasLejanas = async () => {
   }
 }
 
+/**
+ * Cierra la visualización de entregas más lejanas
+ */
 const cerrarEntregasMasLejanas = () => {
   entregasMasLejanas.value = []
   entregasMasLejanasMarkers.value.forEach(marker => map.value.removeLayer(marker))
@@ -555,7 +607,6 @@ const cerrarEntregasMasLejanas = () => {
   mostrarEntregasMasLejanas.value = false
 }
 
-// Exponer las funciones para que el componente padre pueda llamarlas
 defineExpose({
   mostrarEmpresasYPreparar,
   fetchZonaCobertura,
@@ -566,7 +617,8 @@ defineExpose({
   buscarEntregasCercanas,
   buscarDistanciaRecorrida,
   calcularDistanciaRecorrida,
-  mostrarSelectorRepartidorSinMapa
+  mostrarSelectorRepartidorSinMapa,
+  mostrarBotonPedidosZonasSinMapa
 })
 </script>
 

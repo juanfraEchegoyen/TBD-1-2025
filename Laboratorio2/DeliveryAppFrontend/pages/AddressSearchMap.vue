@@ -119,7 +119,7 @@
               </div>
             </div>
 
-            <!-- Pedidos Cruzan Zonas -->
+            <!-- Pedidos Cruzan Zonas (Solo tabla) -->
             <div v-if="consultaActiva === 'pedidosZonas'" class="h-full">
               <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200 h-full flex flex-col">
                 <div class="flex items-center mb-4 flex-shrink-0">
@@ -133,7 +133,7 @@
                 </div>
                 
                 <div class="bg-white rounded-lg p-4 border border-pink-200 flex-1 min-h-0">
-                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                  <Mapquery ref="geoMapPedidos" :showMap="false" />
                 </div>
               </div>
             </div>
@@ -171,6 +171,7 @@ import Mapquery from '@/components/Mapquery.vue'
 const consultaActiva = ref(null)
 const geoMap = ref(null)
 const geoMapDistancia = ref(null)
+const geoMapPedidos = ref(null)
 
 // Configuración del menú basado en los botones de Mapquery
 const consultasDisponibles = {
@@ -200,6 +201,10 @@ const consultasDisponibles = {
   }
 }
 
+/**
+ * Controla la visualización de consultas geoespaciales activando la seleccionada
+ * @param {string} tipoConsulta - Tipo de consulta geoespacial a mostrar
+ */
 const mostrarConsulta = async (tipoConsulta) => {
   // Si ya está activa la misma consulta, la ocultamos
   if (consultaActiva.value === tipoConsulta) {
@@ -219,6 +224,11 @@ const mostrarConsulta = async (tipoConsulta) => {
     if (geoMapDistancia.value && geoMapDistancia.value.mostrarSelectorRepartidorSinMapa) {
       geoMapDistancia.value.mostrarSelectorRepartidorSinMapa()
     }
+  } else if (tipoConsulta === 'pedidosZonas') {
+    // Para pedidos en zonas cruzadas, usamos el componente sin mapa
+    if (geoMapPedidos.value && geoMapPedidos.value.mostrarBotonPedidosZonasSinMapa) {
+      geoMapPedidos.value.mostrarBotonPedidosZonasSinMapa()
+    }
   } else {
     // Para el resto usamos el componente con mapa
     if (geoMap.value) {
@@ -236,11 +246,6 @@ const mostrarConsulta = async (tipoConsulta) => {
         case 'entregasLejanas':
           if (geoMap.value.mostrarEntregasMasLejanas) {
             geoMap.value.mostrarEntregasMasLejanas()
-          }
-          break
-        case 'pedidosZonas':
-          if (geoMap.value.listarPedidosZonas) {
-            geoMap.value.listarPedidosZonas()
           }
           break
         case 'clientesLejanos':
