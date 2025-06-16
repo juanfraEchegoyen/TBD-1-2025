@@ -4,8 +4,7 @@
     <h1 class="text-4xl font-extrabold text-primary mb-2">Bienvenido a AltiroDelivery</h1>
     <p class="text-lg text-gray-700 mb-6 text-center max-w-xl">
       Gestion de pedidos, clientes y empresas.
-    </p>
-    <div class="flex gap-4" v-if="isAuth">
+    </p>    <div class="flex gap-4 flex-wrap justify-center" v-if="isAuth">
       <nuxt-link to="/crear-pedido" class="bg-primary text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-red-700 transition-colors">
         Crear Pedido
       </nuxt-link>
@@ -14,6 +13,9 @@
       </nuxt-link>
       <nuxt-link to="/querys" class="bg-secondary text-primary px-6 py-2 rounded-lg font-semibold shadow hover:bg-gray-300 transition-colors">
         Consultas SQL
+      </nuxt-link>
+      <nuxt-link to="/AddressSearchMap" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors">
+        Consultas Geoespaciales
       </nuxt-link>
     </div>
   </div>

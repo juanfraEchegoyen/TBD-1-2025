@@ -69,11 +69,10 @@
         style="position:absolute;top:0.5rem;right:0.5rem;"
       >
         ✖
-      </button>
-      <h2 class="text-xl font-semibold mb-2">Distancia total recorrida por repartidor</h2>
+      </button>      <h2 class="text-xl font-semibold mb-2">Distancia total recorrida por repartidor</h2>
       <p><strong>Rut repartidor:</strong> {{ resultadoDistancia.rutCliente }}</p>
       <p><strong>Cantidad de pedidos entregados:</strong> {{ resultadoDistancia.cantidadPedidos ?? resultadoDistancia.idpedido }}</p>
-      <p><strong>Distancia recorrida:</strong> {{ (resultadoDistancia.distanciaRecorrida / 1000).toFixed(3) }} km</p>
+      <p><strong>Distancia recorrida:</strong> {{ (resultadoDistancia.distanciaRecorrida / 1000).toFixed(2) }} km</p>
     </div>
 
     <!-- Contenedor de resultado pedidos que cruzan zonas -->
