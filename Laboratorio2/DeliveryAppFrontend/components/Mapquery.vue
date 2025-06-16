@@ -379,14 +379,18 @@ const fetchZonaCobertura = async () => {
       `/api/v1/sentenciassql/zonasCoberturaYUbicacionPorCliente/${rutCliente}`
     )
     if (res.data && res.data.length > 0) {
-      areaCoberturaWkt.value = res.data[0].areaCoberturaWkt
+      const areaList = res.data[0].areaCoberturaWkt
       ubicacionClienteWkt.value = res.data[0].ubicacionClienteWkt
 
-      if (map.value && areaCoberturaWkt.value) {
-        const areaGeoJson = wellknown(areaCoberturaWkt.value)
-        const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
-        map.value.fitBounds(areaLayer.getBounds())
+      // Dibuja todas las áreas de cobertura
+      if (map.value && Array.isArray(areaList)) {
+        areaList.forEach(areaWkt => {
+          const areaGeoJson = wellknown(areaWkt)
+          const areaLayer = L.geoJSON(areaGeoJson, { color: 'blue', fillOpacity: 0.2 }).addTo(map.value)
+          map.value.fitBounds(areaLayer.getBounds())
+        })
       }
+
       if (map.value && ubicacionClienteWkt.value) {
         const puntoGeoJson = wellknown(ubicacionClienteWkt.value)
         L.geoJSON(puntoGeoJson, {

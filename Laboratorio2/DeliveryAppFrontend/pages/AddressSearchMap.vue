@@ -57,7 +57,7 @@
                 </div>
                 
                 <div class="bg-white rounded-lg p-4 border border-blue-200 flex-1 min-h-0">
-                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                  <Mapquery ref="geoMap"/>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@
                 </div>
                 
                 <div class="bg-white rounded-lg p-4 border border-green-200 flex-1 min-h-0">
-                  <Mapquery ref="geoMap" :initialLatitude="-33.426" :initialLongitude="-70.6118" />
+                  <Mapquery ref="geoMap" :initialLatitude="-59.586395431060225" :initialLongitude="-51.73077842399869" />
                 </div>
               </div>
             </div>

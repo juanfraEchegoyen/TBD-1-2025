@@ -263,6 +263,19 @@ public class JdbcSentenciasSQLRepository implements SentenciasSQLRepository{
     WHERE ST_Within(c.ubicacion, z.area_cobertura)
 """;
 
+    private static final String SELECT_AREAS_COBERTURA_MISMA_ZONA_CLIENTE = """
+    SELECT 
+        ST_AsText(z2.area_cobertura) AS areaCoberturaWkt, 
+        (SELECT ST_AsText(c.ubicacion) FROM Cliente c WHERE c.rut_cliente = ?) AS ubicacionClienteWkt
+    FROM ZonaCobertura z2
+    WHERE z2.zona = (
+        SELECT z.zona
+        FROM ZonaCobertura z
+        JOIN Cliente c ON c.rut_cliente = ?
+        WHERE ST_Within(c.ubicacion, z.area_cobertura)
+        LIMIT 1
+    )
+""";
 
     //3. Calcular la distancia total recorrida por un repartidor
     private static final String SELECT_DISTANCIA_RECORRIDA_SQL = """
@@ -375,15 +388,27 @@ ORDER BY e.rut_empresa, ST_Distance(c.ubicacion, e.ubicacion) DESC
     """;
 
     //2. Query para obtener zonas de cobertura y ubicación del cliente
+    // Devuelve un solo DTO con la lista de áreas de cobertura y la ubicación del cliente
+    @Override
     public List<ZonaCoberturaClienteDTO> getZonasCoberturaYUbicacionPorCliente(String rutCliente) {
         try {
             return jdbcTemplate.query(
-                    SELECT_ZONAS_Y_UBICACION_CLIENTE,
-                    new Object[]{rutCliente},
-                    (rs, rowNum) -> new ZonaCoberturaClienteDTO(
-                            rs.getString("areaCoberturaWkt"),
-                            rs.getString("ubicacionClienteWkt")
-                    )
+                    SELECT_AREAS_COBERTURA_MISMA_ZONA_CLIENTE,
+                    new Object[]{rutCliente, rutCliente},
+                    (rs) -> {
+                        List<String> areasCobertura = new ArrayList<>();
+                        String ubicacionCliente = null;
+                        while (rs.next()) {
+                            areasCobertura.add(rs.getString("areaCoberturaWkt"));
+                            if (ubicacionCliente == null) {
+                                ubicacionCliente = rs.getString("ubicacionClienteWkt");
+                            }
+                        }
+                        if (areasCobertura.isEmpty()) {
+                            return List.of();
+                        }
+                        return List.of(new ZonaCoberturaClienteDTO(areasCobertura, ubicacionCliente));
+                    }
             );
         } catch (DataAccessException ex) {
             return List.of();
