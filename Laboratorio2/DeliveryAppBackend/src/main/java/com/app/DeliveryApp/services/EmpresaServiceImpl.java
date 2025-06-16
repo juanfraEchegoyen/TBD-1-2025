@@ -1,11 +1,13 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.EmpresaNombreRutDTO;
 import com.app.DeliveryApp.models.Empresa;
 import com.app.DeliveryApp.repositories.EmpresaRepository;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +53,12 @@ public class EmpresaServiceImpl implements EmpresaService {
             int filasAfectadas = empresaRepository.deleteByRut(rut);
             return filasAfectadas > 0;        }
         return false;
+    }
+
+    @Override
+    public List<EmpresaNombreRutDTO> ObtenerRutYnombres(){
+        List<EmpresaNombreRutDTO> empresas = empresaRepository.ObtenerRutYnombres();
+        return empresas;
     }
 
 }

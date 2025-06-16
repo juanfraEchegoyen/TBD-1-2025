@@ -1,189 +1,329 @@
 <template>
-    <div>
-        <h1 class="text-2xl font-bold mb-4">Consulta de datos</h1>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+        <!-- Header mejorado -->
+        <div class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Panel de Consultas</h1>
+            <p class="text-gray-600">Análisis de datos del sistema de delivery</p>
+            <div class="w-24 h-1 bg-gradient-to-r from-red-500 to-red-600 mx-auto mt-3 rounded-full"></div>
+        </div>
 
-        <!-- Contenedor con barra de desplazamiento -->
-        <div class="max-h-[80vh] overflow-y-auto p-4 bg-gray-100 rounded shadow">
-            <!-- Cliente con mayor gasto -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchClienteMayorGasto" class="btn-primary">
-                    Cliente con mayor gasto
-                </button>
-                <div v-if="clienteMayorGasto && consultaActiva === 'clienteMayorGasto'" class="relative bg-white p-4 rounded shadow col-span-3">
-                    <button @click="clienteMayorGasto = null; consultaActiva = null" class="close-btn">
-                        ✖
+        <!-- Menú de navegación -->
+        <div class="max-w-7xl mx-auto mb-4">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <button 
+                        v-for="(consulta, key) in consultasDisponibles" 
+                        :key="key"
+                        @click="mostrarConsulta(key)"
+                        :class=" [
+                            'px-3 py-2 rounded-lg font-medium text-sm',
+                            consultaActiva === key 
+                                ? 'bg-red-500 text-white shadow-lg' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ]"
+                    >
+                        {{ consulta.titulo }}
                     </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <p><strong>Nombre:</strong> {{ clienteMayorGasto.nombre }}</p>
-                    <p><strong>Total Gastado:</strong> ${{ clienteMayorGasto.totalGastado }}</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Producto más vendido -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchProductoMasVendido" class="btn-primary">
-                    Producto más vendido
-                </button>
-                <div v-if="productoMasVendido && productoMasVendido.length && consultaActiva === 'productoMasVendido'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="productoMasVendido = []; consultaActiva = null" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <table class="table-auto w-full border-collapse border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-gray-300 px-4 py-2">Nombre</th>
-                                <th class="border border-gray-300 px-4 py-2">Categoría</th>
-                                <th class="border border-gray-300 px-4 py-2">Total Pedidos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="producto in productoMasVendido" :key="producto.nombreProducto">
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.nombreProducto }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.categoria }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.totalPedidos }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Contenedor principal mejorado -->
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200">
+                <div class="p-6">
+                    
+                    <!-- Contenido dinámico basado en la consulta activa -->
+                    <div v-if="!consultaActiva" class="text-center py-8">
+                        <div class="text-4xl mb-3">📊</div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Selecciona una consulta</h3>
+                        <p class="text-gray-500">Usa el menú superior para ver los diferentes análisis disponibles</p>
+                    </div>
 
-            <!-- Empresas con más entregas fallidas -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchEmpresasConMasEntregasFallidas" class="btn-primary">
-                    Empresas con más entregas fallidas
-                </button>
-                <div v-if="empresasConMasEntregasFallidas && consultaActiva === 'empresasConMasEntregasFallidas'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="empresasConMasEntregasFallidas = null; consultaActiva = null" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <table class="table-auto w-full border-collapse border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-gray-300 px-4 py-2">Nombre</th>
-                                <th class="border border-gray-300 px-4 py-2">Total Entregas Fallidas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="empresa in empresasConMasEntregasFallidas" :key="empresa.nombre">
-                                <td class="border border-gray-300 px-4 py-2">{{ empresa.nombreEmpresa }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ empresa.totalEntregasFallidas }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    <!-- Cliente con mayor gasto -->
+                    <div v-if="consultaActiva === 'clienteMayorGasto'">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">👤</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 1</h2>
+                                    <p class="text-gray-600 text-sm">Cliente con mayor gasto total</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="clienteMayorGasto" class="bg-white rounded-lg p-4 border border-blue-200">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                        <div class="text-sm font-medium text-gray-600">Nombre del Cliente</div>
+                                        <div class="text-lg font-bold text-blue-600">{{ clienteMayorGasto.nombre }}</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                                        <div class="text-sm font-medium text-gray-600">Total Gastado</div>
+                                        <div class="text-lg font-bold text-green-600">${{ clienteMayorGasto.totalGastado }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Tiempo promedio repartidor -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchTiempoPromedioReapartidor" class="btn-primary">
-                    Tiempo promedio repartidor
-                </button>
-                <div v-if="tiempoPromedioRepartidor.length && consultaActiva === 'tiempoPromedioRepartidor'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="tiempoPromedioRepartidor = []; consultaActiva = null" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <table class="table-auto w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-gray-300 px-4 py-2">Rut</th>
-                                <th class="border border-gray-300 px-4 py-2">Nombre</th>
-                                <th class="border border-gray-300 px-4 py-2">Tiempo Promedio (minutos)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="repartidor in tiempoPromedioRepartidor" :key="repartidor.rut">
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.rut }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.nombre }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.tiempoPromedio }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    <!-- Producto más vendido -->
+                    <div v-if="consultaActiva === 'productoMasVendido'">
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">🏆</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 2</h2>
+                                    <p class="text-gray-600 text-sm">Productos más vendidos</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="productoMasVendido.length" class="bg-white rounded-lg p-4 border border-green-200">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-green-50">
+                                                <th class="text-left p-3 font-bold text-green-800">Producto</th>
+                                                <th class="text-left p-3 font-bold text-green-800">Categoría</th>
+                                                <th class="text-left p-3 font-bold text-green-800">Total Pedidos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(producto, index) in productoMasVendido" :key="index" class="border-t border-green-100">
+                                                <td class="p-3 font-medium">{{ producto.nombreProducto }}</td>
+                                                <td class="p-3">
+                                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                                        {{ producto.categoria }}
+                                                    </span>
+                                                </td>
+                                                <td class="p-3 font-bold text-green-600">{{ producto.totalPedidos }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Repartidor mejor rendimiento -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchRepartidorMejorRendimiento" class="btn-primary">
-                    Repartidor mejor rendimiento
-                </button>
-                <div v-if="repartidorMejorRendimiento.length && consultaActiva === 'repartidorMejorRendimiento'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="repartidorMejorRendimiento = []; consultaActiva = null" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <table class="table-auto w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-gray-300 px-4 py-2">Nombre</th>
-                                <th class="border border-gray-300 px-4 py-2">Puntuación</th>
-                                <th class="border border-gray-300 px-4 py-2">Entregas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="repartidor in repartidorMejorRendimiento" :key="repartidor.nombre">
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.nombre }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.puntuacion }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ repartidor.entregas }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    <!-- Empresas con entregas fallidas -->
+                    <div v-if="consultaActiva === 'empresasConMasEntregasFallidas'">
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">⚠️</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 3</h2>
+                                    <p class="text-gray-600 text-sm">Empresas con más entregas fallidas</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="empresasConMasEntregasFallidas" class="bg-white rounded-lg p-4 border border-yellow-200">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-yellow-50">
+                                                <th class="text-left p-3 font-bold text-yellow-800">Empresa</th>
+                                                <th class="text-left p-3 font-bold text-yellow-800">Entregas Fallidas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(empresa, index) in empresasConMasEntregasFallidas" :key="index" class="border-t border-yellow-100">
+                                                <td class="p-3 font-medium">{{ empresa.nombreEmpresa }}</td>
+                                                <td class="p-3 font-bold text-red-600">{{ empresa.totalEntregasFallidas }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Método de pago más utilizado -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchMetodoPagoFrecuente" class="btn-primary">
-                    Método de pago más utilizado
-                </button>
-                <div v-if="metodoPagoFrecuente && consultaActiva === 'metodoPagoFrecuente'" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="metodoPagoFrecuente = null; consultaActiva = null" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2"</h2>
-                    <p><strong>Método:</strong> {{ metodoPagoFrecuente.nombre }}</p>
-                    <p><strong>Cantidad de usos:</strong> {{ metodoPagoFrecuente.usos }}</p>
-                </div>
-            </div>
-            
-            <!-- Separador de secciones -->
-            <hr class="my-8 border-t-2 border-gray-300" />
-            
-            <!-- Título de la nueva sección -->
-            <h1 class="text-2xl font-bold mb-4">Actividades Bonus</h1>
-            
-            <!-- Ranking de devoluciones o cancelaciones -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <button @click="fetchRankingDevolucionesOCancelaciones" class="btn-primary btn-bonus">
-                    Ranking de devoluciones o cancelaciones
-                </button>
-                <div v-if="rankingDevolucionesCancelaciones.length" class="relative mt-4 bg-white p-4 rounded shadow col-span-3">
-                    <button @click="rankingDevolucionesCancelaciones = []" class="close-btn">
-                        ✖
-                    </button>
-                    <h2 class="text-xl font-semibold mb-2">Ranking de productos por devoluciones y cancelaciones</h2>
-                    <table class="table-auto w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border border-gray-300 px-4 py-2">Producto</th>
-                                <th class="border border-gray-300 px-4 py-2">Categoría</th>
-                                <th class="border border-gray-300 px-4 py-2">Devoluciones</th>
-                                <th class="border border-gray-300 px-4 py-2">Cancelaciones</th>
-                                <th class="border border-gray-300 px-4 py-2">Total Problemas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="producto in rankingDevolucionesCancelaciones" :key="producto.nombre_producto">
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.producto }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.categoria }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.devoluciones }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.cancelaciones }}</td>
-                                <td class="border border-gray-300 px-4 py-2">{{ producto.problemas }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <!-- Tiempo promedio repartidor -->
+                    <div v-if="consultaActiva === 'tiempoPromedioRepartidor'">
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">⏱️</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 4</h2>
+                                    <p class="text-gray-600 text-sm">Tiempo promedio de entrega por repartidor</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="tiempoPromedioRepartidor.length" class="bg-white rounded-lg p-4 border border-purple-200">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-purple-50">
+                                                <th class="text-left p-3 font-bold text-purple-800">RUT</th>
+                                                <th class="text-left p-3 font-bold text-purple-800">Nombre</th>
+                                                <th class="text-left p-3 font-bold text-purple-800">Tiempo Promedio (min)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(repartidor, index) in tiempoPromedioRepartidor" :key="index" class="border-t border-purple-100">
+                                                <td class="p-3 font-mono text-xs bg-gray-50">{{ repartidor.rut }}</td>
+                                                <td class="p-3 font-medium">{{ repartidor.nombre }}</td>
+                                                <td class="p-3 font-bold text-purple-600">{{ repartidor.tiempoPromedio }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repartidor mejor rendimiento -->
+                    <div v-if="consultaActiva === 'repartidorMejorRendimiento'">
+                        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">🌟</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 5</h2>
+                                    <p class="text-gray-600 text-sm">Repartidores con mejor desempeño</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="repartidorMejorRendimiento.length" class="bg-white rounded-lg p-4 border border-indigo-200">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-indigo-50">
+                                                <th class="text-left p-3 font-bold text-indigo-800">Nombre</th>
+                                                <th class="text-left p-3 font-bold text-indigo-800">Puntuación</th>
+                                                <th class="text-left p-3 font-bold text-indigo-800">Total Entregas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(repartidor, index) in repartidorMejorRendimiento" :key="index" class="border-t border-indigo-100">
+                                                <td class="p-3 font-medium">{{ repartidor.nombre }}</td>
+                                                <td class="p-3">
+                                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-bold">
+                                                        ⭐ {{ repartidor.puntuacion }}
+                                                    </span>
+                                                </td>
+                                                <td class="p-3 font-bold text-indigo-600">{{ repartidor.entregas }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Método de pago más utilizado -->
+                    <div v-if="consultaActiva === 'metodoPagoFrecuente'">
+                        <div class="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">💳</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta 6</h2>
+                                    <p class="text-gray-600 text-sm">Método de pago más utilizado</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="metodoPagoFrecuente" class="bg-white rounded-lg p-4 border border-teal-200">
+                                <div class="text-center">
+                                    <div class="mb-4">
+                                        <div class="text-2xl font-bold text-teal-600 mb-1">{{ metodoPagoFrecuente.nombre }}</div>
+                                        <div class="text-sm text-gray-600">Método más popular</div>
+                                    </div>
+                                    <div class="bg-teal-50 rounded-xl p-4 inline-block">
+                                        <div class="text-xl font-bold text-teal-800">{{ metodoPagoFrecuente.usos }}</div>
+                                        <div class="text-teal-600 font-medium text-sm">veces utilizado</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ranking de devoluciones -->
+                    <div v-if="consultaActiva === 'rankingDevolucionesCancelaciones'">
+                        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-lg">📊</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Consulta Bonus</h2>
+                                    <p class="text-gray-600 text-sm">Productos con más devoluciones y cancelaciones</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="rankingDevolucionesCancelaciones.length" class="bg-white rounded-lg p-4 border border-red-200">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-red-50">
+                                                <th class="text-left p-3 font-bold text-red-800">Producto</th>
+                                                <th class="text-left p-3 font-bold text-red-800">Categoría</th>
+                                                <th class="text-left p-3 font-bold text-red-800">Devoluciones</th>
+                                                <th class="text-left p-3 font-bold text-red-800">Cancelaciones</th>
+                                                <th class="text-left p-3 font-bold text-red-800">Total Problemas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(producto, index) in rankingDevolucionesCancelaciones" :key="index" class="border-t border-red-100">
+                                                <td class="p-3 font-medium">{{ producto.producto }}</td>
+                                                <td class="p-3">
+                                                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+                                                        {{ producto.categoria }}
+                                                    </span>
+                                                </td>
+                                                <td class="p-3 font-bold text-orange-600">{{ producto.devoluciones }}</td>
+                                                <td class="p-3 font-bold text-red-600">{{ producto.cancelaciones }}</td>
+                                                <td class="p-3 font-bold text-red-800">{{ producto.problemas }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="text-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+                                <p class="text-gray-600 mt-2 text-sm">Cargando datos...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -197,20 +337,79 @@ export default {
     name: "QuerysPage",
     data() {
         return {
-            consultaActiva: null, // Estado centralizado para la consulta activa
+            consultaActiva: null,
             clienteMayorGasto: null,
             productoMasVendido: [],
             empresasConMasEntregasFallidas: null,
             tiempoPromedioRepartidor: [],
             repartidorMejorRendimiento: [],
             metodoPagoFrecuente: null,
-            // Agregamos la nueva variable para el ranking
             rankingDevolucionesCancelaciones: [],
+            
+            // Configuración del menú
+            consultasDisponibles: {
+                clienteMayorGasto: {
+                    titulo: 'Consulta 1'
+                },
+                productoMasVendido: {
+                    titulo: 'Consulta 2'
+                },
+                empresasConMasEntregasFallidas: {
+                    titulo: 'Consulta 3'
+                },
+                tiempoPromedioRepartidor: {
+                    titulo: 'Consulta 4'
+                },
+                repartidorMejorRendimiento: {
+                    titulo: 'Consulta 5'
+                },
+                metodoPagoFrecuente: {
+                    titulo: 'Consulta 6'
+                },
+                rankingDevolucionesCancelaciones: {
+                    titulo: 'Consulta Bonus'
+                }
+            }
         };
     },
     methods: {
+        async mostrarConsulta(tipoConsulta) {
+            // Si ya está activa la misma consulta, la ocultamos
+            if (this.consultaActiva === tipoConsulta) {
+                this.consultaActiva = null;
+                return;
+            }
+            
+            // Activamos la nueva consulta
+            this.consultaActiva = tipoConsulta;
+            
+            // Llamamos al método correspondiente
+            switch(tipoConsulta) {
+                case 'clienteMayorGasto':
+                    await this.fetchClienteMayorGasto();
+                    break;
+                case 'productoMasVendido':
+                    await this.fetchProductoMasVendido();
+                    break;
+                case 'empresasConMasEntregasFallidas':
+                    await this.fetchEmpresasConMasEntregasFallidas();
+                    break;
+                case 'tiempoPromedioRepartidor':
+                    await this.fetchTiempoPromedioReapartidor();
+                    break;
+                case 'repartidorMejorRendimiento':
+                    await this.fetchRepartidorMejorRendimiento();
+                    break;
+                case 'metodoPagoFrecuente':
+                    await this.fetchMetodoPagoFrecuente();
+                    break;
+                case 'rankingDevolucionesCancelaciones':
+                    await this.fetchRankingDevolucionesOCancelaciones();
+                    break;
+            }
+        },
+
         async fetchClienteMayorGasto() {
-            this.consultaActiva = 'clienteMayorGasto'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/clienteMayorGastos');
                 this.clienteMayorGasto = {
@@ -221,8 +420,8 @@ export default {
                 console.error("Error en fetchClienteMayorGasto:", e);
             }
         },
+
         async fetchProductoMasVendido() {
-            this.consultaActiva = 'productoMasVendido'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/productosMasVendidos');
                 this.productoMasVendido = res.data;
@@ -230,8 +429,8 @@ export default {
                 console.error("Error en fetchProductoMasVendido:", e);
             }
         },
+
         async fetchEmpresasConMasEntregasFallidas() {
-            this.consultaActiva = 'empresasConMasEntregasFallidas'; // Activar esta consulta
             try {
                 const res = await apiClient.get('/api/v1/sentenciassql/empresasEntregasFallidas');
                 this.empresasConMasEntregasFallidas = res.data.map(empresa => ({
@@ -242,8 +441,8 @@ export default {
                 console.error("Error en fetchEmpresasConMasEntregasFallidas:", e);
             }
         },
+
         async fetchTiempoPromedioReapartidor() {
-            this.consultaActiva = 'tiempoPromedioRepartidor'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/tiempoPromedioRepartidor');
                 this.tiempoPromedioRepartidor = response.data.map(item => ({
@@ -255,8 +454,8 @@ export default {
                 console.error("Error en fetchTiempoPromedioRepartidor:", error);
             }
         },
+
         async fetchRepartidorMejorRendimiento() {
-            this.consultaActiva = 'repartidorMejorRendimiento'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/repartidoresMejorRendimiento');
                 this.repartidorMejorRendimiento = response.data.map(item => ({
@@ -268,8 +467,8 @@ export default {
                 console.error("Error en fetchRepartidorMejorRendimiento:", error);
             }
         },
+
         async fetchMetodoPagoFrecuente() {
-            this.consultaActiva = 'metodoPagoFrecuente'; // Activar esta consulta
             try {
                 const response = await apiClient.get('/api/v1/sentenciassql/metodoPagoFrecuente');
                 this.metodoPagoFrecuente = {
@@ -280,25 +479,18 @@ export default {
                 console.error("Error en fetchMetodoPagoFrecuente:", error);
             }
         },
-        // Nuevo método para buscar el ranking de devoluciones o cancelaciones
+
         async fetchRankingDevolucionesOCancelaciones() {
             try {
-                // Llamada a la API
                 const response = await apiClient.get('/api/v1/sentenciassql/rankingDevolucionesOCancelaciones');
-                
-                // Asignar los datos a la variable
                 this.rankingDevolucionesCancelaciones = response.data;
             } catch (error) {
                 console.error("Error en fetchRankingDevolucionesOCancelaciones:", error);
-                
-                // Manejo del error 404 o cualquier otro error
                 if (error.response && error.response.status === 404) {
                     alert("La API de ranking de devoluciones no está disponible o el endpoint no existe");
                 } else {
                     alert("Error al obtener el ranking de devoluciones: " + error.message);
                 }
-                
-                // Inicializar con array vacío para evitar errores
                 this.rankingDevolucionesCancelaciones = [];
             }
         }
@@ -310,40 +502,4 @@ export default {
 h1 {
     color: #333333;
 }
-
-.btn-primary {
-    background-color: #ef4444; /* rojo */
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.2s;
-}
-
-.btn-primary:hover {
-    background-color: #dc2626; /* rojo oscuro */
-}
-
-/* Estilo especial para el botón de bonus */
-.btn-bonus {
-    background-color: #8b5cf6; /* púrpura */
-}
-
-.btn-bonus:hover {
-    background-color: #7c3aed; /* púrpura oscuro */
-}
-
-.close-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    color: #6b7280; /* gris */
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.close-btn:hover {
-    color: #374151; /* gris oscuro */
-}
-
 </style>

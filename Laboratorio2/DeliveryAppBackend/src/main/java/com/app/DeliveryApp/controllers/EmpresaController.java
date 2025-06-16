@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
+import com.app.DeliveryApp.dto.EmpresaNombreRutDTO;
 import com.app.DeliveryApp.models.Empresa;
 import com.app.DeliveryApp.services.EmpresaService;
 import org.locationtech.jts.geom.Coordinate;
@@ -48,6 +49,12 @@ public class EmpresaController {
     @GetMapping
     public ResponseEntity<List<Empresa>> obtenerTodasLasEmpresas() {
         List<Empresa> empresas = empresaService.obtenerTodasLasEmpresas();
+        return ResponseEntity.ok(empresas);
+    }
+
+    @GetMapping("/obtenerTodasNombres")
+    public ResponseEntity<List<EmpresaNombreRutDTO>> obtenerTodasNombres() {
+        List<EmpresaNombreRutDTO> empresas = empresaService.ObtenerRutYnombres();
         return ResponseEntity.ok(empresas);
     }
 

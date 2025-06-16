@@ -19,13 +19,14 @@ INSERT INTO Repartidor (rut_repartidor, password, nombre_repartidor, telefono, p
 ('15151515-4', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'Claudia Fuentes', '913000004', 5, 3, 87.3, ST_GeomFromText('POINT(-70.5500 -33.4100)', 4326)),
 ('16161616-5', '$2a$10$UHwxgZleWAsTlCvT5NaQ5.5MpnLoNo09tzLXBVu/NPEki0fOOgefa', 'José Navarro', '913000005', 3, 7, 234.7, ST_GeomFromText('POINT(-70.6800 -33.4800)', 4326));
 
--- Empresas asociadas
-INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa) VALUES 
-('80000000-1', 'Rápido y Sabroso'),
-('80000000-2', 'Sabor Urbano'),
-('80000000-3', 'Pan al Paso'),
-('80000000-4', 'Tech & Snacks'),
-('80000000-5', 'Delibox Express');
+-- Empresas asociadas 
+INSERT INTO EmpresaAsociada (rut_empresa, nombre_empresa, ubicacion) VALUES 
+('80000000-1', 'Rápido y Sabroso', ST_GeomFromText('POINT(-70.6483 -33.4489)', 4326)),
+('80000000-2', 'Sabor Urbano', ST_GeomFromText('POINT(-70.6475 -33.4478)', 4326)),
+('80000000-3', 'Pan al Paso', ST_GeomFromText('POINT(-70.6500 -33.4501)', 4326)),
+('80000000-4', 'Tech & Snacks', ST_GeomFromText('POINT(-70.6491 -33.4490)', 4326)),
+('80000000-5', 'Delibox Express', ST_GeomFromText('POINT(-70.6467 -33.4465)', 4326));
+
 
 -- Productos
 INSERT INTO Producto (nombre_producto, precio, categoria, tipo_producto, stock, rut_empresa) VALUES 

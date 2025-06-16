@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
+import com.app.DeliveryApp.dto.RepartidorRutNombreDTO;
 import com.app.DeliveryApp.models.Repartidor;
 import com.app.DeliveryApp.services.RepartidorService;
 import org.locationtech.jts.geom.Coordinate;
@@ -48,6 +49,12 @@ public class RepartidorController {
     @GetMapping
     public ResponseEntity<List<Repartidor>> obtenerTodosLosRepartidores() {
         List<Repartidor> repartidores = repartidorService.obtenerTodosLosRepartidores();
+        return ResponseEntity.ok(repartidores);
+    }
+
+    @GetMapping("/RutYnombres")
+    public ResponseEntity<List<RepartidorRutNombreDTO>> ObtenerRutYnombresRepartidores(){
+        List<RepartidorRutNombreDTO> repartidores = repartidorService.ObtenerRutYnombresRepartidor();
         return ResponseEntity.ok(repartidores);
     }
 

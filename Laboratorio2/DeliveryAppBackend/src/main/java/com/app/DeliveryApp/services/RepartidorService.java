@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.dto.RepartidorRutNombreDTO;
 import com.app.DeliveryApp.models.Repartidor;
 import org.locationtech.jts.geom.Point;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface RepartidorService {
     Optional<Repartidor> actualizarUbicacionRepartidor(String rut, Point nuevaUbicacion);
 
     Optional<Repartidor> actualizarDistanciaRecorrida(String rut, Double nuevaDistancia);
+
+    List<RepartidorRutNombreDTO> ObtenerRutYnombresRepartidor();
 }
