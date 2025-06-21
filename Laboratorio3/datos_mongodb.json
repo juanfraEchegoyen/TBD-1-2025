@@ -1,0 +1,488 @@
+{
+  "opiniones_clientes": [
+    {
+      "cliente_id": "C001",
+      "empresa_id": "E001",
+      "comentario": "Excelente servicio, rápido y seguro.",
+      "puntuacion": 5,
+      "fecha": "2025-06-20T10:15:00Z"
+    },
+    {
+      "cliente_id": "C002",
+      "empresa_id": "E002",
+      "comentario": "Demora en la entrega y mal embalaje.",
+      "puntuacion": 2,
+      "fecha": "2025-06-19T14:22:00Z"
+    },
+    {
+      "cliente_id": "C003",
+      "empresa_id": "E001",
+      "comentario": "Muy buena atención al cliente.",
+      "puntuacion": 4,
+      "fecha": "2025-06-18T16:30:00Z"
+    },
+    {
+      "cliente_id": "C004",
+      "empresa_id": "E003",
+      "comentario": "Error en el pedido, llegó producto incorrecto.",
+      "puntuacion": 1,
+      "fecha": "2025-06-17T09:45:00Z"
+    },
+    {
+      "cliente_id": "C005",
+      "empresa_id": "E002",
+      "comentario": "Servicio regular, puede mejorar.",
+      "puntuacion": 3,
+      "fecha": "2025-06-16T11:20:00Z"
+    },
+    {
+      "cliente_id": "C006",
+      "empresa_id": "E001",
+      "comentario": "Perfecta experiencia de compra.",
+      "puntuacion": 5,
+      "fecha": "2025-06-20T23:15:00Z"
+    },
+    {
+      "cliente_id": "C007",
+      "empresa_id": "E004",
+      "comentario": "Demora excesiva en la entrega.",
+      "puntuacion": 2,
+      "fecha": "2025-06-20T21:30:00Z"
+    },
+    {
+      "cliente_id": "C008",
+      "empresa_id": "E003",
+      "comentario": "Producto de calidad, recomendado.",
+      "puntuacion": 4,
+      "fecha": "2025-06-20T19:45:00Z"
+    },
+    {
+      "cliente_id": "C009",
+      "empresa_id": "E001",
+      "comentario": "Error en la dirección de entrega.",
+      "puntuacion": 2,
+      "fecha": "2025-06-20T17:20:00Z"
+    },
+    {
+      "cliente_id": "C010",
+      "empresa_id": "E002",
+      "comentario": "Servicio excepcional, muy rápido.",
+      "puntuacion": 5,
+      "fecha": "2025-06-20T15:10:00Z"
+    },
+    {
+      "cliente_id": "C011",
+      "empresa_id": "E004",
+      "comentario": "Buena calidad precio.",
+      "puntuacion": 4,
+      "fecha": "2025-06-20T13:25:00Z"
+    },
+    {
+      "cliente_id": "C012",
+      "empresa_id": "E003",
+      "comentario": "Demora en la preparación del pedido.",
+      "puntuacion": 3,
+      "fecha": "2025-06-20T11:40:00Z"
+    },
+    {
+      "cliente_id": "C013",
+      "empresa_id": "E001",
+      "comentario": "Todo perfecto, sin problemas.",
+      "puntuacion": 5,
+      "fecha": "2025-06-20T09:55:00Z"
+    },
+    {
+      "cliente_id": "C014",
+      "empresa_id": "E002",
+      "comentario": "Error en el sistema de pago.",
+      "puntuacion": 2,
+      "fecha": "2025-06-20T07:30:00Z"
+    },
+    {
+      "cliente_id": "C015",
+      "empresa_id": "E004",
+      "comentario": "Excelente empaque y presentación.",
+      "puntuacion": 5,
+      "fecha": "2025-06-20T05:15:00Z"
+    }
+  ],
+  "logs_pedidos": [
+    {
+      "pedido_id": "P001",
+      "historial_estados": [
+        {
+          "timestamp": "2025-06-21T01:19:00Z",
+          "estado": "creado"
+        },
+        {
+          "timestamp": "2025-06-21T01:20:00Z",
+          "estado": "confirmado"
+        },
+        {
+          "timestamp": "2025-06-21T01:22:00Z",
+          "estado": "en preparación"
+        },
+        {
+          "timestamp": "2025-06-21T01:24:00Z",
+          "estado": "en reparto"
+        },
+        {
+          "timestamp": "2025-06-21T01:26:00Z",
+          "estado": "entregado"
+        }
+      ]
+    },
+    {
+      "pedido_id": "P002",
+      "historial_estados": [
+        {
+          "timestamp": "2025-06-20T23:00:00Z",
+          "estado": "creado"
+        },
+        {
+          "timestamp": "2025-06-20T23:30:00Z",
+          "estado": "en preparación"
+        },
+        {
+          "timestamp": "2025-06-21T00:30:00Z",
+          "estado": "en reparto"
+        },
+        {
+          "timestamp": "2025-06-21T01:22:00Z",
+          "estado": "entregado"
+        }
+      ]
+    },
+    {
+      "pedido_id": "P003",
+      "historial_estados": [
+        {
+          "timestamp": "2025-06-21T00:00:00Z",
+          "estado": "creado"
+        },
+        {
+          "timestamp": "2025-06-21T00:30:00Z",
+          "estado": "cancelado"
+        }
+      ]
+    },
+    {
+      "pedido_id": "P004",
+      "historial_estados": [
+        {
+          "timestamp": "2025-06-21T01:18:00Z",
+          "estado": "creado"
+        },
+        {
+          "timestamp": "2025-06-21T01:19:00Z",
+          "estado": "confirmado"
+        },
+        {
+          "timestamp": "2025-06-21T01:21:00Z",
+          "estado": "en preparación"
+        },
+        {
+          "timestamp": "2025-06-21T01:23:00Z",
+          "estado": "listo"
+        },
+        {
+          "timestamp": "2025-06-21T01:25:00Z",
+          "estado": "en reparto"
+        }
+      ]
+    },
+    {
+      "pedido_id": "P005",
+      "historial_estados": [
+        {
+          "timestamp": "2025-06-21T01:10:00Z",
+          "estado": "creado"
+        },
+        {
+          "timestamp": "2025-06-21T01:11:00Z",
+          "estado": "confirmado"
+        },
+        {
+          "timestamp": "2025-06-21T01:12:00Z",
+          "estado": "en preparación"
+        },
+        {
+          "timestamp": "2025-06-21T01:14:00Z",
+          "estado": "listo"
+        },
+        {
+          "timestamp": "2025-06-21T01:16:00Z",
+          "estado": "en reparto"
+        },
+        {
+          "timestamp": "2025-06-21T01:18:00Z",
+          "estado": "entregado"
+        }
+      ]
+    }
+  ],
+  "historial_repartidores": [
+    {
+      "repartidor_id": "R001",
+      "rutas": [
+        {
+          "latitud": -33.4489,
+          "longitud": -70.6693,
+          "timestamp": "2025-06-20T09:00:00Z"
+        },
+        {
+          "latitud": -33.4500,
+          "longitud": -70.6700,
+          "timestamp": "2025-06-20T09:15:00Z"
+        },
+        {
+          "latitud": -33.4510,
+          "longitud": -70.6710,
+          "timestamp": "2025-06-20T09:30:00Z"
+        },
+        {
+          "latitud": -33.4489,
+          "longitud": -70.6693,
+          "timestamp": "2025-06-20T23:00:00Z"
+        },
+        {
+          "latitud": -33.4500,
+          "longitud": -70.6700,
+          "timestamp": "2025-06-21T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "repartidor_id": "R002",
+      "rutas": [
+        {
+          "latitud": -33.4150,
+          "longitud": -70.6000,
+          "timestamp": "2025-06-19T10:00:00Z"
+        },
+        {
+          "latitud": -33.4160,
+          "longitud": -70.6010,
+          "timestamp": "2025-06-19T10:20:00Z"
+        },
+        {
+          "latitud": -33.4170,
+          "longitud": -70.6020,
+          "timestamp": "2025-06-19T10:40:00Z"
+        },
+        {
+          "latitud": -33.4150,
+          "longitud": -70.6000,
+          "timestamp": "2025-06-20T22:00:00Z"
+        },
+        {
+          "latitud": -33.4160,
+          "longitud": -70.6010,
+          "timestamp": "2025-06-20T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "repartidor_id": "R003",
+      "rutas": [
+        {
+          "latitud": -33.4372,
+          "longitud": -70.6178,
+          "timestamp": "2025-06-18T14:00:00Z"
+        },
+        {
+          "latitud": -33.4380,
+          "longitud": -70.6190,
+          "timestamp": "2025-06-18T14:10:00Z"
+        },
+        {
+          "latitud": -33.4390,
+          "longitud": -70.6200,
+          "timestamp": "2025-06-18T14:25:00Z"
+        },
+        {
+          "latitud": -33.4372,
+          "longitud": -70.6178,
+          "timestamp": "2025-06-20T21:00:00Z"
+        },
+        {
+          "latitud": -33.4380,
+          "longitud": -70.6190,
+          "timestamp": "2025-06-20T22:00:00Z"
+        }
+      ]
+    },
+    {
+      "repartidor_id": "R004",
+      "rutas": [
+        {
+          "latitud": -33.4489,
+          "longitud": -70.6693,
+          "timestamp": "2025-06-15T09:00:00Z"
+        },
+        {
+          "latitud": -33.4500,
+          "longitud": -70.6700,
+          "timestamp": "2025-06-15T09:15:00Z"
+        },
+        {
+          "latitud": -33.4489,
+          "longitud": -70.6693,
+          "timestamp": "2025-06-16T09:00:00Z"
+        },
+        {
+          "latitud": -33.4500,
+          "longitud": -70.6700,
+          "timestamp": "2025-06-17T09:15:00Z"
+        },
+        {
+          "latitud": -33.4489,
+          "longitud": -70.6693,
+          "timestamp": "2025-06-18T09:00:00Z"
+        }
+      ]
+    }
+  ],
+  "navegacion_usuarios": [
+    {
+      "cliente_id": "C001",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "paracetamol",
+          "timestamp": "2025-06-20T23:00:00Z"
+        },
+        {
+          "tipo": "click",
+          "valor": "producto_123",
+          "timestamp": "2025-06-20T23:05:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "ibuprofeno",
+          "timestamp": "2025-06-21T00:00:00Z"
+        },
+        {
+          "tipo": "filtro",
+          "valor": "precio_menor_10000",
+          "timestamp": "2025-06-21T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "cliente_id": "C002",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "vitaminas",
+          "timestamp": "2025-06-20T22:00:00Z"
+        },
+        {
+          "tipo": "click",
+          "valor": "producto_456",
+          "timestamp": "2025-06-20T22:10:00Z"
+        },
+        {
+          "tipo": "compra",
+          "valor": "pedido_P002",
+          "timestamp": "2025-06-20T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "cliente_id": "C003",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "mascarillas",
+          "timestamp": "2025-06-21T00:00:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "alcohol gel",
+          "timestamp": "2025-06-21T00:15:00Z"
+        },
+        {
+          "tipo": "click",
+          "valor": "producto_789",
+          "timestamp": "2025-06-21T00:30:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "termometro",
+          "timestamp": "2025-06-21T00:45:00Z"
+        }
+      ]
+    },
+    {
+      "cliente_id": "C004",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "shampoo",
+          "timestamp": "2025-06-20T21:00:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "acondicionador",
+          "timestamp": "2025-06-20T22:00:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "crema dental",
+          "timestamp": "2025-06-20T23:00:00Z"
+        },
+        {
+          "tipo": "click",
+          "valor": "producto_321",
+          "timestamp": "2025-06-21T00:00:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "cepillo dientes",
+          "timestamp": "2025-06-21T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "cliente_id": "C005",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "aspirina",
+          "timestamp": "2025-06-20T20:00:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "jarabe tos",
+          "timestamp": "2025-06-20T20:30:00Z"
+        },
+        {
+          "tipo": "busqueda",
+          "valor": "antibiotico",
+          "timestamp": "2025-06-20T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "cliente_id": "C006",
+      "eventos": [
+        {
+          "tipo": "busqueda",
+          "valor": "proteina",
+          "timestamp": "2025-06-20T19:00:00Z"
+        },
+        {
+          "tipo": "click",
+          "valor": "producto_555",
+          "timestamp": "2025-06-20T19:10:00Z"
+        },
+        {
+          "tipo": "compra",
+          "valor": "pedido_P001",
+          "timestamp": "2025-06-20T19:30:00Z"
+        }
+      ]
+    }
+  ]
+}
