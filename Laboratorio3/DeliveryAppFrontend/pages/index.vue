@@ -13,6 +13,8 @@
       </nuxt-link>
       <nuxt-link to="/querys" class="bg-secondary text-primary px-6 py-2 rounded-lg font-semibold shadow hover:bg-gray-300 transition-colors">
         Consultas SQL
+      </nuxt-link>      <nuxt-link to="/consultas-mongo" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition-colors">
+        Consultas NoSQL
       </nuxt-link>
       <nuxt-link to="/AddressSearchMap" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors">
         Consultas Geoespaciales

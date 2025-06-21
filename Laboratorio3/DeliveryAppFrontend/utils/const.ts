@@ -38,18 +38,24 @@ export const menuOptions = [
     active: false,
     isDoble: false,
     submenu: []
-  },
-  {
+  },  {
     title: 'Consultas SQL',
     icon: 'bx:bar-chart-alt',
     link: '/querys',
     active: false,
     isDoble: false,
     submenu: []
+  },  {
+    title: 'Consultas NoSQL',
+    icon: 'bx:data',
+    link: '/consultas-mongo',
+    active: false,
+    isDoble: false,
+    submenu: []
   },
   {
     title: 'Mapas',
-    icon: 'bx:bar-chart-alt',
+    icon: 'bx:map',
     link: '/AddressSearchMap',
     active: false,
     isDoble: false,
