@@ -1,127 +1,117 @@
-# Guía rápida para ejecutar el Backend y Frontend
+# DeliveryApp
 
-## 1. Configuración de variables de entorno
 
-Antes de ejecutar la aplicación, se deben definir las variables de entorno necesarias para la conexión a la base de datos.
+### PostgreSQL
 
-Ejemplo de estructura para las variables de entorno
+1. **Crear la base de datos:**
+   ```bash
+   psql -h localhost -p 5432 -U postgres
+   ```
+   ```sql
+   CREATE DATABASE deliveryapp;
+   \q
+   ```
 
-```
+2. **Ejecutar scripts en orden:**
+   ```bash
+   # Crear tablas y estructuras
+   psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbCreateDelivery.sql
+   
+   # Crear vistas
+   psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbVistas.sql
+   
+   # Crear procedimientos almacenados
+   psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbProcedimientos.sql
+   
+   # Crear triggers
+   psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbTriggers.sql
+   
+   # Cargar datos de ejemplo
+   psql -h localhost -p 5432 -U postgres -d deliveryapp -f CargaDatos.sql
+   ```
+
+### MongoDB
+
+1. **Asegúrate de que MongoDB esté corriendo:**
+   ```bash
+   # Windows
+   net start MongoDB
+   ```
+
+2. **Cargar datos de ejemplo (ejecutar desde la raíz del proyecto):**
+   ```powershell
+   # Windows PowerShell
+   .\carga_datos_mongo.ps1
+   ```
+
+## Ejecución del Backend
+
+### Variables de Entorno
+
+Configura las siguientes variables de entorno:
+
+```bash
+# PostgreSQL
 ADDRESS=localhost
 PORT=5432
-PASS=*contraseña_postgres*
+PASS=tu_contraseña_postgres
+
+# MongoDB (opcional ya que usa valores por defecto)
+MONGO_HOST=localhost
+MONGO_PORT=27017
+MONGO_DATABASE=deliveryapp_mongo
 ```
 
-Estas se pueden configurar directamente en IntelliJ en el apartado environment variables.
+### Ejecutar Backend
 
-## 2. Ejecutar el Backend
+#### Opción 1: Línea de comandos
+```bash
+cd DeliveryAppBackend
+mvn clean install
+mvn spring-boot:run
+```
 
-### Opción A: Desde la terminal
+#### Opción 2: IntelliJ IDEA
+1. Abrir el proyecto `DeliveryAppBackend`
+2. Configurar variables de entorno en `Run > Edit Configurations`
+3. Ejecutar `DeliveryAppApplication.java`
 
-1. Abre una terminal y navega a la carpeta del backend:
-   ```powershell
-   cd DeliveryAppBackend
-   ```
-2. Compila y ejecuta el backend con Maven:
-   ```powershell
-   mvn spring-boot:run
-   ```
-3. El backend estará disponible por defecto en: http://localhost:8080
+El backend estará disponible en: **http://localhost:8080**
 
-### Opción B: Desde IntelliJ IDEA
+## Ejecución del Frontend
 
-1. Abre el proyecto `DeliveryAppBackend` en IntelliJ IDEA.
-2. Ve a la clase principal `DeliveryAppApplication.java`.
-3. Haz clic derecho y selecciona `Run 'DeliveryAppApplication'`.
-4. Si necesitas agregar variables de entorno:
-   - Ve a `Run > Edit Configurations...`
-   - En el campo `Environment variables`, agrega:
-     ```
-     ADDRESS=localhost;PORT=5432;PASS=*contraseña_postgres*
-     ```
-   - Guarda y ejecuta.
-
-## 3. Ejecutar el Frontend
-
-1. Abre otra terminal y navega a la carpeta del frontend:
-   ```powershell
-   cd DeliveryAppFrontend
-   ```
-2. Instala las dependencias:
-   ```powershell
-   npm install
-   ```
-3. Ejecuta el frontend:
-   ```powershell
-   npm run dev
-   ```
-4. El frontend estará disponible por defecto en: http://localhost:3000
-
----
-
-# DeliveryApp - Procedimiento de Inicialización de Base de Datos
-
-Este documento describe el procedimiento para crear e inicializar la base de datos `deliveryapp` usando los scripts SQL provistos en este repositorio.
-
-## Prerrequisitos
-
-- Tener instalado PostgreSQL y el comando `psql` disponible en la terminal.
-- Conocer el usuario y contraseña de acceso a PostgreSQL (por defecto: usuario `postgres`).
-- Estar ubicado en el directorio donde se encuentran los archivos `.sql`.
-
-## Pasos para la Inicialización
-
-### 1. Crear la base de datos
-
-Abre una terminal y ejecuta:
+### Instalar y Ejecutar
 
 ```bash
-psql -h localhost -p 5432 -U postgres
+cd DeliveryAppFrontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run dev
 ```
 
-Dentro de la consola de `psql`, crea la base de datos:
+El frontend estará disponible en: **http://localhost:3000**
 
-```sql
-CREATE DATABASE deliveryapp;
-\q
+## Configuración adicional
+
+### Backend - application.properties
+
+El archivo de configuración principal está en:
+`DeliveryAppBackend/src/main/resources/application.properties`
+
+```properties
+# PostgreSQL
+spring.datasource.url=jdbc:postgresql://${ADDRESS}:${PORT}/deliveryapp
+spring.datasource.username=postgres
+spring.datasource.password=${PASS}
+
+# MongoDB
+spring.data.mongodb.host=${MONGO_HOST:localhost}
+spring.data.mongodb.port=${MONGO_PORT:27017}
+spring.data.mongodb.database=${MONGO_DATABASE:deliveryapp_mongo}
+
+# Servidor
+server.port=8080
 ```
-
-### 2. Crear las tablas y estructuras
-
-Ejecuta el script para crear todas las tablas y relaciones:
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbCreateDelivery.sql
-```
-
-### 3. Crear las vistas
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbVistas.sql
-```
-
-### 4. Crear los procedimientos almacenados
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbProcedimientos.sql
-```
-
-### 5. Crear los triggers
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f dbTriggers.sql
-```
-
-### 6. Cargar los datos de ejemplo
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f CargaDatos.sql
-```
-
-### 7. Consultas de prueba
-
-```bash
-psql -h localhost -p 5432 -U postgres -d deliveryapp -f runStatementsDelivery.sql
-```
-
----
