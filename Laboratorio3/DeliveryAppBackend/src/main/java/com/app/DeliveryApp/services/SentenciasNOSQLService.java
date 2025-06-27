@@ -1,6 +1,7 @@
 
 package com.app.DeliveryApp.services;
 
+import com.app.DeliveryApp.models.mongo.OpinionCliente;
 import com.app.DeliveryApp.repositories.mongo.OpinionClienteRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,4 +19,13 @@ public class SentenciasNOSQLService {
 
         return opinionClienteRepo.getPromedioPuntuacionPorEmpresa();
     }
+
+    public List<OpinionCliente> getOpinionesConDemoraOError() {
+        return opinionClienteRepo.getOpinionesConDemoraOError();
+    }
+
+    public List<Map> getOpinionesAgrupadasPorHora() {
+        return opinionClienteRepo.getOpinionesAgrupadasPorHora();
+    }
+
 }

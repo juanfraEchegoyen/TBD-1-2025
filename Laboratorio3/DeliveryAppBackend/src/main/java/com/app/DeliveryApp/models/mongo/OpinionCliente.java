@@ -1,11 +1,14 @@
 package com.app.DeliveryApp.models.mongo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Document(collection = "opiniones_clientes")
@@ -23,16 +26,7 @@ public class OpinionCliente {
     private String comentario;
     
     private Integer puntuacion;
-    
-    private LocalDateTime fecha;
-    
-    public OpinionCliente() {}
-    
-    public OpinionCliente(String clienteId, String empresaId, String comentario, Integer puntuacion, LocalDateTime fecha) {
-        this.clienteId = clienteId;
-        this.empresaId = empresaId;
-        this.comentario = comentario;
-        this.puntuacion = puntuacion;
-        this.fecha = fecha;
-    }
+
+    private Instant fecha;
+
 }

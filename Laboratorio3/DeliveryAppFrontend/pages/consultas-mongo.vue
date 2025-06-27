@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
+  <div class="min-h-screen bg-gray-50 p-6 overflow-y-auto">
     <div class="max-w-7xl mx-auto"> 
       <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Consultas NoSQL</h1>
@@ -93,6 +93,128 @@
           <p class="mt-1 text-sm text-gray-500">Haz clic en "Actualizar Datos" para cargar la información.</p>
         </div>
       </div>
+
+      <!-- Opiniones con Demora o Error -->
+      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">
+            Opiniones con Demora o Error
+          </h2>
+          <button 
+            @click="fetchOpinionesDemoraError"
+            :disabled="loadingOpiniones"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <svg v-if="loadingOpiniones" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ loadingOpiniones ? 'Cargando...' : 'Actualizar Opiniones' }}
+          </button>
+        </div>
+
+        <div v-if="errorOpiniones" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div class="flex">
+            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <strong>Error:</strong> {{ errorOpiniones }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!loadingOpiniones && opinionesDemoraError.length > 0">
+          <div class="overflow-x-auto mb-8">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentario</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puntuación</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="op in opinionesDemoraError" :key="op.clienteId + op.empresaId + op.fecha" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.clienteId }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.empresaId }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.comentario }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.puntuacion }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.fechaFormateada }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.horaFormateada }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 text-sm text-gray-600">
+            Total opiniones: <span class="font-bold">{{ opinionesDemoraError.length }}</span>
+          </div>
+        </div>
+        <div v-else-if="!loadingOpiniones" class="text-center py-8 text-gray-500">
+          No hay opiniones con demora o error.
+        </div>
+      </div>
+
+      <!-- Opiniones agrupadas por hora -->
+      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">
+            Opiniones agrupadas por hora
+          </h2>
+          <button 
+            @click="fetchOpinionesPorHora"
+            :disabled="loadingPorHora"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <svg v-if="loadingPorHora" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ loadingPorHora ? 'Cargando...' : 'Actualizar' }}
+          </button>
+        </div>
+
+        <div v-if="errorPorHora" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div class="flex">
+            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <strong>Error:</strong> {{ errorPorHora }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!loadingPorHora && opinionesPorHora.length > 0">
+          <div class="overflow-x-auto mb-8">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Promedio Puntaje</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad Opiniones</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="op in opinionesPorHora" :key="op.hora" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.hora }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.promedio_puntaje }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ op.cantidad_opiniones }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 text-sm text-gray-600">
+            Total horas: <span class="font-bold">{{ opinionesPorHora.length }}</span>
+          </div>
+        </div>
+        <div v-else-if="!loadingPorHora" class="text-center py-8 text-gray-500">
+          No hay datos agrupados por hora.
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -110,6 +232,13 @@ const promedioData = ref([])
 const loading = ref(false)
 const error = ref(null)
 
+const opinionesDemoraError = ref([])
+const loadingOpiniones = ref(false)
+const errorOpiniones = ref(null)
+
+const opinionesPorHora = ref([])
+const loadingPorHora = ref(false)
+const errorPorHora = ref(null)
 
 const promedioGeneral = computed(() => {
   if (promedioData.value.length === 0) return 0
@@ -145,6 +274,74 @@ const fetchPromedioPuntuacion = async () => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+const fetchOpinionesDemoraError = async () => {
+  loadingOpiniones.value = true
+  errorOpiniones.value = null
+
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    errorOpiniones.value = 'Debes iniciar sesión para acceder a estos datos'
+    loadingOpiniones.value = false
+    return
+  }
+
+  try {
+    const response = await clienteAPI.get('/api/v1/sentenciasnosql/OpinionesConDemoraOError')
+    // Procesar para quitar id y separar fecha/hora
+    opinionesDemoraError.value = response.data.map(op => {
+      const fechaObj = new Date(op.fecha)
+      const fechaFormateada = fechaObj.toISOString().slice(0, 10)
+      const horaFormateada = fechaObj.toISOString().slice(11, 16)
+      return {
+        clienteId: op.clienteId,
+        empresaId: op.empresaId,
+        comentario: op.comentario,
+        puntuacion: op.puntuacion,
+        fechaFormateada,
+        horaFormateada
+      }
+    })
+  } catch (err) {
+    console.error('Error fetching opiniones:', err)
+    if (err.response?.status === 401) {
+      errorOpiniones.value = 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+    } else {
+      errorOpiniones.value = err.response?.data?.message || 'Error al cargar las opiniones'
+    }
+  } finally {
+    loadingOpiniones.value = false
+  }
+}
+
+const fetchOpinionesPorHora = async () => {
+  loadingPorHora.value = true
+  errorPorHora.value = null
+
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    errorPorHora.value = 'Debes iniciar sesión para acceder a estos datos'
+    loadingPorHora.value = false
+    return
+  }
+
+  try {
+    const response = await clienteAPI.get('/api/v1/sentenciasnosql/OpinionesAgrupadasPorHora')
+    // Ignorar _id y solo dejar hora, promedio_puntaje, cantidad_opiniones
+    opinionesPorHora.value = response.data.map(({ hora, promedio_puntaje, cantidad_opiniones }) => ({
+      hora, promedio_puntaje, cantidad_opiniones
+    }))
+  } catch (err) {
+    console.error('Error fetching opiniones por hora:', err)
+    if (err.response?.status === 401) {
+      errorPorHora.value = 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+    } else {
+      errorPorHora.value = err.response?.data?.message || 'Error al cargar los datos agrupados por hora'
+    }
+  } finally {
+    loadingPorHora.value = false
   }
 }
 
@@ -189,5 +386,7 @@ const getStars = (promedio) => {
 // Load data on component mount
 onMounted(() => {
   fetchPromedioPuntuacion()
+  fetchOpinionesDemoraError()
+  fetchOpinionesPorHora()
 })
 </script>

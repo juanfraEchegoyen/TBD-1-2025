@@ -1,0 +1,17 @@
+{
+  "opiniones_clientes": [
+    { "empresa_id": "80000000-1", "cliente_id": "10101010-0", "puntuacion": 5, "comentario": "Excelente servicio", "fecha": "2025-06-26T08:45:00Z" },
+    { "empresa_id": "80000000-2", "cliente_id": "11111111-1", "puntuacion": 2, "comentario": "Demora inesperada en la entrega", "fecha": "2025-06-26T10:20:00Z" },
+    { "empresa_id": "80000000-3", "cliente_id": "111111111-1", "puntuacion": 4, "comentario": "Llegó todo bien, pero tardó un poco", "fecha": "2025-06-26T12:00:00Z" },
+    { "empresa_id": "80000000-4", "cliente_id": "20811745-9", "puntuacion": 3, "comentario": "El producto era correcto pero hubo demora", "fecha": "2025-06-26T14:30:00Z" },
+    { "empresa_id": "80000000-5", "cliente_id": "22222222-2", "puntuacion": 1, "comentario": "ERROR en el pedido, producto incorrecto", "fecha": "2025-06-26T16:45:00Z" },
+    { "empresa_id": "80000000-1", "cliente_id": "33333333-3", "puntuacion": 5, "comentario": "Muy satisfecho, sin errores", "fecha": "2025-06-26T18:10:00Z" },
+    { "empresa_id": "80000000-2", "cliente_id": "44444444-4", "puntuacion": 2, "comentario": "Error en la dirección, debí llamar para corregir", "fecha": "2025-06-26T20:00:00Z" },
+    { "empresa_id": "80000000-3", "cliente_id": "55555555-5", "puntuacion": 3, "comentario": "Correcto pero lento, DEMORA habitual", "fecha": "2025-06-26T21:45:00Z" },
+    { "empresa_id": "80000000-4", "cliente_id": "66666666-6", "puntuacion": 4, "comentario": "Todo llegó bien", "fecha": "2025-06-26T23:30:00Z" },
+    { "empresa_id": "80000000-5", "cliente_id": "77777777-7", "puntuacion": 1, "comentario": "Demora, error y mala actitud del repartidor", "fecha": "2025-06-26T07:20:00Z" },
+    { "empresa_id": "80000000-1", "cliente_id": "88888888-8", "puntuacion": 5, "comentario": "Excelente atención nuevamente", "fecha": "2025-06-26T11:15:00Z" },
+    { "empresa_id": "80000000-2", "cliente_id": "99999999-9", "puntuacion": 3, "comentario": "Un poco de demora, pero aceptable", "fecha": "2025-06-26T13:55:00Z" }
+  ]
+}
+

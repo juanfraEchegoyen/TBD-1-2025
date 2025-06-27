@@ -1,5 +1,6 @@
 package com.app.DeliveryApp.controllers;
 
+import com.app.DeliveryApp.models.mongo.OpinionCliente;
 import com.app.DeliveryApp.services.SentenciasNOSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,4 +24,15 @@ public class SentenciasNOSQLController {
     public List<Map> getPromedioPuntuacionPorEmpresa() {
         return sentenciasNOSQLService.getPromedioPuntuacionPorEmpresa();
     }
+
+    @GetMapping("/OpinionesConDemoraOError")
+    public List<OpinionCliente> getOpinionesConDemoraOError() {
+        return sentenciasNOSQLService.getOpinionesConDemoraOError();
+    }
+
+    @GetMapping("/OpinionesAgrupadasPorHora")
+    public List<Map> getOpinionesAgrupadasPorHora() {
+        return sentenciasNOSQLService.getOpinionesAgrupadasPorHora();
+    }
+
 }
