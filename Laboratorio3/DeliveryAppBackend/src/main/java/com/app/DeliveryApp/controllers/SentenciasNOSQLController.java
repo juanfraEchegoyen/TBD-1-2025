@@ -23,4 +23,8 @@ public class SentenciasNOSQLController {
     public List<Map> getPromedioPuntuacionPorEmpresa() {
         return sentenciasNOSQLService.getPromedioPuntuacionPorEmpresa();
     }
+    @GetMapping("/pedidos-cambios-rapidos")
+    public List<Map<String, Object>> getPedidosConMasDe3CambiosEn10Min() {
+        return sentenciasNOSQLService.getPedidosConMasDe3CambiosEn10Min();
+    }
 }
