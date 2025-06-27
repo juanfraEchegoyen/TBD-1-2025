@@ -19,6 +19,7 @@ public class SentenciasNOSQLController {
 
     @Autowired
     private SentenciasNOSQLService sentenciasNOSQLService;
+
     //consulta 1
     @GetMapping("/promedio-por-empresa")
     public List<Map> getPromedioPuntuacionPorEmpresa() {
@@ -34,6 +35,12 @@ public class SentenciasNOSQLController {
     @GetMapping("/pedidos-cambios-rapidos")
     public List<Map<String, Object>> getPedidosConMasDe3CambiosEn10Min() {
         return sentenciasNOSQLService.getPedidosConMasDe3CambiosEn10Min();
+    }
+
+    //consulta 5
+    @GetMapping("/clientes-sin-evento-compra")
+    public List<String> getClienteIdsSinEventoCompra(){
+        return sentenciasNOSQLService.getClienteIdsSinEventoCompra();
     }
 
     //consulta 6
