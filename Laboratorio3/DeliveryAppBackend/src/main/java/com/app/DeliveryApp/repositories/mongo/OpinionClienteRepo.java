@@ -37,11 +37,13 @@ public class OpinionClienteRepo {
         return results.getMappedResults();
     }
 
+    //consulta 2
     public List<OpinionCliente> getOpinionesConDemoraOError() {
         Query query = new Query(Criteria.where("comentario").regex("demora|error", "i"));
         return mongoTemplate.find(query, OpinionCliente.class, "opiniones_clientes");
     }
 
+    //consulta 6
     public List<Map> getOpinionesAgrupadasPorHora() {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.project("puntuacion")

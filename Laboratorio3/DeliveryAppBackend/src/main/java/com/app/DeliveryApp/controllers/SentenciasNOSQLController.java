@@ -25,11 +25,13 @@ public class SentenciasNOSQLController {
         return sentenciasNOSQLService.getPromedioPuntuacionPorEmpresa();
     }
 
+    //consulta 2
     @GetMapping("/OpinionesConDemoraOError")
     public List<OpinionCliente> getOpinionesConDemoraOError() {
         return sentenciasNOSQLService.getOpinionesConDemoraOError();
     }
 
+    //consulta 6
     @GetMapping("/OpinionesAgrupadasPorHora")
     public List<Map> getOpinionesAgrupadasPorHora() {
         return sentenciasNOSQLService.getOpinionesAgrupadasPorHora();
