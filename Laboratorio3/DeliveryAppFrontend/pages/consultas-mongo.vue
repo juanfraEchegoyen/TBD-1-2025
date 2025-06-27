@@ -215,6 +215,86 @@
           No hay datos agrupados por hora.
         </div>
       </div>
+      <!-- Clientes que no han comprado -->
+      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">
+            Clientes sin Eventos de Compra
+          </h2>
+          <button 
+            @click="fetchClientesSinCompra"
+            :disabled="loadingClientesSinCompra"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <svg v-if="loadingClientesSinCompra" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ loadingClientesSinCompra ? 'Cargando...' : 'Actualizar Clientes' }}
+          </button>
+        </div>
+
+        <div v-if="errorClientesSinCompra" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div class="flex">
+            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <strong>Error:</strong> {{ errorClientesSinCompra }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!loadingClientesSinCompra && clientesSinCompra.length > 0">
+          <!-- Lista de clientes en formato de tarjetas -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+            <div 
+              v-for="clienteId in clientesSinCompra" 
+              :key="clienteId" 
+              class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-red-900">Cliente</span>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Sin compras
+                </span>
+              </div>
+              <div class="mt-2">
+                <p class="text-sm font-mono text-red-700 break-all">{{ clienteId }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen estadísticas -->
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+              <div class="text-red-600 text-sm font-medium">Total Clientes Sin Compras</div>
+              <div class="text-2xl font-bold text-red-900">{{ clientesSinCompra.length }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="!loadingClientesSinCompra && clientesSinCompra.length === 0 && clientesSinCompraBuscado" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-green-900">¡Excelente!</h3>
+          <p class="mt-1 text-sm text-green-600">Todos los clientes han realizado al menos una compra.</p>
+        </div>
+
+        <div v-else-if="!loadingClientesSinCompra && !clientesSinCompraBuscado" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Buscar Clientes Inactivos</h3>
+          <p class="mt-1 text-sm text-gray-500">Haz clic en "Buscar Clientes" para encontrar usuarios que no han realizado compras.</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -239,6 +319,11 @@ const errorOpiniones = ref(null)
 const opinionesPorHora = ref([])
 const loadingPorHora = ref(false)
 const errorPorHora = ref(null)
+
+const clientesSinCompra = ref([])
+const loadingClientesSinCompra = ref(false)
+const errorClientesSinCompra = ref(null)
+const clientesSinCompraBuscado = ref(false)
 
 const promedioGeneral = computed(() => {
   if (promedioData.value.length === 0) return 0
@@ -345,6 +430,33 @@ const fetchOpinionesPorHora = async () => {
   }
 }
 
+const fetchClientesSinCompra = async () => {
+  loadingClientesSinCompra.value = true
+  errorClientesSinCompra.value = null
+
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    errorClientesSinCompra.value = 'Debes iniciar sesión para acceder a estos datos'
+    loadingClientesSinCompra.value = false
+    return
+  }
+
+  try {
+    const response = await clienteAPI.get('/api/v1/sentenciasnosql/clientes-sin-evento-compra')
+    clientesSinCompra.value = response.data || []
+    clientesSinCompraBuscado.value = true
+  } catch (err) {
+    console.error('Error fetching clientes sin compra:', err)
+    if (err.response?.status === 401) {
+      errorClientesSinCompra.value = 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+    } else {
+      errorClientesSinCompra.value = err.response?.data?.message || 'Error al cargar los clientes sin compras'
+    }
+  } finally {
+    loadingClientesSinCompra.value = false
+  }
+}
+
 const formatPromedio = (promedio) => {
   return Number(promedio).toFixed(2)
 }
@@ -388,5 +500,6 @@ onMounted(() => {
   fetchPromedioPuntuacion()
   fetchOpinionesDemoraError()
   fetchOpinionesPorHora()
+  fetchClientesSinCompra()
 })
 </script>
