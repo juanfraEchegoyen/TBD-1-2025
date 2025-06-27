@@ -158,6 +158,70 @@
         </div>
       </div>
 
+      <!-- Pedidos con Cambios Rápidos -->
+      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">
+            Pedidos con Más de 3 Cambios de Estado en Menos de 10 Minutos
+          </h2>
+          <button 
+            @click="fetchPedidosCambiosRapidos"
+            :disabled="loadingPedidosCambios"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <svg v-if="loadingPedidosCambios" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ loadingPedidosCambios ? 'Cargando...' : 'Actualizar Pedidos' }}
+          </button>
+        </div>
+
+        <div v-if="errorPedidosCambios" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div class="flex">
+            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <strong>Error:</strong> {{ errorPedidosCambios }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!loadingPedidosCambios && pedidosCambiosRapidos.length > 0">
+          <div class="overflow-x-auto mb-8">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cambios</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="pedido in pedidosCambiosRapidos" :key="pedido.pedido_id" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ pedido.pedido_id }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pedido.fecha }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pedido.hora }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      {{ pedido.historial_estados.length }} cambios
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 text-sm text-gray-600">
+            Total pedidos con cambios rápidos: <span class="font-bold">{{ pedidosCambiosRapidos.length }}</span>
+          </div>
+        </div>
+        <div v-else-if="!loadingPedidosCambios" class="text-center py-8 text-gray-500">
+          No hay pedidos con más de 3 cambios de estado en menos de 10 minutos.
+        </div>
+      </div>
+
       <!-- Opiniones agrupadas por hora -->
       <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
@@ -325,6 +389,10 @@ const loadingClientesSinCompra = ref(false)
 const errorClientesSinCompra = ref(null)
 const clientesSinCompraBuscado = ref(false)
 
+const pedidosCambiosRapidos = ref([])
+const loadingPedidosCambios = ref(false)
+const errorPedidosCambios = ref(null)
+
 const promedioGeneral = computed(() => {
   if (promedioData.value.length === 0) return 0
   const suma = promedioData.value.reduce((acc, empresa) => acc + empresa.promedio_puntuacion, 0)
@@ -398,6 +466,54 @@ const fetchOpinionesDemoraError = async () => {
     }
   } finally {
     loadingOpiniones.value = false
+  }
+}
+
+const fetchPedidosCambiosRapidos = async () => {
+  loadingPedidosCambios.value = true
+  errorPedidosCambios.value = null
+
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    errorPedidosCambios.value = 'Debes iniciar sesión para acceder a estos datos'
+    loadingPedidosCambios.value = false
+    return
+  }
+
+  try {
+    console.log('Llamando a /api/v1/sentenciasnosql/pedidos-cambios-rapidos')
+    const response = await clienteAPI.get('/api/v1/sentenciasnosql/pedidos-cambios-rapidos')
+    console.log('Respuesta recibida:', response.data)
+    
+    // Procesar para extraer fecha y hora del primer timestamp
+    pedidosCambiosRapidos.value = response.data.map(pedido => {
+      const primerTimestamp = pedido.historial_estados[0]?.timestamp
+      if (primerTimestamp) {
+        const fecha = new Date(primerTimestamp)
+        return {
+          pedido_id: pedido.pedido_id,
+          historial_estados: pedido.historial_estados,
+          fecha: fecha.toISOString().slice(0, 10), // YYYY-MM-DD
+          hora: fecha.toISOString().slice(11, 16)  // HH:MM
+        }
+      }
+      return {
+        pedido_id: pedido.pedido_id,
+        historial_estados: pedido.historial_estados,
+        fecha: 'N/A',
+        hora: 'N/A'
+      }
+    })
+    console.log('Datos procesados:', pedidosCambiosRapidos.value)
+  } catch (err) {
+    console.error('Error fetching pedidos cambios rapidos:', err)
+    if (err.response?.status === 401) {
+      errorPedidosCambios.value = 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+    } else {
+      errorPedidosCambios.value = err.response?.data?.message || 'Error al cargar los pedidos con cambios rápidos'
+    }
+  } finally {
+    loadingPedidosCambios.value = false
   }
 }
 
@@ -501,5 +617,6 @@ onMounted(() => {
   fetchOpinionesDemoraError()
   fetchOpinionesPorHora()
   fetchClientesSinCompra()
+  fetchPedidosCambiosRapidos()
 })
 </script>

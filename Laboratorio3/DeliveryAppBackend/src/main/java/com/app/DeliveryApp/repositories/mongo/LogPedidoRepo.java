@@ -14,7 +14,7 @@ public class LogPedidoRepo {
     @Autowired
     private MongoTemplate mongoTemplate;
     public List<Map<String, Object>> findPedidosConMasDe3CambiosEn10Min() {
-        List<Map> pedidos = mongoTemplate.findAll(Map.class, "log_pedidos");
+        List<Map> pedidos = mongoTemplate.findAll(Map.class, "logs_pedidos");
         List<Map<String, Object>> result = new java.util.ArrayList<>();
         for (Map pedido : pedidos) {
             List<Map> historial = (List<Map>) pedido.get("historial_estados");
