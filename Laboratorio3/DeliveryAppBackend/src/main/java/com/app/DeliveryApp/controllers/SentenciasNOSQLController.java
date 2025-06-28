@@ -3,10 +3,6 @@ package com.app.DeliveryApp.controllers;
 import com.app.DeliveryApp.models.mongo.OpinionCliente;
 import com.app.DeliveryApp.services.SentenciasNOSQLService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,10 +27,33 @@ public class SentenciasNOSQLController {
     public List<OpinionCliente> getOpinionesConDemoraOError() {
         return sentenciasNOSQLService.getOpinionesConDemoraOError();
     }
+
     //consulta 3
     @GetMapping("/pedidos-cambios-rapidos")
     public List<Map<String, Object>> getPedidosConMasDe3CambiosEn10Min() {
         return sentenciasNOSQLService.getPedidosConMasDe3CambiosEn10Min();
+    }
+
+    //consulta 4
+    @GetMapping("/rutas-frecuentes-ultimos-7-dias")
+    public List<Map> getRutasFrecuentesUltimos7Dias() {
+        return sentenciasNOSQLService.getRutasFrecuentesUltimos7Dias();
+    }
+
+    @GetMapping("/rutas-por-repartidor/{repartidorId}")
+    public List<Map> getRutasPorRepartidor(@PathVariable String repartidorId) {
+        return sentenciasNOSQLService.getRutasPorRepartidor(repartidorId);
+    }
+
+    // Endpoints adicionales para debug
+    @GetMapping("/debug/todas-las-rutas")
+    public List<Map> getAllRutasForDebug() {
+        return sentenciasNOSQLService.getAllRutasForDebug();
+    }
+
+    @GetMapping("/debug/rutas-sin-filtro-fecha")
+    public List<Map> getRutasSinFiltroFecha() {
+        return sentenciasNOSQLService.getRutasSinFiltroFecha();
     }
 
     //consulta 5
@@ -48,5 +67,4 @@ public class SentenciasNOSQLController {
     public List<Map> getOpinionesAgrupadasPorHora() {
         return sentenciasNOSQLService.getOpinionesAgrupadasPorHora();
     }
-
 }
