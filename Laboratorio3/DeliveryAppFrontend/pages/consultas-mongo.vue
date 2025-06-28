@@ -226,7 +226,7 @@
       <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-semibold text-gray-800">
-            Zonas Más Frecuentes de Repartidores (Últimos 7 días)
+            Rutas Más Frecuentes de Repartidores (Últimos 7 días)
           </h2>
           <div class="flex gap-2">
             <button 
@@ -280,15 +280,15 @@
                     class="hover:bg-gray-50"
                   >
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {{ zona.nombreZona || `Zona ${zona.latitudZona.toFixed(3)}, ${zona.longitudZona.toFixed(3)}` }}
+                      {{ zona.nombreZona || `Zona ${zona.latitudZona.toFixed(5)}, ${zona.longitudZona.toFixed(5)}` }}
                       <div v-if="index < 3" class="text-xs text-yellow-600 font-semibold">
                         🏆 Top {{ index + 1 }}
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div class="text-xs text-gray-600">
-                        <div>{{ zona.latitudZona.toFixed(3) }}</div>
-                        <div>{{ zona.longitudZona.toFixed(3) }}</div>
+                        <div>{{ zona.latitudZona.toFixed(5) }}</div>
+                        <div>{{ zona.longitudZona.toFixed(5) }}</div>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -780,11 +780,11 @@ const getZonaName = async (lat, lng) => {
     if (address.city) return address.city
     
     // Fallback a coordenadas si no se encuentra nombre
-    return `Zona ${lat.toFixed(3)}, ${lng.toFixed(3)}`
+    return `Zona ${lat.toFixed(5)}, ${lng.toFixed(5)}`
   } catch (error) {
     console.error('Error obteniendo nombre de zona:', error)
     // Fallback en caso de error
-    return `Zona ${lat.toFixed(3)}, ${lng.toFixed(3)}`
+    return `Zona ${lat.toFixed(5)}, ${lng.toFixed(5)}`
   }
 }
 
@@ -792,7 +792,7 @@ const getZonaName = async (lat, lng) => {
 const zonaNamesCache = ref(new Map())
 
 const getZonaNameCached = async (lat, lng) => {
-  const key = `${lat.toFixed(3)},${lng.toFixed(3)}`
+  const key = `${lat.toFixed(5)},${lng.toFixed(5)}`
   
   if (zonaNamesCache.value.has(key)) {
     return zonaNamesCache.value.get(key)

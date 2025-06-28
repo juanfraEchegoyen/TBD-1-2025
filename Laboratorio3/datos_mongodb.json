@@ -226,13 +226,13 @@
       "repartidor_id": "R001",
       "rutas": [
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-28T09:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-28T09:15:00Z"
         },
         {
@@ -241,23 +241,23 @@
           "timestamp": "2025-06-28T09:30:00Z"
         },
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-27T14:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-27T15:00:00Z"
         },
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-26T10:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-25T11:00:00Z"
         }
       ]
@@ -266,8 +266,8 @@
       "repartidor_id": "R002",
       "rutas": [
         {
-          "latitud": -33.4150,
-          "longitud": -70.6000,
+          "latitud": -33.417566,
+          "longitud": -70.599732,
           "timestamp": "2025-06-28T10:00:00Z"
         },
         {
@@ -281,8 +281,8 @@
           "timestamp": "2025-06-28T10:40:00Z"
         },
         {
-          "latitud": -33.4150,
-          "longitud": -70.6000,
+          "latitud": -33.417566,
+          "longitud": -70.599732,
           "timestamp": "2025-06-27T22:00:00Z"
         },
         {
@@ -291,8 +291,8 @@
           "timestamp": "2025-06-27T23:00:00Z"
         },
         {
-          "latitud": -33.4150,
-          "longitud": -70.6000,
+          "latitud": -33.417566,
+          "longitud": -70.599732,
           "timestamp": "2025-06-26T08:00:00Z"
         },
         {
@@ -346,38 +346,38 @@
       "repartidor_id": "R004",
       "rutas": [
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-28T16:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-28T16:15:00Z"
         },
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-27T09:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-26T09:15:00Z"
         },
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-25T18:00:00Z"
         },
         {
-          "latitud": -33.4500,
-          "longitud": -70.6700,
+          "latitud": -33.449373,
+          "longitud": -70.672822,
           "timestamp": "2025-06-24T19:00:00Z"
         },
         {
-          "latitud": -33.4489,
-          "longitud": -70.6693,
+          "latitud": -33.448408,
+          "longitud": -70.669439,
           "timestamp": "2025-06-23T20:00:00Z"
         }
       ]

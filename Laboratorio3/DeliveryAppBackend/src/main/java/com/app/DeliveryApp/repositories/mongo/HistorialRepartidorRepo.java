@@ -25,26 +25,23 @@ public class HistorialRepartidorRepo {
     public List<Map> getRutasFrecuentesUltimos7Dias() {
         LocalDateTime fechaLimite = LocalDateTime.now().minusDays(7);
         String fechaLimiteStr = fechaLimite.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-        
+
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.unwind("rutas"),                
+                Aggregation.unwind("rutas"),
                 Aggregation.project("repartidor_id")
                         .and("rutas.timestamp").as("timestamp")
-                        .andExpression("floor(rutas.latitud * 1000) / 1000").as("zona_lat")
-                        .andExpression("floor(rutas.longitud * 1000) / 1000").as("zona_lng"),
-                
-                Aggregation.match(Criteria.where("timestamp").gte(fechaLimiteStr)),                
+                        .and("rutas.latitud").as("zona_lat")
+                        .and("rutas.longitud").as("zona_lng"),
+                Aggregation.match(Criteria.where("timestamp").gte(fechaLimiteStr)),
                 Aggregation.group("zona_lat", "zona_lng")
                         .addToSet("repartidor_id").as("repartidores_unicos")
                         .count().as("total_visitas"),
-                
                 Aggregation.project()
                         .and("_id.zona_lat").as("latitudZona")
-                        .and("_id.zona_lng").as("longitudZona")     
-                        .and("total_visitas").as("visitasFrecuentes") 
+                        .and("_id.zona_lng").as("longitudZona")
+                        .and("total_visitas").as("visitasFrecuentes")
                         .andExpression("size(repartidores_unicos)").as("cantidadRepartidores").andExclude("_id"),
-                
-                Aggregation.match(Criteria.where("cantidadRepartidores").gte(2)),                
+                Aggregation.match(Criteria.where("cantidadRepartidores").gte(2)),
                 Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "visitasFrecuentes", "cantidadRepartidores"),
                 Aggregation.limit(10)
         );
@@ -53,30 +50,28 @@ public class HistorialRepartidorRepo {
         return results.getMappedResults();
     }
 
+
     /**
      * Consulta 4 alternativa: Para análisis por repartidor específico
      */
     public List<Map> getRutasPorRepartidor(String repartidorId) {
         LocalDateTime fechaLimite = LocalDateTime.now().minusDays(7);
         String fechaLimiteStr = fechaLimite.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-    
+
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("repartidor_id").is(repartidorId)),                
-                Aggregation.unwind("rutas"),                
-                Aggregation.match(Criteria.where("rutas.timestamp").gte(fechaLimiteStr)),                
+                Aggregation.match(Criteria.where("repartidor_id").is(repartidorId)),
+                Aggregation.unwind("rutas"),
+                Aggregation.match(Criteria.where("rutas.timestamp").gte(fechaLimiteStr)),
                 Aggregation.project()
                         .and("repartidor_id").as("repartidorId")
-                        .and("rutas.latitud").as("latitud")
-                        .and("rutas.longitud").as("longitud")
-                        .and("rutas.timestamp").as("timestamp")
-                        .andExpression("floor(rutas.latitud * 1000) / 1000").as("latitudZona")
-                        .andExpression("floor(rutas.longitud * 1000) / 1000").as("longitudZona"),
+                        .and("rutas.latitud").as("latitudZona")
+                        .and("rutas.longitud").as("longitudZona")
+                        .and("rutas.timestamp").as("timestamp"),
                 Aggregation.group("latitudZona", "longitudZona")
                         .first("repartidorId").as("repartidorId")
                         .first("latitudZona").as("latitudZona")
                         .first("longitudZona").as("longitudZona")
                         .count().as("visitasFrecuentes"),
-                
                 Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "visitasFrecuentes")
         );
 
