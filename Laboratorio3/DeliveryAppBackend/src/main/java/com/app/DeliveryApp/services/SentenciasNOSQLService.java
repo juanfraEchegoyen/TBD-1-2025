@@ -69,12 +69,7 @@ public class SentenciasNOSQLService {
         return historialRepartidorRepo.getAllRutasForDebug();
     }
 
-    /**
-     * Consulta sin filtro de fecha para testing
-     */
-    public List<Map> getRutasSinFiltroFecha() {
-        return historialRepartidorRepo.getRutasSinFiltroFecha();
-    }
+
 
     /**
      * Consulta 5: Detecta clientes que realizaron búsquedas sin concretar pedidos

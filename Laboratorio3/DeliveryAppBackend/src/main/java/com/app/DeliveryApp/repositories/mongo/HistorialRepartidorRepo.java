@@ -20,7 +20,7 @@ public class HistorialRepartidorRepo {
 
     /**
      * Consulta 4: Analiza las zonas más frecuentes por cantidad de repartidores únicos
-     * Retorna: zona_lat, zona_lng, cantidad_repartidores, total_visitas, repartidores_unicos
+     * Retorna: zona_lat, zona_lng, cantidad_repartidores, total_visitas (SIN repartidores_unicos)
      */
     public List<Map> getRutasFrecuentesUltimos7Dias() {
         LocalDateTime fechaLimite = LocalDateTime.now().minusDays(7);
@@ -39,12 +39,13 @@ public class HistorialRepartidorRepo {
                         .count().as("total_visitas"),
                 
                 Aggregation.project()
+                        .and("_id.zona_lat").as("latitudZona")
+                        .and("_id.zona_lng").as("longitudZona")     
                         .and("total_visitas").as("visitasFrecuentes") 
-                        .and("repartidores_unicos").as("repartidoresUnicos")
-                        .andExpression("size(repartidores_unicos)").as("cantidadRepartidores"),
+                        .andExpression("size(repartidores_unicos)").as("cantidadRepartidores").andExclude("_id"),
                 
                 Aggregation.match(Criteria.where("cantidadRepartidores").gte(2)),                
-                Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "cantidadRepartidores"),
+                Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "visitasFrecuentes", "cantidadRepartidores"),
                 Aggregation.limit(10)
         );
 
@@ -101,37 +102,5 @@ public class HistorialRepartidorRepo {
         return results.getMappedResults();
     }
 
-    /**
-     * Consulta 4 sin filtro de fecha (para testing)
-     */
-    public List<Map> getRutasSinFiltroFecha() {
-        Aggregation agg = Aggregation.newAggregation(
-                Aggregation.unwind("rutas"),               
-                Aggregation.project("repartidor_id")
-                        .and("rutas.timestamp").as("timestamp")
-                        .andExpression("floor(rutas.latitud * 1000) / 1000").as("zona_lat")
-                        .andExpression("floor(rutas.longitud * 1000) / 1000").as("zona_lng"),
-                
-                Aggregation.group("zona_lat", "zona_lng")
-                        .addToSet("repartidor_id").as("repartidores_unicos")
-                        .count().as("total_visitas"),
-                
-                Aggregation.project()
-                        .and("_id.zona_lat").as("latitudZona")
-                        .and("_id.zona_lng").as("longitudZona")
-                        .and("total_visitas").as("visitasFrecuentes")
-                        .and("repartidores_unicos").as("repartidoresUnicos")
-                        .andExpression("size(repartidores_unicos)").as("cantidadRepartidores"),
-                
-                // Paso 5: Filtrar zonas frecuentes
-                Aggregation.match(Criteria.where("cantidadRepartidores").gte(1)), // Más permisivo para testing
-                
-                // Paso 6: Ordenar
-                Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "cantidadRepartidores"),
-                Aggregation.limit(20)
-        );
-
-        AggregationResults<Map> results = mongoTemplate.aggregate(agg, "historial_repartidores", Map.class);
-        return results.getMappedResults();
-    }
+    
 }

@@ -51,10 +51,6 @@ public class SentenciasNOSQLController {
         return sentenciasNOSQLService.getAllRutasForDebug();
     }
 
-    @GetMapping("/debug/rutas-sin-filtro-fecha")
-    public List<Map> getRutasSinFiltroFecha() {
-        return sentenciasNOSQLService.getRutasSinFiltroFecha();
-    }
 
     //consulta 5
     @GetMapping("/clientes-sin-evento-compra")
